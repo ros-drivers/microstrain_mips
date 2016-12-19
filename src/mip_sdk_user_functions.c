@@ -348,8 +348,15 @@ u16 mip_sdk_port_open(void **port_handle, const char *portstr, int baudrate)
 
 u16 mip_sdk_port_close(void *port_handle)
 {
- //User must replace this code
- return MIP_USER_FUNCTION_ERROR; 
+ int local_port_handle = *((int *)port_handle);
+ 
+ if(port_handle == NULL)
+  return MIP_USER_FUNCTION_ERROR;
+ 
+ //Close the serial port
+ close(local_port_handle);
+ 
+ return MIP_USER_FUNCTION_OK; 
 }
 
 
@@ -382,8 +389,19 @@ u16 mip_sdk_port_close(void *port_handle)
 
 u16 mip_sdk_port_write(void *port_handle, u8 *buffer, u32 num_bytes, u32 *bytes_written, u32 timeout_ms)
 {
- //User must replace this code
- return MIP_USER_FUNCTION_ERROR;
+ int local_port_handle = *((int *)port_handle);
+ static char print_once = 0;
+
+ int local_bytes_written = write(local_port_handle, buffer, num_bytes); 
+
+ if(local_bytes_written == -1)
+  return MIP_USER_FUNCTION_ERROR;
+
+ *bytes_written = local_bytes_written;
+ if(*bytes_written == num_bytes)
+  return MIP_USER_FUNCTION_OK;
+ else
+  return MIP_USER_FUNCTION_ERROR;
 }
 
 
@@ -416,8 +434,15 @@ u16 mip_sdk_port_write(void *port_handle, u8 *buffer, u32 num_bytes, u32 *bytes_
 
 u16 mip_sdk_port_read(void *port_handle, u8 *buffer, u32 num_bytes, u32 *bytes_read, u32 timeout_ms)
 {
- //User must replace this code
- return MIP_USER_FUNCTION_ERROR;
+ int local_port_handle = *((int *)port_handle);
+
+ int local_bytes_read = read(local_port_handle, buffer, num_bytes);
+
+ *bytes_read = local_bytes_read;
+ if(*bytes_read == num_bytes)
+  return MIP_USER_FUNCTION_OK;
+ else
+  return MIP_USER_FUNCTION_ERROR;
 }
 
 
@@ -446,8 +471,11 @@ u16 mip_sdk_port_read(void *port_handle, u8 *buffer, u32 num_bytes, u32 *bytes_r
 
 u32 mip_sdk_port_read_count(void *port_handle)
 {
- //User must replace this code
- return 0;
+ int local_port_handle = *((int *)port_handle);
+
+ int bytes_available;
+ ioctl(local_port_handle, FIONREAD, &bytes_available);
+ return (u32)bytes_available;
 }
 
 
@@ -480,6 +508,12 @@ u32 mip_sdk_port_read_count(void *port_handle)
 
 u32 mip_sdk_get_time_ms()
 {
- //User must replace this code
- return 0; 
+
+ struct timespec ts;                                                            
+                                                                                
+ if(clock_gettime(CLOCK_MONOTONIC,&ts) != 0) {                                  
+  return -1;                                                                    
+ }                                                                              
+                                                                                
+ return (u32)(ts.tv_sec* 1000ll + ((ts.tv_nsec / 1000000)));
 }
