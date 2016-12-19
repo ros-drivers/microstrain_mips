@@ -6,6 +6,7 @@ project(microstrain_3dm_gx5_45)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  #serial
 )
 
 ## System dependencies are found with CMake's conventions
@@ -117,9 +118,14 @@ set(MIPLIBSRC MIPSDK/C/Library/Source)
 set(MIPUTILINC MIPSDK/C/Utilities/Include)
 set(MIPUTILSRC MIPSDK/C/Utilities/Source)
 
+# The SDK comes with a skeleton for the user-defined functions
+# It might be helpful to test compilation against these skeletons
 # contains both .c and .h files
-set(MIPUSR "MIPSDK/C/Library/User\ Functions")
-include_directories(include ${MIPLIBINC} ${MIPUTILINC} ${MIPUSR})
+# set(MIPUSR "MIPSDK/C/Library/User\ Functions")
+#include_directories(include ${MIPLIBINC} ${MIPUTILINC} ${MIPUSR})
+include_directories(include ${MIPLIBINC} ${MIPUTILINC})
+# Include the ROS serial headers
+#include_directories(${serial_INCLUDE_DIRS})
 
 set(MIPINC
   ${MIPLIBINC}/mip.h
@@ -131,7 +137,7 @@ set(MIPINC
   ${MIPLIBINC}/mip_sdk_ahrs.h  
   ${MIPLIBINC}/mip_sdk_gps.h     
   ${MIPLIBINC}/ring_buffer.h
-  ${MIPUSR}/mip_sdk_user_functions.h
+#  ${MIPUSR}/mip_sdk_user_functions.h
   ${MIPUTILINC}/byteswap_utilities.h
 )
 
@@ -145,14 +151,14 @@ set(MIPSRC
   ${MIPLIBSRC}/mip_sdk_ahrs.c  
   ${MIPLIBSRC}/mip_sdk_gps.c     
   ${MIPLIBSRC}/ring_buffer.c
-  ${MIPUSR}/mip_sdk_user_functions.c  
+#  ${MIPUSR}/mip_sdk_user_functions.c  
   ${MIPUTILSRC}/byteswap_utilities.c
 )
 
 
-#include_directories(
-#  ${catkin_INCLUDE_DIRS}
-#)
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+)
 
 ## Declare a C++ library
 # add_library(microstrain_3dm_gx5_45
@@ -166,9 +172,14 @@ set(MIPSRC
 
 ## Declare a C++ executable
 # add_executable(microstrain_3dm_gx5_45_node src/microstrain_3dm_gx5_45_node.cpp)
-add_executable(GX4-45_Test_node src/GX4-45_Test.c
- ${MIPSRC} 
+add_executable(GX4-45_Test_node 
+  src/GX4-45_Test.c
+  src/mip_sdk_user_functions.c
+  ${MIPSRC} 
 )
+
+#target_link_libraries(GX4-45_Test_node ${serial_LIBRARIES} rt pthread)
+
 #${MIPINC}
 ## Add cmake target dependencies of the executable
 ## same as for the library above
