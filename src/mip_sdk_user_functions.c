@@ -1,72 +1,325 @@
-/////////////////////////////////////////////////////////////////////////////
-//
-//! @file    mip_sdk_user_functions.c 
-//! @author  Nathan Miller
-//! @version 1.1
-//
-//! @description Target-Specific Functions Required by the MIP SDK
-//
-// External dependencies:
-//
-//  mip.h
-// 
-//!@copyright 2014 Lord Microstrain Sensing Systems. 
-//
-//!@section CHANGES
-//! 
-//
-//!@section LICENSE
-//!
-//! THE PRESENT SOFTWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING 
-//! CUSTOMERS WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER 
-//! FOR THEM TO SAVE TIME. AS A RESULT, LORD MICROSTRAIN SENSING SYSTEMS
-//! SHALL NOT BE HELD LIABLE FOR ANY DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES 
-//! WITH RESPECT TO ANY CLAIMS ARISING FROM THE CONTENT OF SUCH SOFTWARE AND/OR 
-//! THE USE MADE BY CUSTOMERS OF THE CODING INFORMATION CONTAINED HEREIN IN CONNECTION 
-//! WITH THEIR PRODUCTS.
-//
-/////////////////////////////////////////////////////////////////////////////
+/**
+ * @file    my_user_functions.c 
+ * @author  Brian S. Bingham
+ * @version 0.1
+ *
+ * @brief Target(Linux)-Specific Functions Required by the MIP SDK
+ *
+ * Implementation of mip_sdk_user_functions.c prototypes for Linux
+ *
+ * External dependencies:
+ * mip.h
+ * 
+ */
 
-////////////////////////////////////////////////////////////////////////////////
-//
-//Include Files
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
+/* -- Includes -- */
 #include "mip_sdk_user_functions.h"
-//#include <windows.h>
 
 
-/////////////////////////////////////////////////////////////////////////////
-//
-//! @fn
-//! u16 mip_sdk_port_open(void *port_handle, int port_num, int baudrate)
-//
-//! @section DESCRIPTION
-//! Target-Specific communications port open. 
-//
-//! @section DETAILS
-//!
-//! @param [out] void *port_handle - target-specific port handle pointer (user needs to allocate memory for this)
-//! @param [in] int port_num       - port number (as recognized by the operating system.)
-//! @param [in] int baudrate       - baudrate of the com port.
-//
-//! @retval MIP_USER_FUNCTION_ERROR  When there is a problem opening the port.\n
-//! @retval MIP_USER_FUNCTION_OK     The open was successful.\n
-//
-//! @section NOTES
-//! 
-//! The user should copy the \c mip_sdk_user_functions.c file to their project directory and\n
-//! edit it as needed to support their target operating system.
-//!
-//
-/////////////////////////////////////////////////////////////////////////////
+/**
+ *
+ * @fn
+ * u16 purge(ComPortHandle comPortHandle)
+ *
+ * @section DESCRIPTION
+ * Target-Specific communications port purge. 
+ *
+ * @section DETAILS
+ *
+ * @param [in] int comPortHandle  - port number (as recognized by the 
+ *                                                          operating system.)
+ *
+ * @retval MIP_USER_FUNCTION_ERROR  When there is a problem purging the 
+ *                                                                     port.\n
+ * @retval MIP_USER_FUNCTION_OK     Purge was successful.\n
+ *
+ */
 
-u16 mip_sdk_port_open(void **port_handle, int port_num, int baudrate)
+u16 purge(ComPortHandle comPortHandle){
+
+ if (tcflush(comPortHandle,TCIOFLUSH)==-1){
+
+  printf("flush failed\n");
+  return MIP_USER_FUNCTION_ERROR;
+
+ }
+
+ return MIP_USER_FUNCTION_OK;
+
+}
+
+/**
+ * @fn
+ * u16 mip_sdk_port_open(void *port_handle, int port_num, int baudrate)
+ *
+ * @section DESCRIPTION
+ * Target-Specific communications port open. 
+ *
+ * @section DETAILS
+ *
+ * @param [out] void *port_handle - target-specific port handle pointer (user needs to allocate memory for this)
+ * @param [in] string port_num       - port number (as recognized by the operating system.)
+ * @param [in] int baudrate       - baudrate of the com port.
+ *
+ * @retval MIP_USER_FUNCTION_ERROR  When there is a problem opening the port.\n
+ * @retval MIP_USER_FUNCTION_OK     The open was successful.\n
+ */
+
+u16 mip_sdk_port_open(void **port_handle, const char *portstr, int baudrate)
 {
- //User must replace this code
- return MIP_USER_FUNCTION_ERROR; 
+ char port_name[100]  = {0};
+ static ComPortHandle local_port_handle;
+ int hardware_bit_baud, status;
+ struct termios options;
+
+ // Copy portstr argument to port_name
+ strcat(port_name,portstr);
+ printf("Attempting to open port: %s\n",port_name);
+ //Attempt to open the specified port
+ local_port_handle = open(port_name, O_RDWR | O_NOCTTY);
+
+ //Check for an invalid handle
+ if(local_port_handle == -1)
+ {
+   printf("Unable to open com Port %s\n Errno = %i\n", port_name, errno);
+
+  return MIP_USER_FUNCTION_ERROR;
+ }
+ printf("Port: %s opened successfully.\n",port_name);
+ 
+ //Convert specified baud to hardware specific value
+ switch (baudrate)
+ {
+ case 0:
+  hardware_bit_baud = B0;
+  break;
+
+ case 50:
+  hardware_bit_baud = B50;
+  break;
+
+ case 75:
+  hardware_bit_baud = B75;
+  break;
+
+ case 110:
+  hardware_bit_baud = B110;
+  break;
+
+ case 134:
+  hardware_bit_baud = B134;
+  break;
+
+ case 150:
+  hardware_bit_baud = B150;
+  break;
+
+ case 200:
+  hardware_bit_baud = B200;
+  break;
+
+ case 300:
+  hardware_bit_baud = B300;
+  break;
+
+ case 600:
+  hardware_bit_baud = B600;
+  break;
+
+ case 1200:
+  hardware_bit_baud = B1200;
+  break;
+
+ case 1800:
+  hardware_bit_baud = B1800;
+  break;
+
+ case 2400:
+  hardware_bit_baud = B2400;
+  break;
+
+ case 4800:
+  hardware_bit_baud = B4800;
+  break;
+
+ case 9600:
+  hardware_bit_baud = B9600;
+  break;
+
+ case 19200:
+  hardware_bit_baud = B19200;
+  break;
+
+ case 38400:
+  hardware_bit_baud = B38400;
+  break;
+
+# ifdef B7200
+ case 7200:
+  hardware_bit_baud = B7200;
+  break;
+
+# endif
+
+# ifdef B14400
+ case 14400:
+  hardware_bit_baud = B14400;
+  break;
+
+# endif
+
+# ifdef B57600
+ case 57600:
+  hardware_bit_baud = B57600;
+  break;
+
+# endif
+
+# ifdef B115200
+ case 115200:
+  hardware_bit_baud = B115200;
+  break;
+
+# endif
+
+# ifdef B230400
+ case 230400:
+  hardware_bit_baud = B230400;
+  break;
+
+# endif
+
+# ifdef B460800
+ case 460800:
+  hardware_bit_baud = B460800;
+  break;
+
+# endif
+
+# ifdef B500000
+ case 500000:
+  hardware_bit_baud = B500000;
+  break;
+
+# endif
+
+# ifdef B576000
+ case 576000:
+  hardware_bit_baud = B576000;
+  break;
+
+# endif
+
+# ifdef B921600
+ case 921600:
+  hardware_bit_baud = B921600;
+  break;
+
+# endif
+
+# ifdef B1000000
+ case 1000000:
+  hardware_bit_baud = B1000000;
+  break;
+
+# endif
+
+# ifdef B1152000
+ case 1152000:
+  hardware_bit_baud = B1152000;
+  break;
+
+# endif
+
+# ifdef B2000000
+ case 2000000:
+  hardware_bit_baud = B2000000;
+  break;
+
+# endif
+
+# ifdef B3000000
+ case 3000000:
+  hardware_bit_baud = B3000000;
+  break;
+
+# endif
+
+# ifdef B3500000
+ case 3500000:
+  hardware_bit_baud = B3500000;
+  break;
+
+# endif
+
+# ifdef B4000000
+ case 4000000:
+  hardware_bit_baud = B4000000;
+  break;
+
+# endif
+ //Unsupported baud specified
+ default:
+  printf("Unsupported baud specified\n");
+  return MIP_USER_FUNCTION_ERROR;
+
+ }
+
+ //Get the current settings for the port...
+ tcgetattr(local_port_handle, &options);
+
+ //set the baud rate
+ cfsetospeed(&options, hardware_bit_baud);
+ cfsetispeed(&options, hardware_bit_baud);
+
+ //set the number of data bits.
+ options.c_cflag &= ~CSIZE; // Mask the character size bits
+ options.c_cflag |= CS8;
+
+ //set the number of stop bits to 1
+ options.c_cflag &= ~CSTOPB;
+
+ //Set parity to None
+ options.c_cflag &=~PARENB;
+
+ //set for non-canonical (raw processing, no echo, etc.)
+ options.c_iflag = IGNPAR; // ignore parity check close_port(int
+ options.c_oflag = 0; // raw output
+ options.c_lflag = 0; // raw input
+
+ //Time-Outs -- won't work with NDELAY option in the call to open
+ options.c_cc[VMIN] = 0;  // block reading until RX x characers. If x = 0, 
+               // it is non-blocking.
+ options.c_cc[VTIME] = 1;  // Inter-Character Timer -- i.e. timeout= x*.1 s
+
+ //Set local mode and enable the receiver
+ options.c_cflag |= (CLOCAL | CREAD);
+
+ //purge serial port buffers
+ if(purge(local_port_handle) != MIP_USER_FUNCTION_OK){
+  printf("Flushing old serial buffer data failed\n");
+  return MIP_USER_FUNCTION_ERROR;
+ }
+ //attempt to apply settings
+ status=tcsetattr(local_port_handle, TCSANOW, &options); 
+
+ if (status != 0){ //For error message
+
+  printf("Configuring comport failed\n");
+  return MIP_USER_FUNCTION_ERROR;
+
+ }
+
+ //Purge serial port buffers
+ if(purge(local_port_handle) != MIP_USER_FUNCTION_OK){
+  printf("Post configuration serial buffer flush failed\n");
+  return MIP_USER_FUNCTION_ERROR;
+ }
+
+ //assign external pointer to port handle pointer
+ *port_handle = &local_port_handle;
+
+ return MIP_USER_FUNCTION_OK;
 }
 
 

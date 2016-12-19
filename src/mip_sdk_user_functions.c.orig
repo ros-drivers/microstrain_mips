@@ -1,40 +1,67 @@
-/**
- * @file    my_user_functions.c 
- * @author  Brian S. Bingham
- * @version 0.1
- *
- * @brief Target(Linux)-Specific Functions Required by the MIP SDK
- *
- * Implementation of mip_sdk_user_functions.c prototypes for Linux
- *
- * External dependencies:
- * mip.h
- * 
- */
+/////////////////////////////////////////////////////////////////////////////
+//
+//! @file    mip_sdk_user_functions.c 
+//! @author  Nathan Miller
+//! @version 1.1
+//
+//! @description Target-Specific Functions Required by the MIP SDK
+//
+// External dependencies:
+//
+//  mip.h
+// 
+//!@copyright 2014 Lord Microstrain Sensing Systems. 
+//
+//!@section CHANGES
+//! 
+//
+//!@section LICENSE
+//!
+//! THE PRESENT SOFTWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING 
+//! CUSTOMERS WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER 
+//! FOR THEM TO SAVE TIME. AS A RESULT, LORD MICROSTRAIN SENSING SYSTEMS
+//! SHALL NOT BE HELD LIABLE FOR ANY DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES 
+//! WITH RESPECT TO ANY CLAIMS ARISING FROM THE CONTENT OF SUCH SOFTWARE AND/OR 
+//! THE USE MADE BY CUSTOMERS OF THE CODING INFORMATION CONTAINED HEREIN IN CONNECTION 
+//! WITH THEIR PRODUCTS.
+//
+/////////////////////////////////////////////////////////////////////////////
 
-/* -- Includes -- */
+////////////////////////////////////////////////////////////////////////////////
+//
+//Include Files
+//
+////////////////////////////////////////////////////////////////////////////////
+
+
 #include "mip_sdk_user_functions.h"
+//#include <windows.h>
 
 
-/**
- * @fn
- * u16 mip_sdk_port_open(void *port_handle, int port_num, int baudrate)
- *
- * @section DESCRIPTION
- * Target-Specific communications port open. 
- *
- * @section DETAILS
- *
- * @param [out] void *port_handle - target-specific port handle pointer (user needs to allocate memory for this)
- * @param [in] int port_num       - port number (as recognized by the operating system.)
- * @param [in] int baudrate       - baudrate of the com port.
- *
- * @retval MIP_USER_FUNCTION_ERROR  When there is a problem opening the port.\n
- * @retval MIP_USER_FUNCTION_OK     The open was successful.\n
- *
- * @section NOTES
- * 
- */
+/////////////////////////////////////////////////////////////////////////////
+//
+//! @fn
+//! u16 mip_sdk_port_open(void *port_handle, int port_num, int baudrate)
+//
+//! @section DESCRIPTION
+//! Target-Specific communications port open. 
+//
+//! @section DETAILS
+//!
+//! @param [out] void *port_handle - target-specific port handle pointer (user needs to allocate memory for this)
+//! @param [in] int port_num       - port number (as recognized by the operating system.)
+//! @param [in] int baudrate       - baudrate of the com port.
+//
+//! @retval MIP_USER_FUNCTION_ERROR  When there is a problem opening the port.\n
+//! @retval MIP_USER_FUNCTION_OK     The open was successful.\n
+//
+//! @section NOTES
+//! 
+//! The user should copy the \c mip_sdk_user_functions.c file to their project directory and\n
+//! edit it as needed to support their target operating system.
+//!
+//
+/////////////////////////////////////////////////////////////////////////////
 
 u16 mip_sdk_port_open(void **port_handle, int port_num, int baudrate)
 {
