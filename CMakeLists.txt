@@ -172,8 +172,14 @@ include_directories(
 
 ## Declare a C++ executable
 # add_executable(microstrain_3dm_gx5_45_node src/microstrain_3dm_gx5_45_node.cpp)
-add_executable(GX4-45_Test_node 
+add_executable(GX4-45_Test
   src/GX4-45_Test.c
+  src/mip_sdk_user_functions.c
+  ${MIPSRC} 
+)
+
+add_executable(microstrain_3dm_gx5_45
+  src/microstrain_3dm_gx5_45.cpp
   src/mip_sdk_user_functions.c
   ${MIPSRC} 
 )
