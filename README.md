@@ -29,19 +29,48 @@ Here are the steps I took to build the code...
  
  The mip_sdk_user_functions are C functions that need to be called by various parts of the SDK.  The main purpose of these functions is to implement the platform-specific serial (RS232) port elements.  The prototype serial port open function takes the COM number as an integer input - which is clunky for Linux serial ports.  Changed this to take a string defining the port (e.g., /dev/ttyS0), but this necessitated also modifying the mip_sdk_interface.[ch] files, since this is what is called by the application - changed the mip_interface_init function to accept a string argument for specifying the port.
  
- # microstrain_3dm_gx5_45
- Documentation for the ROS node - to be moved to ROS wiki when driver is released
+## TODO
  
- ## Published Topics
+ * Verify order of quaternions
  
- ~gps/fix (sensor_msgs/NavSatFix)
+# microstrain_3dm_gx5_45
+
+Documentation for the ROS node - to be moved to ROS wiki when driver is released
  
- ~imu/data (sensor_msgs/Imu)
+## Published Topics
  
- ~nav/odom (nav_msgs/Odometry)
+~gps/fix (sensor_msgs/NavSatFix)
+
+ *Position covariance is populated with diagonals based on reported horizontal and vertical accuracy. 
+ * The status.status field is the LLH position data "valid flag"-1.  The valid flag mapping from the 3DM protocol is
+  * 0x0001 – Latitude and Longitude Valid
+  * 0x0002 – Ellipsoid Height Valid
+  * 0x0004 – MSL Height Valid
+  * 0x0008 – Horizontal Accuracy Valid
+  * 0x0010 – Vertical Accuracy Valid
+  * E.g., if all valid, then the status.status field should be 30.
+ 
+~imu/data (sensor_msgs/Imu)
+ 
+~nav/odom (nav_msgs/Odometry)
+ 
+ * Currently the pose.position is the longitude (x), latitude (y) and ellipsoid height (z)
+ * pose.covariance and twist.covariance include diagonal elements for position and attitude
  
  ~nav/status (std_msgs/Int16MultiArray)
  
+ * Includes three values - see communication protocol for full documentation.
+   * filter_state
+     * 0x00 – Startup
+     * 0x01 – Initialization (see status flags)
+     * 0x02 – Running, Solution Valid
+     * 0x03 – Running, Solution Error (see status flags)
+   * dynamics mode
+     * 0x01 – Portable (device default)
+     * 0x02 – Automotive 
+     * 0x03 – Airborne
+   * status_flags
+     * See device documentation
  
  ## Services
  
@@ -55,8 +84,22 @@ The serial port to which the device is connected
 ~baud_rate (integer, default: 115200) 
 Baud rate of the sensor. 
 
-~declination (double, default: 3.8)   TODO
-Magnetic declination for given area. 
+~dynamics_mode (int, default: 1)   TODO
+     * 0x01 – Portable (device default)
+     * 0x02 – Automotive
+     * 0x03 – Airborne
+     
+~declination_source (int, default: 2)   
+Possible declination sources:
+
+ * 0x01 – None - device reports magnetic north
+ * 0x02 – Internal World Magnetic Model (Default)
+ * 0x03 – Manual (see declination parameter)
+     
+~declination (double, default: 0.23)  
+Sets the declination angle in radians.  Only applies of the declination_source=3.
+0.23 radians is +13.27 degrees for Monterey, CA
+TODO - verify the sign of this angle
 
 ~gps_frame_id (string, default: world)
 Value for the frame_id field of the 
@@ -72,6 +115,22 @@ Sets if ~imu/data should be advertised or not.
 
 ~publish_gps (bool, default: true) 
 Sets if ~gps/fix should be advertised or not. 
+
+~gps_rate (int, default: 1) 
+The rates are set as a target value in Hz.  The device accepts a decimation value for each output; the packet rate is base_rate/decimation, where decimation is an intgeter.  The program calculates the decimation to get close the the desired rate, based on polling the sensor for its base rate.
+
+  * Base rate of 4 Hz for 3DM-GX4-45
+  
+~imu_rate (int, default: 10) 
+  
+  * Base rate of 500 Hz for 3DM-GX4-45
+
+~nav_rate (int, default: 10) 
+  
+  * Base rate of 500 Hz for 3DM-GX4-45
+
+
+
   
  
  
