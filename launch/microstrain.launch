@@ -8,8 +8,11 @@
     <param name="imu_frame_id" value="imu" type="str" />
     <param name="nav_frame_id" value="world" type="str" />
     <param name="gps_rate" value="4" type="int" />
-    <param name="imu_rate" value="100" type="int" />
-    <param name="nav_rate" value="100" type="int" />
+    <param name="imu_rate" value="10" type="int" />
+    <param name="nav_rate" value="10" type="int" />
+    <param name="dynamics_mode" value="1" type="int" />
+    <param name="declination_source" value="2" type="int" />
+    <param name="declination" value="0.23" type="double" />
   </node>
   
 </launch>

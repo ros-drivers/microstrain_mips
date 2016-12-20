@@ -8,13 +8,6 @@
  */
 
 #include "microstrain_3dm_gx5_45.h"
-#include "ros/ros.h"
-#include "sensor_msgs/NavSatFix.h"
-#include "sensor_msgs/Imu.h"
-#include "geometry_msgs/PoseWithCovarianceStamped.h"
-#include "nav_msgs/Odometry.h"
-#include "std_msgs/Int16MultiArray.h"
-#include "std_msgs/MultiArrayLayout.h"
 
 /*
 // Make C functions callable
@@ -83,6 +76,16 @@ std::string nav_frame_id = "nav_frame";
 
 int nav_rate, imu_rate, gps_rate;
 
+// Service server
+bool reset_callback(std_srvs::Empty::Request &req,
+		    std_srvs::Empty::Response &resp)
+{
+  ROS_INFO("Reseting the filter");
+  while(mip_filter_reset_filter(&device_interface) != MIP_INTERFACE_OK){}
+
+  return true;
+}
+
 /* Main */
 int main(int argc, char **argv)
 {
@@ -135,7 +138,8 @@ int main(int argc, char **argv)
  mip_filter_zero_update_command zero_update_control, zero_update_readback;
  mip_filter_external_heading_with_time_command external_heading_with_time;
  mip_complementary_filter_settings comp_filter_command, comp_filter_readback;
-
+ int declination_source;
+ double declination;
  u8  declination_source_command, declination_source_readback;
 
  mip_filter_accel_magnitude_error_adaptive_measurement_command        accel_magnitude_error_command, accel_magnitude_error_readback;
@@ -152,20 +156,34 @@ int main(int argc, char **argv)
  nav_pub = node.advertise<nav_msgs::Odometry>("nav/odom",100);
  nav_status_pub = node.advertise<std_msgs::Int16MultiArray>("nav/status",100);
  
+ ros::ServiceServer service = node.advertiseService("reset_kf",reset_callback);
 
  // ROS Parameters
  std::string port;
- int baud;
+ int baud, pdyn_mode;
  private_nh.param("port", port, std::string("/dev/ttyACM0"));
  private_nh.param("baudrate",baud,115200);
+ baudrate = (u32)baud; 
  private_nh.param("gps_frame_id",gps_frame_id, std::string("world"));
  private_nh.param("imu_frame_id",gps_frame_id, std::string("sensor"));
  private_nh.param("nav_frame_id",gps_frame_id, std::string("world"));
  private_nh.param("gps_rate",gps_rate, 1);
  private_nh.param("imu_rate",imu_rate, 10);
  private_nh.param("nav_rate",nav_rate, 10);
+ private_nh.param("dynamics_mode",pdyn_mode,1);
+ dynamics_mode = (u8)pdyn_mode;
+ if (dynamics_mode < 1 || dynamics_mode > 3){
+   ROS_WARN("dynamics_mode can't be %d, must be 1, 2 or 3.  Setting to 1.",dynamics_mode);
+   dynamics_mode = 1;
+ }
+ private_nh.param("declination_source",declination_source,2);
+ if (declination_source < 1 || declination_source > 3){
+   ROS_WARN("declination_source can't be %d, must be 1, 2 or 3.  Setting to 2.",declination_source);
+   declination_source = 2;
+ }
+ declination_source_command=(u8)declination_source;
+ private_nh.param("declination",declination,0.23);
 
- baudrate = (u32)baud; //115200;
 
  //Initialize the interface to the device
  ROS_INFO("Attempting to open serial port <%s> at <%d> \n",
@@ -294,22 +312,41 @@ u8 nav_decimation = (u8)((float)base_rate/ (float)nav_rate);
  ROS_INFO(" ");
 
  // Set dynamics mode
- //dynamics_mode = 1;
- //while(mip_filter_vehicle_dynamics_mode(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &dynamics_mode) != MIP_INTERFACE_OK){}
+ ROS_INFO("Setting dynamics mode to %d",dynamics_mode);
+ while(mip_filter_vehicle_dynamics_mode(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &dynamics_mode) != MIP_INTERFACE_OK){}
  // Default mode
+ /*
  ROS_INFO("Setting default dynamics mode");
  while(mip_filter_vehicle_dynamics_mode(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, NULL) != MIP_INTERFACE_OK){}
  ros::Duration(dT).sleep();
+ */
 
  // Default auto-init
  ROS_INFO("Setting default auto-init");
   while(mip_filter_auto_initialization(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, NULL) != MIP_INTERFACE_OK){}
   ros::Duration(dT).sleep();
 
+  // Set delination
+    while(mip_filter_declination_source(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &declination_source_command) != MIP_INTERFACE_OK){}
+
+   //Read back the declination source
+   while(mip_filter_declination_source(&device_interface, MIP_FUNCTION_SELECTOR_READ, &declination_source_readback) != MIP_INTERFACE_OK){}
+   if(declination_source_command == declination_source_readback)
+   {
+    ROS_INFO("Declination source successfully set to %d", declination_source_command);
+   }
+   else
+   {
+    ROS_WARN("Failed to set the declination source to %d!", i);
+   }
+ 
  // Reset filter
  ROS_INFO("Reset filter");
  while(mip_filter_reset_filter(&device_interface) != MIP_INTERFACE_OK){}
  ros::Duration(dT).sleep();
+
+ // Turn off reporting packets to the screen
+ enable_data_stats_output = 0;
 
  // Enable Data streams
  dT = 0.25;
@@ -329,13 +366,14 @@ while(mip_3dm_cmd_continuous_data_stream(&device_interface, MIP_FUNCTION_SELECTO
  ros::Duration(dT).sleep();
 
  // Loop
- enable_data_stats_output = 0;
 
  ros::Rate r(1000);  // Rate in Hz
  while (ros::ok()){
    //Update the parser (this function reads the port and parses the bytes
    mip_interface_update(&device_interface);
+   ros::spinOnce();  // take care of service requests.
    r.sleep();
+   
    //ROS_INFO("Spinning");
  }
  

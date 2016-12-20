@@ -18,8 +18,18 @@ extern "C" {
 #include "mip_gx4_imu.h"
 #include "mip_gx4_45.h"
 }
+
 #include <cstdio>
 #include <unistd.h>
+
+#include "ros/ros.h"
+#include "sensor_msgs/NavSatFix.h"
+#include "sensor_msgs/Imu.h"
+#include "geometry_msgs/PoseWithCovarianceStamped.h"
+#include "nav_msgs/Odometry.h"
+#include "std_msgs/Int16MultiArray.h"
+#include "std_msgs/MultiArrayLayout.h"
+#include "std_srvs/Empty.h"
 
 #define MIP_SDK_GX4_45_IMU_STANDARD_MODE	0x01
 #define MIP_SDK_GX4_45_IMU_DIRECT_MODE	0x02
@@ -36,6 +46,8 @@ void filter_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 call
 void ahrs_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
 void gps_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
 
+bool reset_callback(std_srvs::Empty::Request &req,
+		    std_srvs::Empty::Response &resp);
 // Others
 void print_packet_stats();
 
