@@ -11,7 +11,7 @@ The interface makes use of the MIP SDK Version 1.1 from Microstrain to communica
 
 ## Dependencies
 
- * serial: https://github.com/wjwwood/serial  - for now we build this from source in our catkin_ws
+ * roscpp
  
 ## Build instructions.  
 
