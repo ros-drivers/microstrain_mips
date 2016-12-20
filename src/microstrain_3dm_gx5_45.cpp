@@ -9,6 +9,7 @@
 
 #include "microstrain_3dm_gx5_45.h"
 #include "ros/ros.h"
+#include "sensor_msgs/NavSatFix.h"
 
 /*
 // Make C functions callable
@@ -53,6 +54,10 @@ mip_gps_time    curr_gps_time;
 mip_filter_llh_pos               curr_filter_pos;
 mip_filter_ned_velocity          curr_filter_vel;
 mip_filter_attitude_euler_angles curr_filter_angles;
+
+// ROS Globals
+ros::Publisher gps_pub;
+sensor_msgs::NavSatFix gps_msg;
 
 /* Main */
 int main(int argc, char **argv)
@@ -117,6 +122,9 @@ int main(int argc, char **argv)
  ros::init(argc,argv, "microstrain_3dm_gx5_45");
  ros::NodeHandle node;
  ros::NodeHandle private_nh("~");
+
+ gps_pub = node.advertise<sensor_msgs::NavSatFix>("microstrain_gps",100);
+ 
 
  // ROS Parameters
  std::string port;
@@ -213,9 +221,9 @@ int main(int argc, char **argv)
  data_stream_format_descriptors[0] = MIP_GPS_DATA_LLH_POS;
  data_stream_format_descriptors[1] = MIP_GPS_DATA_NED_VELOCITY;
  data_stream_format_descriptors[2] = MIP_GPS_DATA_GPS_TIME;
- data_stream_format_decimation[0]  = 0x04;
- data_stream_format_decimation[1]  = 0x04;
- data_stream_format_decimation[2]  = 0x04;
+ data_stream_format_decimation[0]  = 0x01; //0x04;
+ data_stream_format_decimation[1]  = 0x01;
+ data_stream_format_decimation[2]  = 0x01;
  data_stream_format_num_entries = 3;
  while(mip_3dm_cmd_gps_message_format(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &data_stream_format_num_entries,data_stream_format_descriptors, data_stream_format_decimation) != MIP_INTERFACE_OK){}
  ros::Duration(dT).sleep();
@@ -588,6 +596,9 @@ void gps_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callbac
   }break;
   default: break;
  }
+
+ // Publish the message
+ gps_pub.publish(gps_msg);
 
  print_packet_stats();
 }
