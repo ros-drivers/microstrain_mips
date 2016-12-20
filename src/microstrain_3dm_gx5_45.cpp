@@ -10,6 +10,11 @@
 #include "microstrain_3dm_gx5_45.h"
 #include "ros/ros.h"
 #include "sensor_msgs/NavSatFix.h"
+#include "sensor_msgs/Imu.h"
+#include "geometry_msgs/PoseWithCovarianceStamped.h"
+#include "nav_msgs/Odometry.h"
+#include "std_msgs/Int16MultiArray.h"
+#include "std_msgs/MultiArrayLayout.h"
 
 /*
 // Make C functions callable
@@ -44,6 +49,7 @@ u32 gps_checksum_error_packet_count  = 0;
 mip_ahrs_scaled_gyro  curr_ahrs_gyro;
 mip_ahrs_scaled_accel curr_ahrs_accel;
 mip_ahrs_scaled_mag   curr_ahrs_mag;
+mip_ahrs_quaternion  curr_ahrs_quaternion;
 
 //GPS
 mip_gps_llh_pos curr_llh_pos;
@@ -54,10 +60,28 @@ mip_gps_time    curr_gps_time;
 mip_filter_llh_pos               curr_filter_pos;
 mip_filter_ned_velocity          curr_filter_vel;
 mip_filter_attitude_euler_angles curr_filter_angles;
+mip_filter_attitude_quaternion   curr_filter_quaternion;
+mip_filter_compensated_angular_rate curr_filter_angular_rate;
+mip_filter_llh_pos_uncertainty   curr_filter_pos_uncertainty;
+mip_filter_ned_vel_uncertainty   curr_filter_vel_uncertainty;
+mip_filter_euler_attitude_uncertainty curr_filter_att_uncertainty;
+mip_filter_status curr_filter_status;
+
 
 // ROS Globals
 ros::Publisher gps_pub;
+ros::Publisher imu_pub;
+ros::Publisher nav_pub;
+ros::Publisher nav_status_pub;
 sensor_msgs::NavSatFix gps_msg;
+sensor_msgs::Imu imu_msg;
+nav_msgs::Odometry nav_msg;
+std_msgs::Int16MultiArray nav_status_msg;
+std::string gps_frame_id = "gps_frame";
+std::string imu_frame_id = "imu_frame";
+std::string nav_frame_id = "nav_frame";
+
+int nav_rate, imu_rate, gps_rate;
 
 /* Main */
 int main(int argc, char **argv)
@@ -123,7 +147,10 @@ int main(int argc, char **argv)
  ros::NodeHandle node;
  ros::NodeHandle private_nh("~");
 
- gps_pub = node.advertise<sensor_msgs::NavSatFix>("microstrain_gps",100);
+ gps_pub = node.advertise<sensor_msgs::NavSatFix>("gps/fix",100);
+ imu_pub = node.advertise<sensor_msgs::Imu>("imu/data",100);
+ nav_pub = node.advertise<nav_msgs::Odometry>("nav/odom",100);
+ nav_status_pub = node.advertise<std_msgs::Int16MultiArray>("nav/status",100);
  
 
  // ROS Parameters
@@ -131,6 +158,12 @@ int main(int argc, char **argv)
  int baud;
  private_nh.param("port", port, std::string("/dev/ttyACM0"));
  private_nh.param("baudrate",baud,115200);
+ private_nh.param("gps_frame_id",gps_frame_id, std::string("world"));
+ private_nh.param("imu_frame_id",gps_frame_id, std::string("sensor"));
+ private_nh.param("nav_frame_id",gps_frame_id, std::string("world"));
+ private_nh.param("gps_rate",gps_rate, 1);
+ private_nh.param("imu_rate",imu_rate, 10);
+ private_nh.param("nav_rate",nav_rate, 10);
 
  baudrate = (u32)baud; //115200;
 
@@ -141,7 +174,7 @@ int main(int argc, char **argv)
    ROS_ERROR("Couldn't open port!");
  }
 
- float dT=1.5;  // common sleep time after communications
+ float dT=1.0;  // common sleep time after communications
  /* Setup and test Comms */
  // Put device into standard mode
  ROS_INFO("Put device into standard comms mode");
@@ -192,13 +225,17 @@ int main(int argc, char **argv)
  while(mip_3dm_cmd_get_ahrs_base_rate(&device_interface, &base_rate) != MIP_INTERFACE_OK){}
  ROS_INFO("AHRS Base Rate => %d Hz", base_rate);
  ros::Duration(dT).sleep();
+// Deterimine decimation to get close to goal rate
+u8 imu_decimation = (u8)((float)base_rate/ (float)imu_rate);
 
  while(mip_3dm_cmd_get_gps_base_rate(&device_interface, &base_rate) != MIP_INTERFACE_OK){}
  ROS_INFO("GPS Base Rate => %d Hz", base_rate);
+u8 gps_decimation = (u8)((float)base_rate/ (float)gps_rate);
  ros::Duration(dT).sleep();
  
  while(mip_3dm_cmd_get_filter_base_rate(&device_interface, &base_rate) != MIP_INTERFACE_OK){}
  ROS_INFO("FILTER Base Rate => %d Hz", base_rate);
+u8 nav_decimation = (u8)((float)base_rate/ (float)nav_rate);
   ros::Duration(dT).sleep();
 
  // Set message formats
@@ -206,9 +243,11 @@ int main(int argc, char **argv)
  ROS_INFO("Setting the AHRS message format");
  data_stream_format_descriptors[0] = MIP_AHRS_DATA_ACCEL_SCALED;
  data_stream_format_descriptors[1] = MIP_AHRS_DATA_GYRO_SCALED;
- data_stream_format_decimation[0]  = 0x32;
- data_stream_format_decimation[1]  = 0x32;
- data_stream_format_num_entries = 2;
+ data_stream_format_descriptors[2] = MIP_AHRS_DATA_QUATERNION;
+ data_stream_format_decimation[0]  = imu_decimation;//0x32;
+ data_stream_format_decimation[1]  = imu_decimation;//0x32;
+ data_stream_format_decimation[2]  = imu_decimation;//0x32;
+ data_stream_format_num_entries = 3;
  while(mip_3dm_cmd_ahrs_message_format(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &data_stream_format_num_entries, data_stream_format_descriptors, data_stream_format_decimation) != MIP_INTERFACE_OK){}
  ros::Duration(dT).sleep();
  ROS_INFO("Poll AHRS data to verify");
@@ -221,9 +260,9 @@ int main(int argc, char **argv)
  data_stream_format_descriptors[0] = MIP_GPS_DATA_LLH_POS;
  data_stream_format_descriptors[1] = MIP_GPS_DATA_NED_VELOCITY;
  data_stream_format_descriptors[2] = MIP_GPS_DATA_GPS_TIME;
- data_stream_format_decimation[0]  = 0x01; //0x04;
- data_stream_format_decimation[1]  = 0x01;
- data_stream_format_decimation[2]  = 0x01;
+ data_stream_format_decimation[0]  = gps_decimation; //0x01; //0x04;
+ data_stream_format_decimation[1]  = gps_decimation; //0x01; //0x04;
+ data_stream_format_decimation[2]  = gps_decimation; //0x01; //0x04;
  data_stream_format_num_entries = 3;
  while(mip_3dm_cmd_gps_message_format(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &data_stream_format_num_entries,data_stream_format_descriptors, data_stream_format_decimation) != MIP_INTERFACE_OK){}
  ros::Duration(dT).sleep();
@@ -231,11 +270,22 @@ int main(int argc, char **argv)
  ROS_INFO("Setting Filter stream format");
  data_stream_format_descriptors[0] = MIP_FILTER_DATA_LLH_POS;
  data_stream_format_descriptors[1] = MIP_FILTER_DATA_NED_VEL;
- data_stream_format_descriptors[2] = MIP_FILTER_DATA_ATT_EULER_ANGLES;
- data_stream_format_decimation[0]  = 0x32;
- data_stream_format_decimation[1]  = 0x32;
- data_stream_format_decimation[2]  = 0x32;
- data_stream_format_num_entries = 3;
+ //data_stream_format_descriptors[2] = MIP_FILTER_DATA_ATT_EULER_ANGLES;
+ data_stream_format_descriptors[2] = MIP_FILTER_DATA_ATT_QUATERNION;
+ data_stream_format_descriptors[3] = MIP_FILTER_DATA_POS_UNCERTAINTY;
+ data_stream_format_descriptors[4] = MIP_FILTER_DATA_VEL_UNCERTAINTY;
+ data_stream_format_descriptors[5] = MIP_FILTER_DATA_ATT_UNCERTAINTY_EULER;
+ data_stream_format_descriptors[6] = MIP_FILTER_DATA_COMPENSATED_ANGULAR_RATE;
+ data_stream_format_descriptors[7] = MIP_FILTER_DATA_FILTER_STATUS;
+ data_stream_format_decimation[0]  = nav_decimation; //0x32;
+ data_stream_format_decimation[1]  = nav_decimation; //0x32;
+ data_stream_format_decimation[2]  = nav_decimation; //0x32;
+ data_stream_format_decimation[3]  = nav_decimation; //0x32;
+ data_stream_format_decimation[4]  = nav_decimation; //0x32;
+ data_stream_format_decimation[5]  = nav_decimation; //0x32;
+ data_stream_format_decimation[6]  = nav_decimation; //0x32;
+ data_stream_format_decimation[7]  = nav_decimation; //0x32;
+ data_stream_format_num_entries = 8;
  while(mip_3dm_cmd_filter_message_format(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &data_stream_format_num_entries,data_stream_format_descriptors, data_stream_format_decimation) != MIP_INTERFACE_OK){}
  ros::Duration(dT).sleep();
  ROS_INFO("Poll filter data to test stream");
@@ -262,6 +312,7 @@ int main(int argc, char **argv)
  ros::Duration(dT).sleep();
 
  // Enable Data streams
+ dT = 0.25;
  ROS_INFO("Enabling AHRS stream");
  enable = 0x01;
  while(mip_3dm_cmd_continuous_data_stream(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, MIP_3DM_AHRS_DATASTREAM, &enable) != MIP_INTERFACE_OK){}
@@ -278,7 +329,7 @@ while(mip_3dm_cmd_continuous_data_stream(&device_interface, MIP_FUNCTION_SELECTO
  ros::Duration(dT).sleep();
 
  // Loop
- enable_data_stats_output = 1;
+ enable_data_stats_output = 0;
 
  ros::Rate r(1000);  // Rate in Hz
  while (ros::ok()){
@@ -334,6 +385,13 @@ void filter_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 call
       //For little-endian targets, byteswap the data field
       mip_filter_llh_pos_byteswap(&curr_filter_pos);
 
+      nav_msg.header.seq = filter_valid_packet_count;
+      nav_msg.header.stamp = ros::Time::now();
+      nav_msg.header.frame_id = nav_frame_id;
+      nav_msg.pose.pose.position.y = curr_filter_pos.latitude;
+      nav_msg.pose.pose.position.x = curr_filter_pos.longitude;
+      nav_msg.pose.pose.position.z = curr_filter_pos.ellipsoid_height;
+
      }break;
 
      ///
@@ -346,7 +404,10 @@ void filter_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 call
 
       //For little-endian targets, byteswap the data field
       mip_filter_ned_velocity_byteswap(&curr_filter_vel);
-
+      
+      nav_msg.twist.twist.linear.x = curr_filter_vel.east;
+      nav_msg.twist.twist.linear.y = curr_filter_vel.north;
+      nav_msg.twist.twist.linear.z = -1*curr_filter_vel.down;
      }break;
 
      ///
@@ -362,9 +423,100 @@ void filter_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 call
 
      }break;
 
+     // Quaternion
+     case MIP_FILTER_DATA_ATT_QUATERNION:
+     {
+      memcpy(&curr_filter_quaternion, field_data, sizeof(mip_filter_attitude_quaternion));
+
+      //For little-endian targets, byteswap the data field
+      mip_filter_attitude_quaternion_byteswap(&curr_filter_quaternion);
+
+      nav_msg.pose.pose.orientation.x = curr_filter_quaternion.q[0];
+      nav_msg.pose.pose.orientation.y = curr_filter_quaternion.q[1];
+      nav_msg.pose.pose.orientation.z = curr_filter_quaternion.q[2];
+      nav_msg.pose.pose.orientation.w = curr_filter_quaternion.q[3];
+
+     }break;
+
+     // Angular Rates
+     case MIP_FILTER_DATA_COMPENSATED_ANGULAR_RATE:
+     {
+      memcpy(&curr_filter_angular_rate, field_data, sizeof(mip_filter_compensated_angular_rate));
+
+      //For little-endian targets, byteswap the data field
+      mip_filter_compensated_angular_rate_byteswap(&curr_filter_angular_rate);
+
+      nav_msg.twist.twist.angular.x = curr_filter_angular_rate.x;
+      nav_msg.twist.twist.angular.y = curr_filter_angular_rate.y;
+      nav_msg.twist.twist.angular.z = curr_filter_angular_rate.z;
+
+
+     }break;
+
+     // Position Uncertainty
+     case MIP_FILTER_DATA_POS_UNCERTAINTY:
+     {
+      memcpy(&curr_filter_pos_uncertainty, field_data, sizeof(mip_filter_llh_pos_uncertainty));
+
+      //For little-endian targets, byteswap the data field
+      mip_filter_llh_pos_uncertainty_byteswap(&curr_filter_pos_uncertainty);
+
+      //x-axis
+      nav_msg.pose.covariance[0] = curr_filter_pos_uncertainty.east*curr_filter_pos_uncertainty.east;
+      nav_msg.pose.covariance[7] = curr_filter_pos_uncertainty.north*curr_filter_pos_uncertainty.north;
+      nav_msg.pose.covariance[14] = curr_filter_pos_uncertainty.down*curr_filter_pos_uncertainty.down;
+     }break;
+
+     // Velocity Uncertainty
+     case MIP_FILTER_DATA_VEL_UNCERTAINTY:
+     {
+      memcpy(&curr_filter_vel_uncertainty, field_data, sizeof(mip_filter_ned_vel_uncertainty));
+
+      //For little-endian targets, byteswap the data field
+      mip_filter_ned_vel_uncertainty_byteswap(&curr_filter_vel_uncertainty);
+      
+      nav_msg.twist.covariance[0] = curr_filter_vel_uncertainty.east*curr_filter_vel_uncertainty.east;
+      nav_msg.twist.covariance[7] = curr_filter_vel_uncertainty.north*curr_filter_vel_uncertainty.north;
+      nav_msg.twist.covariance[14] = curr_filter_vel_uncertainty.down*curr_filter_vel_uncertainty.down;
+
+     }break;
+
+     // Attitude Uncertainty
+     case MIP_FILTER_DATA_ATT_UNCERTAINTY_EULER:
+     {
+      memcpy(&curr_filter_att_uncertainty, field_data, sizeof(mip_filter_euler_attitude_uncertainty));
+
+      //For little-endian targets, byteswap the data field
+      mip_filter_euler_attitude_uncertainty_byteswap(&curr_filter_att_uncertainty);
+      nav_msg.pose.covariance[21] = curr_filter_att_uncertainty.roll*curr_filter_att_uncertainty.roll;
+      nav_msg.pose.covariance[28] = curr_filter_att_uncertainty.pitch*curr_filter_att_uncertainty.pitch;
+      nav_msg.pose.covariance[35] = curr_filter_att_uncertainty.yaw*curr_filter_att_uncertainty.yaw;
+
+     }break;
+
+     // Filter Status
+     case MIP_FILTER_DATA_FILTER_STATUS:
+     {
+      memcpy(&curr_filter_status, field_data, sizeof(mip_filter_status));
+
+      //For little-endian targets, byteswap the data field
+      mip_filter_status_byteswap(&curr_filter_status);
+      
+      nav_status_msg.data.clear();
+      nav_status_msg.data.push_back(curr_filter_status.filter_state);
+      nav_status_msg.data.push_back(curr_filter_status.dynamics_mode);
+      nav_status_msg.data.push_back(curr_filter_status.status_flags);
+      nav_status_pub.publish(nav_status_msg);
+
+
+     }break;
+
      default: break;
     }
    }
+
+   // Publish
+   nav_pub.publish(nav_msg);
   }break;
 
 
@@ -438,7 +590,16 @@ void ahrs_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callba
 
       //For little-endian targets, byteswap the data field
       mip_ahrs_scaled_accel_byteswap(&curr_ahrs_accel);
-
+      
+      // Stuff into ROS message - acceleration in m/s^2
+      // Header
+      imu_msg.header.seq = ahrs_valid_packet_count;
+      imu_msg.header.stamp = ros::Time::now();
+      imu_msg.header.frame_id = imu_frame_id;
+      imu_msg.linear_acceleration.x = 9.81*curr_ahrs_accel.scaled_accel[0];
+      imu_msg.linear_acceleration.y = 9.81*curr_ahrs_accel.scaled_accel[1];
+      imu_msg.linear_acceleration.z = 9.81*curr_ahrs_accel.scaled_accel[2];
+      
      }break;
 
      ///
@@ -451,6 +612,10 @@ void ahrs_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callba
 
       //For little-endian targets, byteswap the data field
       mip_ahrs_scaled_gyro_byteswap(&curr_ahrs_gyro);
+      
+      imu_msg.angular_velocity.x = curr_ahrs_gyro.scaled_gyro[0];
+      imu_msg.angular_velocity.y = curr_ahrs_gyro.scaled_gyro[1];
+      imu_msg.angular_velocity.z = curr_ahrs_gyro.scaled_gyro[2];
 
      }break;
 
@@ -467,9 +632,28 @@ void ahrs_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callba
 
      }break;
 
+     // Quaternion
+     case MIP_AHRS_DATA_QUATERNION:
+     {
+      memcpy(&curr_ahrs_quaternion, field_data, sizeof(mip_ahrs_quaternion));
+
+      //For little-endian targets, byteswap the data field
+      mip_ahrs_quaternion_byteswap(&curr_ahrs_quaternion);
+
+      imu_msg.orientation.x = curr_ahrs_quaternion.q[0];
+      imu_msg.orientation.y = curr_ahrs_quaternion.q[1];
+      imu_msg.orientation.z = curr_ahrs_quaternion.q[2];
+      imu_msg.orientation.w = curr_ahrs_quaternion.q[3];
+
+     }break;
+
      default: break;
     }
    }
+   
+   // Publish
+   imu_pub.publish(imu_msg);
+
   }break;
 
   ///
@@ -507,6 +691,7 @@ void gps_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callbac
  mip_field_header *field_header;
  u8               *field_data;
  u16              field_offset = 0;
+ u8 msgvalid = 1;  // keep track of message validity
 
  //The packet callback can have several types, process them all
  switch(callback_type)
@@ -542,6 +727,21 @@ void gps_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callbac
 
       //For little-endian targets, byteswap the data field
       mip_gps_llh_pos_byteswap(&curr_llh_pos);
+
+      // push into ROS message
+      gps_msg.latitude = curr_llh_pos.latitude;
+      gps_msg.longitude = curr_llh_pos.longitude;
+      gps_msg.altitude = curr_llh_pos.ellipsoid_height;
+      gps_msg.position_covariance_type = 2;  // diagnals known
+      gps_msg.position_covariance[0] = curr_llh_pos.horizontal_accuracy*curr_llh_pos.horizontal_accuracy;
+      gps_msg.position_covariance[4] = curr_llh_pos.horizontal_accuracy*curr_llh_pos.horizontal_accuracy;
+      gps_msg.position_covariance[8] = curr_llh_pos.vertical_accuracy*curr_llh_pos.vertical_accuracy;
+      gps_msg.status.status = curr_llh_pos.valid_flags - 1;
+      gps_msg.status.service = 1;  // assumed
+      // Header
+      gps_msg.header.seq = gps_valid_packet_count;
+      gps_msg.header.stamp = ros::Time::now();
+      gps_msg.header.frame_id = gps_frame_id;
 
      }break;
 
@@ -583,6 +783,7 @@ void gps_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callbac
 
   case MIP_INTERFACE_CALLBACK_CHECKSUM_ERROR:
   {
+    msgvalid = 0;
    gps_checksum_error_packet_count++;
   }break;
 
@@ -592,13 +793,16 @@ void gps_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callbac
 
   case MIP_INTERFACE_CALLBACK_TIMEOUT:
   {
+    msgvalid = 0;
    gps_timeout_packet_count++;
   }break;
   default: break;
  }
 
- // Publish the message
- gps_pub.publish(gps_msg);
+ if (msgvalid){
+     // Publish the message
+     gps_pub.publish(gps_msg);
+   }
 
  print_packet_stats();
 }
