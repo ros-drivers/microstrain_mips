@@ -96,7 +96,7 @@ Possible declination sources:
  * 0x02 – Internal World Magnetic Model (Default)
  * 0x03 – Manual (see declination parameter)
      
-~declination (double, default: 0.23)  
+~declination (double, default: 0.23)  NOT YET IMPLEMENTED - Functionality not found in SDK
 Sets the declination angle in radians.  Only applies of the declination_source=3.
 0.23 radians is +13.27 degrees for Monterey, CA
 TODO - verify the sign of this angle
