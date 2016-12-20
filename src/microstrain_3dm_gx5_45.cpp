@@ -8,6 +8,7 @@
  */
 
 #include "microstrain_3dm_gx5_45.h"
+#include "ros/ros.h"
 
 /*
 // Make C functions callable
@@ -112,29 +113,491 @@ int main(int argc, char **argv)
  mip_filter_magnetometer_magnitude_error_adaptive_measurement_command mag_magnitude_error_command, mag_magnitude_error_readback;
  mip_filter_magnetometer_dip_angle_error_adaptive_measurement_command mag_dip_angle_error_command, mag_dip_angle_error_readback;
 
- ///
- //Verify the command line arguments
- ///
+ // ROS Setup
+ ros::init(argc,argv, "microstrain_3dm_gx5_45");
+ ros::NodeHandle node;
+ ros::NodeHandle private_nh("~");
 
- if(argc != NUM_COMMAND_LINE_ARGUMENTS)
- {
-   printf("Need 3 command line arguments!\n"); // print_command_line_usage();
-  return -1;
+ // ROS Parameters
+ std::string port;
+ int baud;
+ private_nh.param("port", port, std::string("/dev/ttyACM0"));
+ private_nh.param("baudrate",baud,115200);
+
+ baudrate = (u32)baud; //115200;
+
+ //Initialize the interface to the device
+ ROS_INFO("Attempting to open serial port <%s> at <%d> \n",
+	  port.c_str(),baudrate);
+ if(mip_interface_init(port.c_str(), baudrate, &device_interface, DEFAULT_PACKET_TIMEOUT_MS) != MIP_INTERFACE_OK){
+   ROS_ERROR("Couldn't open port!");
  }
 
- const char* portstr = "/dev/ttyUSB0";
- //Convert the arguments
- portstr = argv[1];
- //com_port = atoi(argv[1]);
- baudrate = atoi(argv[2]);
+ float dT=1.5;  // common sleep time after communications
+ /* Setup and test Comms */
+ // Put device into standard mode
+ ROS_INFO("Put device into standard comms mode");
+ device_descriptors_size  = 128*2;
+ com_mode = MIP_SDK_GX4_45_IMU_STANDARD_MODE;
+ while(mip_system_com_mode(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &com_mode) != MIP_INTERFACE_OK){}
+ //Verify device mode setting
+ while(mip_system_com_mode(&device_interface, MIP_FUNCTION_SELECTOR_READ, &com_mode) != MIP_INTERFACE_OK){}
+ ros::Duration(dT).sleep();
+ if(com_mode != MIP_SDK_GX4_45_IMU_STANDARD_MODE)
+   {
+     ROS_ERROR("Appears we didn't get into standard mode!");
+   }
 
- ///
- //Initialize the interface to the device
- ///
- printf("Attempting to open interface on COM port %d \n",com_port);
- if(mip_interface_init(portstr, baudrate, &device_interface, DEFAULT_PACKET_TIMEOUT_MS) != MIP_INTERFACE_OK)
-  return -1;
+ // Put into idle mode
+ ROS_INFO("Idling Device");
+ while(mip_base_cmd_idle(&device_interface) != MIP_INTERFACE_OK){}
+ ros::Duration(dT).sleep();
 
-  printf("hi\n");
-  return -1;
+ // Get supported descriptors
+ /*
+  while(mip_base_cmd_get_device_supported_descriptors(&device_interface, (u8*)device_descriptors, &device_descriptors_size) != MIP_INTERFACE_OK){}
+
+  std::printf("\n\nSupported descriptors:\n\n");
+
+  for(i=0; i< device_descriptors_size/2; i++)
+  {
+    std::printf("Descriptor Set: %02x, Descriptor: %02x\n", device_descriptors[i] >> 8, device_descriptors[i]&0xFF);
+   Sleep(100);
+  }
+
+  std::printf("\n\n");
+  Sleep(1500);
+ */
+
+
+ // Setup callbacks
+ if(mip_interface_add_descriptor_set_callback(&device_interface, MIP_FILTER_DATA_SET, NULL, &filter_packet_callback) != MIP_INTERFACE_OK)
+   return -1;
+  
+ if(mip_interface_add_descriptor_set_callback(&device_interface, MIP_AHRS_DATA_SET, NULL, &ahrs_packet_callback) != MIP_INTERFACE_OK)
+   return -1;
+
+ if(mip_interface_add_descriptor_set_callback(&device_interface, MIP_GPS_DATA_SET, NULL, &gps_packet_callback) != MIP_INTERFACE_OK)
+   return -1;
+
+ // Get rates
+ while(mip_3dm_cmd_get_ahrs_base_rate(&device_interface, &base_rate) != MIP_INTERFACE_OK){}
+ ROS_INFO("AHRS Base Rate => %d Hz", base_rate);
+ ros::Duration(dT).sleep();
+
+ while(mip_3dm_cmd_get_gps_base_rate(&device_interface, &base_rate) != MIP_INTERFACE_OK){}
+ ROS_INFO("GPS Base Rate => %d Hz", base_rate);
+ ros::Duration(dT).sleep();
+ 
+ while(mip_3dm_cmd_get_filter_base_rate(&device_interface, &base_rate) != MIP_INTERFACE_OK){}
+ ROS_INFO("FILTER Base Rate => %d Hz", base_rate);
+  ros::Duration(dT).sleep();
+
+ // Set message formats
+ enable_data_stats_output = 1;
+ ROS_INFO("Setting the AHRS message format");
+ data_stream_format_descriptors[0] = MIP_AHRS_DATA_ACCEL_SCALED;
+ data_stream_format_descriptors[1] = MIP_AHRS_DATA_GYRO_SCALED;
+ data_stream_format_decimation[0]  = 0x32;
+ data_stream_format_decimation[1]  = 0x32;
+ data_stream_format_num_entries = 2;
+ while(mip_3dm_cmd_ahrs_message_format(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &data_stream_format_num_entries, data_stream_format_descriptors, data_stream_format_decimation) != MIP_INTERFACE_OK){}
+ ros::Duration(dT).sleep();
+ ROS_INFO("Poll AHRS data to verify");
+ while(mip_3dm_cmd_poll_ahrs(&device_interface, MIP_3DM_POLLING_ENABLE_ACK_NACK, data_stream_format_num_entries, data_stream_format_descriptors) != MIP_INTERFACE_OK){}
+ ros::Duration(dT).sleep();
+ ROS_INFO(" ");
+ 
+
+ ROS_INFO("Setting GPS stream format");
+ data_stream_format_descriptors[0] = MIP_GPS_DATA_LLH_POS;
+ data_stream_format_descriptors[1] = MIP_GPS_DATA_NED_VELOCITY;
+ data_stream_format_descriptors[2] = MIP_GPS_DATA_GPS_TIME;
+ data_stream_format_decimation[0]  = 0x04;
+ data_stream_format_decimation[1]  = 0x04;
+ data_stream_format_decimation[2]  = 0x04;
+ data_stream_format_num_entries = 3;
+ while(mip_3dm_cmd_gps_message_format(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &data_stream_format_num_entries,data_stream_format_descriptors, data_stream_format_decimation) != MIP_INTERFACE_OK){}
+ ros::Duration(dT).sleep();
+
+ ROS_INFO("Setting Filter stream format");
+ data_stream_format_descriptors[0] = MIP_FILTER_DATA_LLH_POS;
+ data_stream_format_descriptors[1] = MIP_FILTER_DATA_NED_VEL;
+ data_stream_format_descriptors[2] = MIP_FILTER_DATA_ATT_EULER_ANGLES;
+ data_stream_format_decimation[0]  = 0x32;
+ data_stream_format_decimation[1]  = 0x32;
+ data_stream_format_decimation[2]  = 0x32;
+ data_stream_format_num_entries = 3;
+ while(mip_3dm_cmd_filter_message_format(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &data_stream_format_num_entries,data_stream_format_descriptors, data_stream_format_decimation) != MIP_INTERFACE_OK){}
+ ros::Duration(dT).sleep();
+ ROS_INFO("Poll filter data to test stream");
+ while(mip_3dm_cmd_poll_filter(&device_interface, MIP_3DM_POLLING_ENABLE_ACK_NACK, data_stream_format_num_entries, data_stream_format_descriptors) != MIP_INTERFACE_OK){}
+ ros::Duration(dT).sleep();
+ ROS_INFO(" ");
+
+ // Set dynamics mode
+ //dynamics_mode = 1;
+ //while(mip_filter_vehicle_dynamics_mode(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &dynamics_mode) != MIP_INTERFACE_OK){}
+ // Default mode
+ ROS_INFO("Setting default dynamics mode");
+ while(mip_filter_vehicle_dynamics_mode(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, NULL) != MIP_INTERFACE_OK){}
+ ros::Duration(dT).sleep();
+
+ // Default auto-init
+ ROS_INFO("Setting default auto-init");
+  while(mip_filter_auto_initialization(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, NULL) != MIP_INTERFACE_OK){}
+  ros::Duration(dT).sleep();
+
+ // Reset filter
+ ROS_INFO("Reset filter");
+ while(mip_filter_reset_filter(&device_interface) != MIP_INTERFACE_OK){}
+ ros::Duration(dT).sleep();
+
+ // Enable Data streams
+ ROS_INFO("Enabling AHRS stream");
+ enable = 0x01;
+ while(mip_3dm_cmd_continuous_data_stream(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, MIP_3DM_AHRS_DATASTREAM, &enable) != MIP_INTERFACE_OK){}
+ ros::Duration(dT).sleep();
+
+ ROS_INFO("Enabling Filter stream");
+ enable = 0x01;
+ while(mip_3dm_cmd_continuous_data_stream(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, MIP_3DM_INS_DATASTREAM, &enable) != MIP_INTERFACE_OK){}
+ ros::Duration(dT).sleep();
+
+ ROS_INFO("Enabling GPS stream");
+ enable = 0x01;
+while(mip_3dm_cmd_continuous_data_stream(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, MIP_3DM_GPS_DATASTREAM, &enable) != MIP_INTERFACE_OK){}
+ ros::Duration(dT).sleep();
+
+ // Loop
+ enable_data_stats_output = 1;
+
+ ros::Rate r(1000);  // Rate in Hz
+ while (ros::ok()){
+   //Update the parser (this function reads the port and parses the bytes
+   mip_interface_update(&device_interface);
+   r.sleep();
+   //ROS_INFO("Spinning");
+ }
+ 
+ return 0;
+}
+
+
+void filter_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type)
+{
+ mip_field_header *field_header;
+ u8               *field_data;
+ u16              field_offset = 0;
+
+ //ROS_INFO("Filter callback");
+ //The packet callback can have several types, process them all
+ switch(callback_type)
+ {
+  ///
+  //Handle valid packets
+  ///
+
+  case MIP_INTERFACE_CALLBACK_VALID_PACKET:
+  {
+   filter_valid_packet_count++;
+
+   ///
+   //Loop through all of the data fields
+   ///
+
+   while(mip_get_next_field(packet, &field_header, &field_data, &field_offset) == MIP_OK)
+   {
+
+    ///
+    // Decode the field
+    ///
+
+    switch(field_header->descriptor)
+    {
+     ///
+     // Estimated LLH Position
+     ///
+
+     case MIP_FILTER_DATA_LLH_POS:
+     {
+      memcpy(&curr_filter_pos, field_data, sizeof(mip_filter_llh_pos));
+
+      //For little-endian targets, byteswap the data field
+      mip_filter_llh_pos_byteswap(&curr_filter_pos);
+
+     }break;
+
+     ///
+     // Estimated NED Velocity
+     ///
+
+     case MIP_FILTER_DATA_NED_VEL:
+     {
+      memcpy(&curr_filter_vel, field_data, sizeof(mip_filter_ned_velocity));
+
+      //For little-endian targets, byteswap the data field
+      mip_filter_ned_velocity_byteswap(&curr_filter_vel);
+
+     }break;
+
+     ///
+     // Estimated Attitude, Euler Angles
+     ///
+
+     case MIP_FILTER_DATA_ATT_EULER_ANGLES:
+     {
+      memcpy(&curr_filter_angles, field_data, sizeof(mip_filter_attitude_euler_angles));
+
+      //For little-endian targets, byteswap the data field
+      mip_filter_attitude_euler_angles_byteswap(&curr_filter_angles);
+
+     }break;
+
+     default: break;
+    }
+   }
+  }break;
+
+
+  ///
+  //Handle checksum error packets
+  ///
+
+  case MIP_INTERFACE_CALLBACK_CHECKSUM_ERROR:
+  {
+   filter_checksum_error_packet_count++;
+  }break;
+
+  ///
+  //Handle timeout packets
+  ///
+
+  case MIP_INTERFACE_CALLBACK_TIMEOUT:
+  {
+   filter_timeout_packet_count++;
+  }break;
+  default: break;
+ }
+
+ print_packet_stats();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// AHRS Packet Callback
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void ahrs_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type)
+{
+ mip_field_header *field_header;
+ u8               *field_data;
+ u16              field_offset = 0;
+
+ //The packet callback can have several types, process them all
+ switch(callback_type)
+ {
+  ///
+  //Handle valid packets
+  ///
+
+  case MIP_INTERFACE_CALLBACK_VALID_PACKET:
+  {
+   ahrs_valid_packet_count++;
+
+   ///
+   //Loop through all of the data fields
+   ///
+
+   while(mip_get_next_field(packet, &field_header, &field_data, &field_offset) == MIP_OK)
+   {
+
+    ///
+    // Decode the field
+    ///
+
+    switch(field_header->descriptor)
+    {
+     ///
+     // Scaled Accelerometer
+     ///
+
+     case MIP_AHRS_DATA_ACCEL_SCALED:
+     {
+      memcpy(&curr_ahrs_accel, field_data, sizeof(mip_ahrs_scaled_accel));
+
+      //For little-endian targets, byteswap the data field
+      mip_ahrs_scaled_accel_byteswap(&curr_ahrs_accel);
+
+     }break;
+
+     ///
+     // Scaled Gyro
+     ///
+
+     case MIP_AHRS_DATA_GYRO_SCALED:
+     {
+      memcpy(&curr_ahrs_gyro, field_data, sizeof(mip_ahrs_scaled_gyro));
+
+      //For little-endian targets, byteswap the data field
+      mip_ahrs_scaled_gyro_byteswap(&curr_ahrs_gyro);
+
+     }break;
+
+     ///
+     // Scaled Magnetometer
+     ///
+
+     case MIP_AHRS_DATA_MAG_SCALED:
+     {
+      memcpy(&curr_ahrs_mag, field_data, sizeof(mip_ahrs_scaled_mag));
+
+      //For little-endian targets, byteswap the data field
+      mip_ahrs_scaled_mag_byteswap(&curr_ahrs_mag);
+
+     }break;
+
+     default: break;
+    }
+   }
+  }break;
+
+  ///
+  //Handle checksum error packets
+  ///
+
+  case MIP_INTERFACE_CALLBACK_CHECKSUM_ERROR:
+  {
+   ahrs_checksum_error_packet_count++;
+  }break;
+
+  ///
+  //Handle timeout packets
+  ///
+
+  case MIP_INTERFACE_CALLBACK_TIMEOUT:
+  {
+   ahrs_timeout_packet_count++;
+  }break;
+  default: break;
+ }
+
+ print_packet_stats();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// GPS Packet Callback
+//
+////////////////////////////////////////////////////////////////////////////////
+
+void gps_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type)
+{
+ mip_field_header *field_header;
+ u8               *field_data;
+ u16              field_offset = 0;
+
+ //The packet callback can have several types, process them all
+ switch(callback_type)
+ {
+  ///
+  //Handle valid packets
+  ///
+
+  case MIP_INTERFACE_CALLBACK_VALID_PACKET:
+  {
+   gps_valid_packet_count++;
+
+   ///
+   //Loop through all of the data fields
+   ///
+
+   while(mip_get_next_field(packet, &field_header, &field_data, &field_offset) == MIP_OK)
+   {
+
+    ///
+    // Decode the field
+    ///
+
+    switch(field_header->descriptor)
+    {
+     ///
+     // LLH Position
+     ///
+
+     case MIP_GPS_DATA_LLH_POS:
+     {
+      memcpy(&curr_llh_pos, field_data, sizeof(mip_gps_llh_pos));
+
+      //For little-endian targets, byteswap the data field
+      mip_gps_llh_pos_byteswap(&curr_llh_pos);
+
+     }break;
+
+     ///
+     // NED Velocity
+     ///
+
+     case MIP_GPS_DATA_NED_VELOCITY:
+     {
+      memcpy(&curr_ned_vel, field_data, sizeof(mip_gps_ned_vel));
+
+      //For little-endian targets, byteswap the data field
+      mip_gps_ned_vel_byteswap(&curr_ned_vel);
+
+     }break;
+
+     ///
+     // GPS Time
+     ///
+
+     case MIP_GPS_DATA_GPS_TIME:
+     {
+      memcpy(&curr_gps_time, field_data, sizeof(mip_gps_time));
+
+      //For little-endian targets, byteswap the data field
+      mip_gps_time_byteswap(&curr_gps_time);
+
+     }break;
+
+     default: break;
+    }
+   }
+  }break;
+
+
+  ///
+  //Handle checksum error packets
+  ///
+
+  case MIP_INTERFACE_CALLBACK_CHECKSUM_ERROR:
+  {
+   gps_checksum_error_packet_count++;
+  }break;
+
+  ///
+  //Handle timeout packets
+  ///
+
+  case MIP_INTERFACE_CALLBACK_TIMEOUT:
+  {
+   gps_timeout_packet_count++;
+  }break;
+  default: break;
+ }
+
+ print_packet_stats();
+}
+
+void print_packet_stats()
+{
+ if(enable_data_stats_output)
+ {
+  printf("\r%u FILTER (%u errors)    %u AHRS (%u errors)    %u GPS (%u errors) Packets", filter_valid_packet_count,  filter_timeout_packet_count + filter_checksum_error_packet_count,
+                                                                                      ahrs_valid_packet_count, ahrs_timeout_packet_count + ahrs_checksum_error_packet_count,
+                                                                                      gps_valid_packet_count,  gps_timeout_packet_count + gps_checksum_error_packet_count);
+ }
 }

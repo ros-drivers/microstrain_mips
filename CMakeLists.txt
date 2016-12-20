@@ -184,6 +184,8 @@ add_executable(microstrain_3dm_gx5_45
   ${MIPSRC} 
 )
 
+target_link_libraries(microstrain_3dm_gx5_45 ${catkin_LIBRARIES})
+
 #target_link_libraries(GX4-45_Test_node ${serial_LIBRARIES} rt pthread)
 
 #${MIPINC}

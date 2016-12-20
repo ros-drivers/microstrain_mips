@@ -1,0 +1,9 @@
+<launch>
+  <node name="microstrain_3dm_gx5_45" 
+  pkg="microstrain_3dm_gx5_45" 
+  type="microstrain_3dm_gx5_45" output="screen">
+    <param name="port" value="/dev/ttyACM0" type="str" />
+    <param name="baudrate" value="115200" type="int" />
+  </node>
+  
+</launch>
