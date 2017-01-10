@@ -171,13 +171,24 @@ add_executable(GX4-45_Test
   ${MIPSRC} 
 )
 
-add_executable(microstrain_3dm_gx5_45
+add_library(microstrain_3dm_gx5_45
   src/microstrain_3dm_gx5_45.cpp
   src/mip_sdk_user_functions.c
   ${MIPSRC} 
 )
+add_executable(microstrain_3dm_gx5_45_node
+  src/microstrain_3dm_gx5_45_node.cpp
+)
 
-target_link_libraries(microstrain_3dm_gx5_45 ${catkin_LIBRARIES})
+
+target_link_libraries(microstrain_3dm_gx5_45 
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(microstrain_3dm_gx5_45_node 
+  microstrain_3dm_gx5_45
+  ${catkin_LIBRARIES}
+)
 
 #target_link_libraries(GX4-45_Test_node ${serial_LIBRARIES} rt pthread)
 

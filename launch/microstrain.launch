@@ -7,9 +7,9 @@
        value="$(find microstrain_3dm_gx5_45)/config/custom_rosconsole.conf"/>
 
   <!-- Microstain sensor node -->
-  <node name="microstrain_3dm_gx5_45" 
+  <node name="microstrain_3dm_gx5_45_node" 
   pkg="microstrain_3dm_gx5_45" 
-  type="microstrain_3dm_gx5_45" output="screen">
+  type="microstrain_3dm_gx5_45_node" output="screen">
     <!--<param name="port" value="/dev/ttyACM0" type="str" />-->
     <param name="port" value="/dev/ttyUSB0" type="str" />
     <param name="baudrate" value="115200" type="int" />
