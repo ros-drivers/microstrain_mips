@@ -99,10 +99,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES microstrain_3dm_gx5_45
-#  CATKIN_DEPENDS roscpp
-#  DEPENDS system_lib
+  INCLUDE_DIRS include
+  CATKIN_DEPENDS roscpp
 )
 
 ###########
@@ -123,7 +121,7 @@ set(MIPUTILSRC MIPSDK/C/Utilities/Source)
 # contains both .c and .h files
 # set(MIPUSR "MIPSDK/C/Library/User\ Functions")
 #include_directories(include ${MIPLIBINC} ${MIPUTILINC} ${MIPUSR})
-include_directories(include ${MIPLIBINC} ${MIPUTILINC})
+include_directories(include/${PROJECT_NAME} ${MIPLIBINC} ${MIPUTILINC} ${catkin_INCLUDE_DIRS})
 # Include the ROS serial headers
 #include_directories(${serial_INCLUDE_DIRS})
 
@@ -153,11 +151,6 @@ set(MIPSRC
   ${MIPLIBSRC}/ring_buffer.c
 #  ${MIPUSR}/mip_sdk_user_functions.c  
   ${MIPUTILSRC}/byteswap_utilities.c
-)
-
-
-include_directories(
-  ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library

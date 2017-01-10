@@ -1,8 +1,17 @@
+<?xml version="1.0"?>
 <launch>
+  <!-- Standalone example launch file -->
+
+  <!-- For setting debug level to debug -->
+  <env name="ROSCONSOLE_CONFIG_FILE" 
+       value="$(find microstrain_3dm_gx5_45)/config/custom_rosconsole.conf"/>
+
+  <!-- Microstain sensor node -->
   <node name="microstrain_3dm_gx5_45" 
   pkg="microstrain_3dm_gx5_45" 
   type="microstrain_3dm_gx5_45" output="screen">
-    <param name="port" value="/dev/ttyACM0" type="str" />
+    <!--<param name="port" value="/dev/ttyACM0" type="str" />-->
+    <param name="port" value="/dev/ttyUSB0" type="str" />
     <param name="baudrate" value="115200" type="int" />
     <param name="gps_frame_id" value="world" type="str" />
     <param name="imu_frame_id" value="imu" type="str" />
@@ -14,5 +23,10 @@
     <param name="declination_source" value="2" type="int" />
     <param name="declination" value="0.23" type="double" />
   </node>
+
+  <!-- Diagnostics -->
+  <node pkg="rqt_topic" type="rqt_topic" name="rqt_topic"/>
+  <!--<node pkg="rqt_plot" type="rqt_plot" name="pid_setpoints"
+      args="/yaw_pid_debug/Setpoint /vel_pid_debug/Setpoint"/>-->
   
 </launch>
