@@ -78,11 +78,23 @@ Documentation for the ROS node - to be moved to ROS wiki when driver is released
  
  ## Parameters
  
+ ### Comms Parameters
  ~port (string, default: /dev/ttyACM0) 
 The serial port to which the device is connected
 
 ~baud_rate (integer, default: 115200) 
 Baud rate of the sensor. 
+
+### Configuration Paramaters
+~device_setup (bool, default: false)
+If true, puts device in idle mode and configures the device.
+If false, skips configuration.  Important: the configuration parameters below are not effective unless this flag is true.
+
+~readback_settings (bool, default: true)
+
+~save_settings (bool, default: true)
+
+~auto_init (bool, default: true)
 
 ~dynamics_mode (int, default: 1)   TODO
      * 0x01 – Portable (device default)
