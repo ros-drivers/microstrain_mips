@@ -76,8 +76,6 @@ namespace Microstrain
   void print_packet_stats();
 
   // Variables/fields
-  u8 enable_data_stats_output_;
-
   //The primary device interface structure
   mip_interface device_interface_;
 

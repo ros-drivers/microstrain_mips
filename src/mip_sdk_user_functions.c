@@ -74,7 +74,7 @@ u16 mip_sdk_port_open(void **port_handle, const char *portstr, int baudrate)
 
  // Copy portstr argument to port_name
  strcat(port_name,portstr);
- printf("Attempting to open port: %s\n",port_name);
+ //printf("Attempting to open port: %s\n",port_name);
  //Attempt to open the specified port
  local_port_handle = open(port_name, O_RDWR | O_NOCTTY);
 
@@ -85,7 +85,7 @@ u16 mip_sdk_port_open(void **port_handle, const char *portstr, int baudrate)
 
   return MIP_USER_FUNCTION_ERROR;
  }
- printf("Port: %s opened successfully.\n",port_name);
+ //printf("Port: %s opened successfully.\n",port_name);
  
  //Convert specified baud to hardware specific value
  switch (baudrate)
