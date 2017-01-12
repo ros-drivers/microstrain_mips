@@ -7,87 +7,13 @@ project(microstrain_3dm_gx5_45)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   tf2
+  tf2_ros
+  std_msgs
+  std_srvs
+  geometry_msgs
+  sensor_msgs
+  nav_msgs
 )
-
-## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
-
-
-## Uncomment this if the package has a setup.py. This macro ensures
-## modules and global scripts declared therein get installed
-## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
-
-################################################
-## Declare ROS messages, services and actions ##
-################################################
-
-## To declare and build messages, services or actions from within this
-## package, follow these steps:
-## * Let MSG_DEP_SET be the set of packages whose message types you use in
-##   your messages/services/actions (e.g. std_msgs, actionlib_msgs, ...).
-## * In the file package.xml:
-##   * add a build_depend tag for "message_generation"
-##   * add a build_depend and a run_depend tag for each package in MSG_DEP_SET
-##   * If MSG_DEP_SET isn't empty the following dependency has been pulled in
-##     but can be declared for certainty nonetheless:
-##     * add a run_depend tag for "message_runtime"
-## * In this file (CMakeLists.txt):
-##   * add "message_generation" and every package in MSG_DEP_SET to
-##     find_package(catkin REQUIRED COMPONENTS ...)
-##   * add "message_runtime" and every package in MSG_DEP_SET to
-##     catkin_package(CATKIN_DEPENDS ...)
-##   * uncomment the add_*_files sections below as needed
-##     and list every .msg/.srv/.action file to be processed
-##   * uncomment the generate_messages entry below
-##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
-
-## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
-
-## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
-
-## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
-
-## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
-
-################################################
-## Declare ROS dynamic reconfigure parameters ##
-################################################
-
-## To declare and build dynamic reconfigure parameters within this
-## package, follow these steps:
-## * In the file package.xml:
-##   * add a build_depend and a run_depend tag for "dynamic_reconfigure"
-## * In this file (CMakeLists.txt):
-##   * add "dynamic_reconfigure" to
-##     find_package(catkin REQUIRED COMPONENTS ...)
-##   * uncomment the "generate_dynamic_reconfigure_options" section below
-##     and list every .cfg file to be processed
-
-## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
 
 ###################################
 ## catkin specific configuration ##
@@ -99,18 +25,25 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
-  CATKIN_DEPENDS roscpp
+  INCLUDE_DIRS 
+    include
+  CATKIN_DEPENDS
+    roscpp
+    cmake_modules
+    tf2
+    tf2_ros
+    std_msgs
+    std_srvs
+    geometry_msgs
+    sensor_msgs
+    nav_msgs
 )
 
 ###########
 ## Build ##
 ###########
 
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
-
-# Directories containing MIP header files
+# Directories containing MIP SDK header files
 set(MIPLIBINC MIPSDK/C/Library/Include)
 set(MIPLIBSRC MIPSDK/C/Library/Source)
 set(MIPUTILINC MIPSDK/C/Utilities/Include)
@@ -122,8 +55,6 @@ set(MIPUTILSRC MIPSDK/C/Utilities/Source)
 # set(MIPUSR "MIPSDK/C/Library/User\ Functions")
 #include_directories(include ${MIPLIBINC} ${MIPUTILINC} ${MIPUSR})
 include_directories(include/${PROJECT_NAME} ${MIPLIBINC} ${MIPUTILINC} ${catkin_INCLUDE_DIRS})
-# Include the ROS serial headers
-#include_directories(${serial_INCLUDE_DIRS})
 
 set(MIPINC
   ${MIPLIBINC}/mip.h
@@ -153,26 +84,16 @@ set(MIPSRC
   ${MIPUTILSRC}/byteswap_utilities.c
 )
 
-## Declare a C++ library
-# add_library(microstrain_3dm_gx5_45
-#   src/${PROJECT_NAME}/microstrain_3dm_gx5_45.cpp
-# )
-
-## Add cmake target dependencies of the library
-## as an example, code may need to be generated before libraries
-## either from message generation or dynamic reconfigure
-# add_dependencies(microstrain_3dm_gx5_45 ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-## Declare a C++ executable
-# add_executable(microstrain_3dm_gx5_45_node src/microstrain_3dm_gx5_45_node.cpp)
-add_executable(GX4-45_Test
-  src/GX4-45_Test.c
+# Libraries
+add_library(microstrain_3dm_gx5_45
+  src/microstrain_3dm_gx5_45.cpp
   src/mip_sdk_user_functions.c
   ${MIPSRC} 
 )
 
-add_library(microstrain_3dm_gx5_45
-  src/microstrain_3dm_gx5_45.cpp
+# Executables
+add_executable(GX4-45_Test
+  src/GX4-45_Test.c
   src/mip_sdk_user_functions.c
   ${MIPSRC} 
 )
@@ -180,27 +101,14 @@ add_executable(microstrain_3dm_gx5_45_node
   src/microstrain_3dm_gx5_45_node.cpp
 )
 
-
+# Linking
 target_link_libraries(microstrain_3dm_gx5_45 
   ${catkin_LIBRARIES}
 )
-
 target_link_libraries(microstrain_3dm_gx5_45_node 
   microstrain_3dm_gx5_45
   ${catkin_LIBRARIES}
 )
-
-#target_link_libraries(GX4-45_Test_node ${serial_LIBRARIES} rt pthread)
-
-#${MIPINC}
-## Add cmake target dependencies of the executable
-## same as for the library above
-# add_dependencies(microstrain_3dm_gx5_45_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-## Specify libraries to link a library or executable target against
-# target_link_libraries(microstrain_3dm_gx5_45_node
-#   ${catkin_LIBRARIES}
-# )
 
 #############
 ## Install ##
