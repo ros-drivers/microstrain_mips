@@ -113,20 +113,35 @@ Sets the declination angle in radians.  Only applies of the declination_source=3
 0.23 radians is +13.27 degrees for Monterey, CA
 TODO - verify the sign of this angle
 
-~gps_frame_id (string, default: world)
-Value for the frame_id field of the 
+
+~gps_frame_id (string, default: wgs84)
+Value for the frame_id field in the header of the NavSatFix message published on the gps/fix topic
+
+~imu_frame_id (string, default: base_link)
+Value of the frame_id field in the header of the Imu message publised in the imu/data topic
+
+~odom_frame_id (string, default: wgs84)
+Value of the frame_id field in the header of the Odometry message published on the nav/odom topic
+
+~odom_child_frame_id (string, default: base_link)
+Value of the child_frame_id field in the Odometry message published on the nav/odom topic.
+
 
 ~child_frame_id (string, default: /base_footprint)   TODO
 Odometry data will be published with this child_frame_id.
 
-~publish_pose (bool, default: true) 
-Sets if ~imu/pose should be advertised or not. 
+
+Note - to maximize performance you may wan to only publish the Odometry messages
+~publish_gps (bool, default: true) 
+Sets if ~gps/fix should be advertised/published or not. 
 
 ~publish_imu (bool, default: true) 
-Sets if ~imu/data should be advertised or not. 
+Sets if ~imu/data should be advertised/published or not. 
 
-~publish_gps (bool, default: true) 
-Sets if ~gps/fix should be advertised or not. 
+~publish_odom (bool, default: true) 
+Sets if ~nav/odom should be advertised/published or not. 
+
+
 
 ~gps_rate (int, default: 1) 
 The rates are set as a target value in Hz.  The device accepts a decimation value for each output; the packet rate is base_rate/decimation, where decimation is an intgeter.  The program calculates the decimation to get close the the desired rate, based on polling the sensor for its base rate.
