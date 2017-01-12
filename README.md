@@ -22,6 +22,9 @@ Here are the steps I took to build the code...
  * Dowload the zip archive "MIP C Code Sample for Windows and Linux Version 1.1" from the Microstrain website
  * Extract the archive into the directory "MIPSDK".  The first directory in MIPSDK should be "C"
  * In C/Library/User Functions/mip_sdk_user_functions.c, comment out the line "#include <windows.h>
+  rosdep install --from-paths src/microstrain_3dm_gx5_45/ --ignore-src --rosdistro=indigo --simulate
+
+ rosdep install --from-paths src/microstrain_3dm_gx5_45/ --ignore-src --rosdistro=indigo
  * cd catkin_sw
  * catkin_make
  
