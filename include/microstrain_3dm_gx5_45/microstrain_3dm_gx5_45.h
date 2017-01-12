@@ -125,8 +125,12 @@ namespace Microstrain
   std_msgs::Int16MultiArray nav_status_msg_;
   std::string gps_frame_id_;
   std::string imu_frame_id_;
-  std::string nav_frame_id_;
-    
+  std::string odom_frame_id_;
+  std::string odom_child_frame_id_;
+  bool publish_gps_;
+  bool publish_imu_;
+  bool publish_odom_;
+
   // Update rates
   int nav_rate_;
   int imu_rate_;

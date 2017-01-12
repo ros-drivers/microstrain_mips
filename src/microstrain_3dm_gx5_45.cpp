@@ -3,19 +3,13 @@
  * @author  Brian S. Bingham
  * @version 0.1
  *
- * @brief ROS Node for Microstrain
+ * @brief Microstrain driver
  *
  */
 
 #include "microstrain_3dm_gx5_45.h"
+#include <tf2/LinearMath/Transform.h>
 #include <string>
-
-/*
-// Make C functions callable
-extern "C" {
-  u16 mip_interface_init(const char *portstr, u32 baudrate, mip_interface *device_interface, u32 packet_timeout_val);
-};
-*/
 
 namespace Microstrain
 {
@@ -32,7 +26,11 @@ namespace Microstrain
     gps_checksum_error_packet_count_(0),
     gps_frame_id_("gps_frame"),
     imu_frame_id_("imu_frame"),
-    nav_frame_id_("nav_frame")
+    odom_frame_id_("odom_frame"),
+    odom_child_frame_id_("odom_frame"),
+    publish_gps_(true),
+    publish_imu_(true),
+    publish_odom_(true)
   {
     // pass
   }
@@ -58,6 +56,7 @@ namespace Microstrain
     double declination;
     
     // Variables
+    tf2::Quaternion quat;
     base_device_info_field device_info;
     u8  temp_string[20] = {0};
     u32 bit_result;
@@ -142,17 +141,25 @@ namespace Microstrain
     declination_source_u8 = (u8)declination_source;
     //declination_source_command=(u8)declination_source;
     private_nh.param("declination",declination,0.23);
-    // ROS Parameters
-    private_nh.param("gps_frame_id",gps_frame_id_, std::string("world"));
-    private_nh.param("imu_frame_id",gps_frame_id_, std::string("sensor"));
-    private_nh.param("nav_frame_id",gps_frame_id_, std::string("world"));
+    private_nh.param("gps_frame_id",gps_frame_id_, std::string("wgs84"));
+    private_nh.param("imu_frame_id",imu_frame_id_, std::string("base_link"));
+    private_nh.param("odom_frame_id",odom_frame_id_, std::string("wgs84"));
+    private_nh.param("odom_child_frame_id",odom_child_frame_id_,
+		     std::string("base_link"));
+    private_nh.param("publish_gps",publish_gps_, true);
+    private_nh.param("publish_imu",publish_imu_, true);
+    private_nh.param("publish_odom",publish_odom_, true);
 
-    
     // ROS publishers and subscribers
-    gps_pub_ = node.advertise<sensor_msgs::NavSatFix>("gps/fix",100);
-    imu_pub_ = node.advertise<sensor_msgs::Imu>("imu/data",100);
-    nav_pub_ = node.advertise<nav_msgs::Odometry>("nav/odom",100);
-    nav_status_pub_ = node.advertise<std_msgs::Int16MultiArray>("nav/status",100);
+    if (publish_gps_)
+      gps_pub_ = node.advertise<sensor_msgs::NavSatFix>("gps/fix",100);
+    if (publish_imu_)
+      imu_pub_ = node.advertise<sensor_msgs::Imu>("imu/data",100);
+    if (publish_odom_)
+    {
+      nav_pub_ = node.advertise<nav_msgs::Odometry>("nav/odom",100);
+      nav_status_pub_ = node.advertise<std_msgs::Int16MultiArray>("nav/status",100);
+    }
     ros::ServiceServer service = node.advertiseService("reset_kf", &Microstrain::reset_callback, this);
 
 
@@ -452,6 +459,9 @@ namespace Microstrain
     u8               *field_data;
     u16              field_offset = 0;
 
+    // If we aren't publishing, then return
+    if (!publish_odom_)
+      return;
     //ROS_INFO("Filter callback");
     //The packet callback can have several types, process them all
     switch(callback_type)
@@ -490,7 +500,8 @@ namespace Microstrain
 
 		    nav_msg_.header.seq = filter_valid_packet_count_;
 		    nav_msg_.header.stamp = ros::Time::now();
-		    nav_msg_.header.frame_id = nav_frame_id_;
+		    nav_msg_.header.frame_id = odom_frame_id_;
+		    nav_msg_.child_frame_id = odom_child_frame_id_;
 		    nav_msg_.pose.pose.position.y = curr_filter_pos_.latitude;
 		    nav_msg_.pose.pose.position.x = curr_filter_pos_.longitude;
 		    nav_msg_.pose.pose.position.z = curr_filter_pos_.ellipsoid_height;
@@ -508,9 +519,20 @@ namespace Microstrain
 		    //For little-endian targets, byteswap the data field
 		    mip_filter_ned_velocity_byteswap(&curr_filter_vel_);
       
-		    nav_msg_.twist.twist.linear.x = curr_filter_vel_.east;
-		    nav_msg_.twist.twist.linear.y = curr_filter_vel_.north;
-		    nav_msg_.twist.twist.linear.z = -1*curr_filter_vel_.down;
+		    // rotate velocities from NED to sensor coordinates
+		    tf2::Quaternion nav_quat(curr_filter_quaternion_.q[0],
+					     curr_filter_quaternion_.q[1],
+					     curr_filter_quaternion_.q[2],
+					     curr_filter_quaternion_.q[3]);
+					     
+		    tf2::Vector3 vel_enu(curr_filter_vel_.east,
+					 curr_filter_vel_.north,
+					 -1.0*curr_filter_vel_.down);
+		    tf2::Vector3 vel_in_sensor_frame = tf2::quatRotate(nav_quat,vel_enu);
+		      
+		    nav_msg_.twist.twist.linear.x = vel_in_sensor_frame[0]; //curr_filter_vel_.east;
+		    nav_msg_.twist.twist.linear.y =  vel_in_sensor_frame[0]; //curr_filter_vel_.north;
+		    nav_msg_.twist.twist.linear.z =  vel_in_sensor_frame[0]; //-1*curr_filter_vel_.down;
 		  }break;
 
 		  ///
@@ -658,7 +680,9 @@ namespace Microstrain
     mip_field_header *field_header;
     u8               *field_data;
     u16              field_offset = 0;
-
+    // If we aren't publishing, then return
+    if (!publish_imu_)
+      return;
     //The packet callback can have several types, process them all
     switch(callback_type)
       {
@@ -796,6 +820,9 @@ namespace Microstrain
     u16              field_offset = 0;
     u8 msgvalid = 1;  // keep track of message validity
 
+    // If we aren't publishing, then return
+    if (!publish_gps_)
+      return;
     //The packet callback can have several types, process them all
     switch(callback_type)
       {

@@ -24,14 +24,17 @@
     <param name="dynamics_mode" value="1" type="int" />
     <param name="declination_source" value="2" type="int" />
     <param name="declination" value="0.23" type="double" />
+    
+    <param name="gps_frame_id" value="wgs84" type="str" />
+    <param name="imu_frame_id" value="base_link" type="str" />
+    <param name="odom_frame_id" value="wgs84" type="str" />
+    <param name="odom_child_frame_id" value="base_link" type="str" />
 
+    <param name="publish_gps" value="true" type="bool" />
+    <param name="publish_imu" value="true" type="bool" />
+    <param name="publish_odom" value="true" type="bool" />
 
-
-    <param name="gps_frame_id" value="world" type="str" />
-    <param name="imu_frame_id" value="imu" type="str" />
-    <param name="nav_frame_id" value="world" type="str" />
-
-
+    
   </node>
 
   <!-- Diagnostics -->
