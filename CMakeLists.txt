@@ -102,6 +102,8 @@ add_executable(microstrain_3dm_gx5_45_node
 )
 
 # Linking
+target_link_libraries(GX4-45_Test rt)
+
 target_link_libraries(microstrain_3dm_gx5_45 
   ${catkin_LIBRARIES}
 )
