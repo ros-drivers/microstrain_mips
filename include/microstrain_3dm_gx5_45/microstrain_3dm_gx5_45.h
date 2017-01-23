@@ -1,6 +1,27 @@
 /** ROS node 
- *
- */
+
+/* 
+
+Copyright (c) 2017, Brian Bingham
+All rights reserved
+
+This file is part of the microstrain_3dm_gx5_45 package.
+
+microstrain_3dm_gx5_45 is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+microstrain_3dm_gx5_45 is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 
 #ifndef _MICROSTRAIN_3DM_GX5_45_H
 #define _MICROSTRAIN_3DM_GX5_45_H
@@ -77,8 +98,6 @@ namespace Microstrain
   void print_packet_stats();
 
   // Variables/fields
-  u8 enable_data_stats_output_;
-
   //The primary device interface structure
   mip_interface device_interface_;
 
@@ -128,8 +147,12 @@ namespace Microstrain
   std_msgs::Int16MultiArray nav_status_msg_;
   std::string gps_frame_id_;
   std::string imu_frame_id_;
-  std::string nav_frame_id_;
-    
+  std::string odom_frame_id_;
+  std::string odom_child_frame_id_;
+  bool publish_gps_;
+  bool publish_imu_;
+  bool publish_odom_;
+
   // Update rates
   int nav_rate_;
   int imu_rate_;
