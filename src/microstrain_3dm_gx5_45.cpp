@@ -1,21 +1,5 @@
-/**
- * @file    microstrain_3dm_gx5_45.cpp
- * @author  Brian S. Bingham
- * @version 0.1
- *
- * @brief ROS Node for Microstrain
- *
- */
-
 #include "microstrain_3dm_gx5_45.h"
 #include <string>
-
-/*
-// Make C functions callable
-extern "C" {
-  u16 mip_interface_init(const char *portstr, u32 baudrate, mip_interface *device_interface, u32 packet_timeout_val);
-};
-*/
 
 namespace Microstrain
 {

@@ -1,12 +1,6 @@
-/**
- * @file    microstrain_3dm_gx5_45.h
- * @author  Brian S. Bingham
- * @version 0.1
- *
- * @brief ROS Node for Microstrain
+/** ROS node 
  *
  */
-
 
 #ifndef _MICROSTRAIN_3DM_GX5_45_H
 #define _MICROSTRAIN_3DM_GX5_45_H
@@ -43,25 +37,32 @@ extern "C" {
 //macro to cause Sleep call to behave as it does for windows
 #define Sleep(x) usleep(x*1000.0)
 
-
+/**
+ * \brief Contains functions for micostrain driver
+ */
 namespace Microstrain
 {
+  /**
+   * \brief Microstrain class
+   * 
+   */
   class Microstrain
   {
   public:
-    //! @brief Constructor
-    //!
+    /**
+     * Contructor 
+     */
     Microstrain();
 
-    //! @brief Destructor
-    //!
+    /** Destructor */
     ~Microstrain();
 
-    //! @brief Main run loop
-    //!
+    /** 
+     * Main run loop
+     */
     void run();
    
-    //! @brief Nav estimate callback
+    //! Nav estimate callback
     void filter_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
     //! @brief AHRS callback
     void ahrs_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
@@ -141,10 +142,18 @@ namespace Microstrain
   extern "C"
 #endif
   {
-    
-    //! @brief Nav filter callback wrapper
+   
+    /**
+     * Callback for KF estimate packets from sensor.
+     */
     void filter_packet_callback_wrapper(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
+    /**
+     * Callback for AHRS packets from sensor.
+     */
     void ahrs_packet_callback_wrapper(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
+    /**
+     * Callback for GPS packets from sensor.
+     */
     void gps_packet_callback_wrapper(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
     
 #ifdef __cplusplus
