@@ -212,6 +212,7 @@ namespace Microstrain
       com_mode = MIP_SDK_GX4_45_IMU_STANDARD_MODE;
       while(mip_system_com_mode(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &com_mode) != MIP_INTERFACE_OK){}
       //Verify device mode setting
+      ROS_INFO("Verify comm's mode");
       while(mip_system_com_mode(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &com_mode) != MIP_INTERFACE_OK){}
       ros::Duration(dT).sleep();
       if(com_mode != MIP_SDK_GX4_45_IMU_STANDARD_MODE)
