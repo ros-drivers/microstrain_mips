@@ -561,10 +561,9 @@ namespace Microstrain
 		    mip_filter_ned_velocity_byteswap(&curr_filter_vel_);
       
 		    // rotate velocities from NED to sensor coordinates
-		    // put into ENU - swap X/Y, invert Z
-		    tf2::Quaternion nav_quat(curr_filter_quaternion_.q[2],
-					     curr_filter_quaternion_.q[1],
-					     -1.0*curr_filter_quaternion_.q[3],
+		    tf2::Quaternion nav_quat(curr_filter_quaternion_.q[1],
+					     curr_filter_quaternion_.q[2],
+					     curr_filter_quaternion_.q[3],
 					     curr_filter_quaternion_.q[0]);
 					     
 		    tf2::Vector3 vel_enu(curr_filter_vel_.east,
@@ -599,9 +598,9 @@ namespace Microstrain
 		    mip_filter_attitude_quaternion_byteswap(&curr_filter_quaternion_);
 
 		    // put into ENU - swap X/Y, invert Z
-		    nav_msg_.pose.pose.orientation.x = curr_filter_quaternion_.q[2];
-		    nav_msg_.pose.pose.orientation.y = curr_filter_quaternion_.q[1];
-		    nav_msg_.pose.pose.orientation.z = -1.0*curr_filter_quaternion_.q[3];
+		    nav_msg_.pose.pose.orientation.x = curr_filter_quaternion_.q[1];
+		    nav_msg_.pose.pose.orientation.y = curr_filter_quaternion_.q[2];
+		    nav_msg_.pose.pose.orientation.z = curr_filter_quaternion_.q[3];
 		    nav_msg_.pose.pose.orientation.w = curr_filter_quaternion_.q[0];
 
 		  }break;
@@ -814,9 +813,9 @@ namespace Microstrain
 		    //For little-endian targets, byteswap the data field
 		    mip_ahrs_quaternion_byteswap(&curr_ahrs_quaternion_);
 		    // put into ENU - swap X/Y, invert Z
-		    imu_msg_.orientation.x = curr_ahrs_quaternion_.q[2];
-		    imu_msg_.orientation.y = curr_ahrs_quaternion_.q[1];
-		    imu_msg_.orientation.z = -1.0*curr_ahrs_quaternion_.q[3];
+		    imu_msg_.orientation.x = curr_ahrs_quaternion_.q[1];
+		    imu_msg_.orientation.y = curr_ahrs_quaternion_.q[2];
+		    imu_msg_.orientation.z = curr_ahrs_quaternion_.q[3];
 		    imu_msg_.orientation.w = curr_ahrs_quaternion_.q[0];
 
 		  }break;
