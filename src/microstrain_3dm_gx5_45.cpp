@@ -371,6 +371,15 @@ namespace Microstrain
       ROS_INFO("Heading source = %#04X",readback_headingsource);
       ros::Duration(dT).sleep();
 
+      if (save_settings)
+      {
+	ROS_INFO("Saving heading source to EEPROM");
+	while(mip_filter_heading_source(&device_interface_, 
+					MIP_FUNCTION_SELECTOR_STORE_EEPROM, 
+					NULL)!= MIP_INTERFACE_OK){}
+	ros::Duration(dT).sleep();
+      }
+
       ////////// Auto Initialization
       // Set auto-initialization based on ROS parameter
       ROS_INFO("Setting auto-initinitalization to: %#04X",auto_init);
