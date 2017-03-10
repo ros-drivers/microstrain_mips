@@ -644,6 +644,10 @@ namespace Microstrain
 		    mip_filter_status_byteswap(&curr_filter_status_);
       
 		    nav_status_msg_.data.clear();
+		    ROS_DEBUG_THROTTLE(1.0,"Filter Status: %#6X, Dyn. Mode: %#6X, Filter State: %#6X",
+				       curr_filter_status_.filter_state,
+				       curr_filter_status_.dynamics_mode,
+				       curr_filter_status_.status_flags);
 		    nav_status_msg_.data.push_back(curr_filter_status_.filter_state);
 		    nav_status_msg_.data.push_back(curr_filter_status_.dynamics_mode);
 		    nav_status_msg_.data.push_back(curr_filter_status_.status_flags);
