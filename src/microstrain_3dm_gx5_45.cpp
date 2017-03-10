@@ -815,7 +815,7 @@ namespace Microstrain
 		    // put into ENU - swap X/Y, invert Z
 		    imu_msg_.orientation.x = curr_ahrs_quaternion_.q[2];
 		    imu_msg_.orientation.y = curr_ahrs_quaternion_.q[1];
-		    -1.0*imu_msg_.orientation.z = curr_ahrs_quaternion_.q[3];
+		    imu_msg_.orientation.z = -1.0*curr_ahrs_quaternion_.q[3];
 		    imu_msg_.orientation.w = curr_ahrs_quaternion_.q[0];
 
 		  }break;
