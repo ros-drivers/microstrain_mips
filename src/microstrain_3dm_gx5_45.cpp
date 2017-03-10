@@ -547,8 +547,8 @@ namespace Microstrain
 		    tf2::Vector3 vel_in_sensor_frame = tf2::quatRotate(nav_quat,vel_enu);
 		      
 		    nav_msg_.twist.twist.linear.x = vel_in_sensor_frame[0]; //curr_filter_vel_.east;
-		    nav_msg_.twist.twist.linear.y =  vel_in_sensor_frame[0]; //curr_filter_vel_.north;
-		    nav_msg_.twist.twist.linear.z =  vel_in_sensor_frame[0]; //-1*curr_filter_vel_.down;
+		    nav_msg_.twist.twist.linear.y =  vel_in_sensor_frame[1]; //curr_filter_vel_.north;
+		    nav_msg_.twist.twist.linear.z =  vel_in_sensor_frame[2]; //-1*curr_filter_vel_.down;
 		  }break;
 
 		  ///
