@@ -60,6 +60,7 @@ namespace Microstrain
     bool save_settings = true;
     bool auto_init = true;
     u8 auto_init_u8 = 1;
+    u8 readback_headingsource = 0;
     u8 readback_auto_init = 0;
     u8 dynamics_mode           = 0;
     u8 readback_dynamics_mode  = 0;
@@ -355,6 +356,18 @@ namespace Microstrain
 	ros::Duration(dT).sleep();
       }
 
+      ////////// Heading Source
+      ROS_INFO("Set heading source to internal mag.");
+      while(mip_filter_heading_source(&device_interface_, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, &heading_source) != MIP_INTERFACE_OK){} 
+      ros::Duration(dT).sleep();
+
+      ROS_INFO("Read heading source...");
+      while(mip_filter_heading_source(&device_interface_, 
+				      MIP_FUNCTION_SELECTOR_READ, 
+				      &readback_headingsource)!= MIP_INTERFACE_OK){}
+      ROS_INFO("Heading source = %#04X",readback_headingsource);
+      ros::Duration(dT).sleep();
+
       ////////// Auto Initialization
       // Set auto-initialization based on ROS parameter
       ROS_INFO("Setting auto-initinitalization to: %d",auto_init);
@@ -644,7 +657,7 @@ namespace Microstrain
 		    mip_filter_status_byteswap(&curr_filter_status_);
       
 		    nav_status_msg_.data.clear();
-		    ROS_DEBUG_THROTTLE(1.0,"Filter Status: %#6X, Dyn. Mode: %#6X, Filter State: %#6X",
+		    ROS_DEBUG_THROTTLE(1.0,"Filter Status: %#06X, Dyn. Mode: %#06X, Filter State: %#06X",
 				       curr_filter_status_.filter_state,
 				       curr_filter_status_.dynamics_mode,
 				       curr_filter_status_.status_flags);
