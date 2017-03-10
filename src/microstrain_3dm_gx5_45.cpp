@@ -144,12 +144,12 @@ namespace Microstrain
     private_nh.param("dynamics_mode",pdyn_mode,1);
     dynamics_mode = (u8)pdyn_mode;
     if (dynamics_mode < 1 || dynamics_mode > 3){
-      ROS_WARN("dynamics_mode can't be %d, must be 1, 2 or 3.  Setting to 1.",dynamics_mode);
+      ROS_WARN("dynamics_mode can't be %#04X, must be 1, 2 or 3.  Setting to 1.",dynamics_mode);
       dynamics_mode = 1;
     }
     private_nh.param("declination_source",declination_source,2);
     if (declination_source < 1 || declination_source > 3){
-      ROS_WARN("declination_source can't be %d, must be 1, 2 or 3.  Setting to 2.",declination_source);
+      ROS_WARN("declination_source can't be %#04X, must be 1, 2 or 3.  Setting to 2.",declination_source);
       declination_source = 2;
     }
     declination_source_u8 = (u8)declination_source;
@@ -326,7 +326,7 @@ namespace Microstrain
 
       ////////// Dynamics Mode
       // Set dynamics mode
-      ROS_INFO("Setting dynamics mode to %d",dynamics_mode);
+      ROS_INFO("Setting dynamics mode to %#04X",dynamics_mode);
       while(mip_filter_vehicle_dynamics_mode(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &dynamics_mode) != MIP_INTERFACE_OK){}
       ros::Duration(dT).sleep();
       // Readback dynamics mode
@@ -341,9 +341,9 @@ namespace Microstrain
 	{}
 	ros::Duration(dT).sleep();
 	if (dynamics_mode == readback_dynamics_mode)
-	  ROS_INFO("Success: Dynamics mode setting is: %d",readback_dynamics_mode);
+	  ROS_INFO("Success: Dynamics mode setting is: %#04X",readback_dynamics_mode);
 	else
-	  ROS_ERROR("Failure: Dynamics mode set to be %d, but reads as %d",
+	  ROS_ERROR("Failure: Dynamics mode set to be %#04X, but reads as %#04X",
 		    dynamics_mode,readback_dynamics_mode);
       }
       if (save_settings)
@@ -370,7 +370,7 @@ namespace Microstrain
 
       ////////// Auto Initialization
       // Set auto-initialization based on ROS parameter
-      ROS_INFO("Setting auto-initinitalization to: %d",auto_init);
+      ROS_INFO("Setting auto-initinitalization to: %#04X",auto_init);
       auto_init_u8 = auto_init;  // convert bool to u8
       while(mip_filter_auto_initialization(&device_interface_, 
 					   MIP_FUNCTION_SELECTOR_WRITE, 
@@ -388,9 +388,9 @@ namespace Microstrain
 	{}
 	ros::Duration(dT).sleep();
 	if (auto_init == readback_auto_init)
-	  ROS_INFO("Success: Auto init. setting is: %d",readback_auto_init);
+	  ROS_INFO("Success: Auto init. setting is: %#04X",readback_auto_init);
 	else
-	  ROS_ERROR("Failure: Auto init. setting set to be %d, but reads as %d",
+	  ROS_ERROR("Failure: Auto init. setting set to be %#04X, but reads as %#04X",
 		    auto_init,readback_auto_init);
       }
       if (save_settings)
@@ -405,7 +405,7 @@ namespace Microstrain
 
       ////////// Declination Source
       // Set declination
-      ROS_INFO("Setting declination source to %d",declination_source_u8);
+      ROS_INFO("Setting declination source to %#04X",declination_source_u8);
       while(mip_filter_declination_source(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &declination_source_u8) != MIP_INTERFACE_OK){}
       ros::Duration(dT).sleep();
       //Read back the declination source
@@ -413,11 +413,11 @@ namespace Microstrain
       while(mip_filter_declination_source(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &readback_declination_source) != MIP_INTERFACE_OK){}
       if(declination_source_u8 == readback_declination_source)
       {
-	ROS_INFO("Success: Declination source set to %d", declination_source_u8);
+	ROS_INFO("Success: Declination source set to %#04X", declination_source_u8);
       }
       else
       {
-	ROS_WARN("Failed to set the declination source to %d!", declination_source_u8);
+	ROS_WARN("Failed to set the declination source to %#04X!", declination_source_u8);
       }
       ros::Duration(dT).sleep();
       if (save_settings)
