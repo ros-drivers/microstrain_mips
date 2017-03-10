@@ -600,7 +600,7 @@ namespace Microstrain
 		    // put into ENU - swap X/Y, invert Z
 		    nav_msg_.pose.pose.orientation.x = curr_filter_quaternion_.q[2];
 		    nav_msg_.pose.pose.orientation.y = curr_filter_quaternion_.q[1];
-		    -1.0*nav_msg_.pose.pose.orientation.z = curr_filter_quaternion_.q[3];
+		    nav_msg_.pose.pose.orientation.z = -1.0*curr_filter_quaternion_.q[3];
 		    nav_msg_.pose.pose.orientation.w = curr_filter_quaternion_.q[0];
 
 		  }break;
