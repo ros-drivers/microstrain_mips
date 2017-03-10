@@ -98,7 +98,7 @@ namespace Microstrain
     float soft_iron_readback[9] = {0};
     u16 estimation_control   = 0, estimation_control_readback = 0;
     u8  gps_source     = 0;
-    u8  heading_source = 0;
+    u8  heading_source = 0x1;
     float noise[3]          = {0};
     float readback_noise[3] = {0};
     float beta[3]                 = {0};
@@ -358,10 +358,13 @@ namespace Microstrain
 
       ////////// Heading Source
       ROS_INFO("Set heading source to internal mag.");
-      while(mip_filter_heading_source(&device_interface_, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, &heading_source) != MIP_INTERFACE_OK){} 
+      heading_source = 0x1;
+      ROS_INFO("Setting heading source to %#04X",heading_source);
+      while(mip_filter_heading_source(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &heading_source) != MIP_INTERFACE_OK)
+      {} 
       ros::Duration(dT).sleep();
 
-      ROS_INFO("Read heading source...");
+      ROS_INFO("Read back heading source...");
       while(mip_filter_heading_source(&device_interface_, 
 				      MIP_FUNCTION_SELECTOR_READ, 
 				      &readback_headingsource)!= MIP_INTERFACE_OK){}
