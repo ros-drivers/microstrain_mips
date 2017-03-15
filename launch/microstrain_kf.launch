@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <!-- Standalone example launch file -->
+  <param name="use_sim_time" value="false" />
 
   <!-- For setting debug level to debug -->
   <env name="ROSCONSOLE_CONFIG_FILE" 
@@ -21,7 +22,7 @@
     <param name="gps_rate" value="4" type="int" />
     <param name="imu_rate" value="10" type="int" />
     <param name="nav_rate" value="10" type="int" />
-    <param name="dynamics_mode" value="1" type="int" />
+    <param name="dynamics_mode" value="2" type="int" />
     <param name="declination_source" value="2" type="int" />
     <param name="declination" value="0.23" type="double" />
     
