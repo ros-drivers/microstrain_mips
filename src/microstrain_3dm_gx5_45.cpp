@@ -561,6 +561,7 @@ namespace Microstrain
 		    mip_filter_ned_velocity_byteswap(&curr_filter_vel_);
       
 		    // rotate velocities from NED to sensor coordinates
+		    // Constructor takes x, y, z , w
 		    tf2::Quaternion nav_quat(curr_filter_quaternion_.q[2],
 					     curr_filter_quaternion_.q[1],
 					     -1.0*curr_filter_quaternion_.q[3],
@@ -569,7 +570,7 @@ namespace Microstrain
 		    tf2::Vector3 vel_enu(curr_filter_vel_.east,
 					 curr_filter_vel_.north,
 					 -1.0*curr_filter_vel_.down);
-		    tf2::Vector3 vel_in_sensor_frame = tf2::quatRotate(nav_quat,vel_enu);
+		    tf2::Vector3 vel_in_sensor_frame = tf2::quatRotate(nav_quat.inverse(),vel_enu);
 		      
 		    nav_msg_.twist.twist.linear.x = vel_in_sensor_frame[0]; //curr_filter_vel_.east;
 		    nav_msg_.twist.twist.linear.y =  vel_in_sensor_frame[1]; //curr_filter_vel_.north;
