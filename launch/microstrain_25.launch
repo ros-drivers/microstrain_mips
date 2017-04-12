@@ -23,7 +23,7 @@
     <!-- The GX4-25 is AHRS only, so need to turn off the other messages -->
     <!-- AHRS Settings -->
     <param name="publish_imu" value="true" type="bool" />
-    <param name="imu_rate" value="10" type="int" />
+    <param name="imu_rate" value="100" type="int" />
     <param name="imu_frame_id" value="base_link" type="str" />
     <!-- Setting manual declination is not yet implemented/testes -->
     <!-- Declination source 1=None, 2=magnetic, 3=manual -->
@@ -44,8 +44,10 @@
   </node>
 
   <!-- Diagnostics -->
+  <!--
   <node pkg="rqt_topic" type="rqt_topic" name="rqt_topic"/>
+  -->
   <!--<node pkg="rqt_plot" type="rqt_plot" name="pid_setpoints"
       args="/yaw_pid_debug/Setpoint /vel_pid_debug/Setpoint"/>-->
-  
+ 
 </launch>

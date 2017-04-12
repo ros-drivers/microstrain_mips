@@ -23,6 +23,7 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 #include "microstrain_3dm_gx5_45.h"
 #include <tf2/LinearMath/Transform.h>
 #include <string>
+#include <algorithm>  
 
 namespace Microstrain
 {
@@ -236,7 +237,8 @@ namespace Microstrain
 	ros::Duration(dT).sleep();
 	// Deterimine decimation to get close to goal rate
 	u8 imu_decimation = (u8)((float)base_rate/ (float)imu_rate_);
-	
+	ROS_INFO("AHRS decimation set to %#04X",imu_decimation);
+
 	// AHRS Message Format
 	// Set message format
 	ROS_INFO("Setting the AHRS message format");
@@ -453,27 +455,26 @@ namespace Microstrain
 	ros::Duration(dT).sleep();
       }
 
-      // Reset filter - should be for either the KF or CF
-      ROS_INFO("Reset filter");
-      while(mip_filter_reset_filter(&device_interface_) != MIP_INTERFACE_OK){}
-      ros::Duration(dT).sleep();
-      
       // Enable Data streams
       dT = 0.25;
-      ROS_INFO("Enabling AHRS stream");
-      enable = 0x01;
-      while(mip_3dm_cmd_continuous_data_stream(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, MIP_3DM_AHRS_DATASTREAM, &enable) != MIP_INTERFACE_OK){}
-      ros::Duration(dT).sleep();
-      
-      ROS_INFO("Enabling Filter stream");
-      enable = 0x01;
-      while(mip_3dm_cmd_continuous_data_stream(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, MIP_3DM_INS_DATASTREAM, &enable) != MIP_INTERFACE_OK){}
-      ros::Duration(dT).sleep();
-      
-      ROS_INFO("Enabling GPS stream");
-      enable = 0x01;
-      while(mip_3dm_cmd_continuous_data_stream(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, MIP_3DM_GPS_DATASTREAM, &enable) != MIP_INTERFACE_OK){}
-      ros::Duration(dT).sleep();
+      if (publish_imu_){
+	ROS_INFO("Enabling AHRS stream");
+	enable = 0x01;
+	while(mip_3dm_cmd_continuous_data_stream(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, MIP_3DM_AHRS_DATASTREAM, &enable) != MIP_INTERFACE_OK){}
+	ros::Duration(dT).sleep();
+      }
+      if (publish_odom_){
+	ROS_INFO("Enabling Filter stream");
+	enable = 0x01;
+	while(mip_3dm_cmd_continuous_data_stream(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, MIP_3DM_INS_DATASTREAM, &enable) != MIP_INTERFACE_OK){}
+	ros::Duration(dT).sleep();
+      }
+      if (publish_gps_){
+	ROS_INFO("Enabling GPS stream");
+	enable = 0x01;
+	while(mip_3dm_cmd_continuous_data_stream(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, MIP_3DM_GPS_DATASTREAM, &enable) != MIP_INTERFACE_OK){}
+	ros::Duration(dT).sleep();
+      }
 
       ROS_INFO("End of device setup - starting streaming");
     } 
@@ -488,7 +489,20 @@ namespace Microstrain
     ros::Duration(dT).sleep();
 
     // Loop
-    ros::Rate r(1000);  // Rate in Hz
+    // Determine loop rate as 2*(max update rate), but abs. max of 1kHz
+    int max_rate = 1;
+    if (publish_imu_){
+      max_rate = std::max(max_rate,imu_rate_);
+    }
+    if (publish_gps_){
+      max_rate = std::max(max_rate,gps_rate_);
+    }
+    if (publish_odom_){
+      max_rate = std::max(max_rate,nav_rate_);
+    }
+    //int spin_rate = max(2*max_rate,1000);
+    ROS_INFO("Setting spin rate to <%d>",2*max_rate);
+    ros::Rate r(2*max_rate);  // Rate in Hz
     while (ros::ok()){
       //Update the parser (this function reads the port and parses the bytes
       mip_interface_update(&device_interface_);
@@ -497,6 +511,10 @@ namespace Microstrain
       
       //ROS_INFO("Spinning");
     } // end loop
+    
+    // close serial port
+    mip_sdk_port_close(device_interface_.port_handle);
+    
   } // End of ::run()
   
   bool Microstrain::reset_callback(std_srvs::Empty::Request &req,

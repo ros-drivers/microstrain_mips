@@ -38,5 +38,6 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "microstrain_3dm_gx5_45_node");
   Microstrain::Microstrain ustrain;
   ustrain.run();
+  ros::shutdown();
   return 0;
 }
