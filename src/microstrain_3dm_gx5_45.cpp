@@ -205,7 +205,7 @@ namespace Microstrain
 
     ////////////////////////////////////////
     // Device setup
-    float dT=1.0;  // common sleep time after setup communications
+    float dT=0.5;  // common sleep time after setup communications
     if (device_setup)
     {
       // Put device into standard mode - we never really use "direct mode"
@@ -500,9 +500,9 @@ namespace Microstrain
     if (publish_odom_){
       max_rate = std::max(max_rate,nav_rate_);
     }
-    //int spin_rate = max(2*max_rate,1000);
-    ROS_INFO("Setting spin rate to <%d>",2*max_rate);
-    ros::Rate r(2*max_rate);  // Rate in Hz
+    int spin_rate = std::min(3*max_rate,1000);
+    ROS_INFO("Setting spin rate to <%d>",spin_rate);
+    ros::Rate r(spin_rate);  // Rate in Hz
     while (ros::ok()){
       //Update the parser (this function reads the port and parses the bytes
       mip_interface_update(&device_interface_);
