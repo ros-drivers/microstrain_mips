@@ -60,6 +60,10 @@ namespace Microstrain
     bool readback_settings = true;
     bool save_settings = true;
     bool auto_init = true;
+    bool set_declination = true;
+    bool set_auto_init = true;
+    bool reset_filter_on_init = true;
+
     u8 auto_init_u8 = 1;
     u8 readback_headingsource = 0;
     u8 readback_auto_init = 0;
@@ -155,6 +159,9 @@ namespace Microstrain
     }
     declination_source_u8 = (u8)declination_source;
     //declination_source_command=(u8)declination_source;
+    private_nh.param("set_declination",set_declination, true);
+    private_nh.param("set_auto_init",set_auto_init, true);
+    private_nh.param("reset_filter_on_init",reset_filter_on_init, true);
     private_nh.param("declination",declination,0.23);
     private_nh.param("gps_frame_id",gps_frame_id_, std::string("wgs84"));
     private_nh.param("imu_frame_id",imu_frame_id_, std::string("base_link"));
@@ -264,32 +271,33 @@ namespace Microstrain
 	}
 
 	// Declination Source
-	// Set declination
-	ROS_INFO("Setting declination source to %#04X",declination_source_u8);
-	while(mip_filter_declination_source(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &declination_source_u8) != MIP_INTERFACE_OK){}
-	ros::Duration(dT).sleep();
-	//Read back the declination source
-	ROS_INFO("Reading back declination source");
-	while(mip_filter_declination_source(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &readback_declination_source) != MIP_INTERFACE_OK){}
-	if(declination_source_u8 == readback_declination_source)
-	{
-	  ROS_INFO("Success: Declination source set to %#04X", declination_source_u8);
-	}
-	else
-	{
-	  ROS_WARN("Failed to set the declination source to %#04X!", declination_source_u8);
-	}
-	ros::Duration(dT).sleep();
-	if (save_settings)
-	{
-	  ROS_INFO("Saving declination source settings to EEPROM");
-	  while(mip_filter_declination_source(&device_interface_, 
-					      MIP_FUNCTION_SELECTOR_STORE_EEPROM,
-					      NULL) != MIP_INTERFACE_OK)
-	  {}
+	if (set_declination){
+	  // Set declination
+	  ROS_INFO("Setting declination source to %#04X",declination_source_u8);
+	  while(mip_filter_declination_source(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &declination_source_u8) != MIP_INTERFACE_OK){}
 	  ros::Duration(dT).sleep();
-	}
-	
+	  //Read back the declination source
+	  ROS_INFO("Reading back declination source");
+	  while(mip_filter_declination_source(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &readback_declination_source) != MIP_INTERFACE_OK){}
+	  if(declination_source_u8 == readback_declination_source)
+	  {
+	    ROS_INFO("Success: Declination source set to %#04X", declination_source_u8);
+	  }
+	  else
+	  {
+	    ROS_WARN("Failed to set the declination source to %#04X!", declination_source_u8);
+	  }
+	  ros::Duration(dT).sleep();
+	  if (save_settings)
+	  {
+	    ROS_INFO("Saving declination source settings to EEPROM");
+	    while(mip_filter_declination_source(&device_interface_, 
+						MIP_FUNCTION_SELECTOR_STORE_EEPROM,
+						NULL) != MIP_INTERFACE_OK)
+	    {}
+	    ros::Duration(dT).sleep();
+	  }
+	} // end of set_declination
       } // end of AHRS setup
 
       // GPS Setup
@@ -422,14 +430,15 @@ namespace Microstrain
       // OR for the complementary filter for the -25  - need to test
       // Auto Initialization
       // Set auto-initialization based on ROS parameter
-      ROS_INFO("Setting auto-initinitalization to: %#04X",auto_init);
-      auto_init_u8 = auto_init;  // convert bool to u8
-      while(mip_filter_auto_initialization(&device_interface_, 
-					   MIP_FUNCTION_SELECTOR_WRITE, 
-					   &auto_init_u8) != MIP_INTERFACE_OK)
-      {}
-      ros::Duration(dT).sleep();
-      
+      if (set_auto_init){
+	ROS_INFO("Setting auto-initinitalization to: %#04X",auto_init);
+	auto_init_u8 = auto_init;  // convert bool to u8
+	while(mip_filter_auto_initialization(&device_interface_, 
+					     MIP_FUNCTION_SELECTOR_WRITE, 
+					     &auto_init_u8) != MIP_INTERFACE_OK)
+	{}
+	ros::Duration(dT).sleep();
+      }
       if (readback_settings)
       {
 	// Read the settings back
@@ -483,10 +492,12 @@ namespace Microstrain
       ROS_INFO("Skipping device setup and listing for existing streams");
     } // end of device_setup
     
-    // Reset filter - should be for either the KF or CF
-    ROS_INFO("Reset filter");
-    while(mip_filter_reset_filter(&device_interface_) != MIP_INTERFACE_OK){}
-    ros::Duration(dT).sleep();
+    if (reset_filter_on_init){
+      // Reset filter - should be for either the KF or CF
+      ROS_INFO("Reset filter");
+      while(mip_filter_reset_filter(&device_interface_) != MIP_INTERFACE_OK){}
+      ros::Duration(dT).sleep();
+    }
 
     // Loop
     // Determine loop rate as 2*(max update rate), but abs. max of 1kHz
