@@ -7,29 +7,42 @@
   <env name="ROSCONSOLE_CONFIG_FILE"
        value="$(find microstrain_3dm_gx5_45)/config/custom_rosconsole.conf"/>
   -->
-  <arg name="frame_id" default="imu_link"/>
+
+  <arg name="port" default="/dev/ttyUSB0"/>
+  <arg name="baudrate" default="115200"/>
+  <arg name="device_setup" default="true"  />
+  <arg name="readback_settings" default="true" />
+  <arg name="save_settings" default="true"/>
+  <arg name="auto_init" default="true" />
+
+  <arg name="publish_imu" default="true"  />
+  <arg name="imu_rate" default="100"  />
+  <arg name="imu_frame_id" default="imu_link"/>
+  <arg name="declination_source" default="2" />
+  <arg name="declination" default="0.23"  />
+
   <!-- Microstain sensor node -->
   <node name="microstrain_3dm_gx5_25_node"
   pkg="microstrain_3dm_gx5_45"
   type="microstrain_3dm_gx5_45_node" output="screen">
-    <param name="port" value="/dev/microstrain" type="str" />
-    <param name="baudrate" value="115200" type="int" />
+    <param name="port" value="$(arg port)" type="str" />
+    <param name="baudrate" value="$(arg baudrate)" type="int" />
 
-    <param name="device_setup" value="true" type="bool" />
+    <param name="device_setup" value="$(arg device_setup)" type="bool" />
     <!-- General Settings -->
-    <param name="readback_settings" value="true" type="bool" />
-    <param name="save_settings" value="true" type="bool" />
-    <param name="auto_init" value="true" type="bool" />
+    <param name="readback_settings" value="$(arg readback_settings)" type="bool" />
+    <param name="save_settings" value="$(arg save_settings)" type="bool" />
+    <param name="auto_init" value="$(arg auto_init)" type="bool" />
 
     <!-- The GX5-25 is AHRS only, so need to turn off the other messages -->
     <!-- AHRS Settings -->
-    <param name="publish_imu" value="true" type="bool" />
-    <param name="imu_rate" value="100" type="int" />
-    <param name="imu_frame_id" value="$(arg frame_id)" type="str" />
+    <param name="publish_imu" value="$(arg publish_imu)" type="bool" />
+    <param name="imu_rate" value="$(arg imu_rate)" type="int" />
+    <param name="imu_frame_id" value="$(arg imu_frame_id)" type="str" />
     <!-- Setting manual declination is not yet implemented/testes -->
     <!-- Declination source 1=None, 2=magnetic, 3=manual -->
-    <param name="declination_source" value="2" type="int" />
-    <param name="declination" value="0.23" type="double" />
+    <param name="declination_source" value="$(arg declination_source)" type="int" />
+    <param name="declination" value="$(arg declination)" type="double" />
 
     <!-- GPS Settings  -45 and -35 Only -->
     <param name="gps_rate" value="4" type="int" />
