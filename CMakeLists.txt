@@ -15,6 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
 )
 
+set(CMAKE_C_FLAGS "-Wno-implicit-function-declaration -Wno-incompatible-pointer-types -Wno-format -fno-builtin-memcpy")
+
 ###################################
 ## catkin specific configuration ##
 ###################################
