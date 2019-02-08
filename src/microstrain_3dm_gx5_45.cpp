@@ -178,12 +178,9 @@ namespace Microstrain
       nav_pub_ = node.advertise<nav_msgs::Odometry>("nav/odom",100);
       nav_status_pub_ = node.advertise<std_msgs::Int16MultiArray>("nav/status",100);
     }
-    /*if (publish_bias_)
-    {
-      bias_pub_ = node.advertise<geometry_msgs::Vector3>("bias/data",100);
-    }*/
+
     ros::ServiceServer service = node.advertiseService("reset_kf", &Microstrain::reset_callback, this);
-    ros::ServiceServer service2 = node.advertiseService("bias_values", &Microstrain::bias_data, this);
+    //ros::ServiceServer service2 = node.advertiseService("bias_values", &Microstrain::bias_data, this);
 
 
     //Initialize the serial interface to the device
@@ -535,29 +532,17 @@ namespace Microstrain
     return true;
   }
 
-  /*void Microstrain::bias_values(){
-    if (!publish_bias_)
-      return;
-
-    //memset(field_data, 0, 3*sizeof(float));
-    while(mip_3dm_cmd_accel_bias(&device_interface_, MIP_FUNCTION_SELECTOR_READ, field_data) != MIP_INTERFACE_OK){}
-    //ROS_INFO("Reading current Accel Bias Vector:\n");
-    bias_msg_.x = 1;
-    bias_msg_.y = 2;
-    bias_msg_.z = 3;
-    bias_pub_.publish(bias_msg_);
-  }*/
 
   bool Microstrain::bias_data(microstrain_3dm_gx5_45::bias_values::Response &res){
     float *field_data;
     memset(field_data, 0, 3*sizeof(float));
-    //while(mip_3dm_cmd_accel_bias(&device_interface_, MIP_FUNCTION_SELECTOR_READ, field_data) != MIP_INTERFACE_OK){}
+    /*while(mip_3dm_cmd_accel_bias(&device_interface_, MIP_FUNCTION_SELECTOR_READ, field_data) != MIP_INTERFACE_OK){}
 
-    //res.x = field_data[0];
-    //res.y = field_data[1];
-    //res.z = field_data[2];
+    res.x = field_data[0];
+    res.y = field_data[1];
+    res.z = field_data[2];*/
 
-    //return true;
+    return true;
 
   }
 
