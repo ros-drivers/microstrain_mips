@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(microstrain_3dm_gx5_45)
 
+add_service_files(
+  FILES
+  SetBias.srv
+)
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -27,11 +32,6 @@ set(CMAKE_C_FLAGS "-Wno-implicit-function-declaration -Wno-incompatible-pointer-
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
-add_service_files(
-  FILES
-  SetBias.srv
-)
-
 
 generate_messages(
   DEPENDENCIES
@@ -116,6 +116,11 @@ add_executable(microstrain_3dm_gx5_45_node
   src/microstrain_3dm_gx5_45_node.cpp
 )
 
+add_executable(set_bias_client src/set_bias_client.cpp)
+
+add_dependencies(set_bias_client microstrain_3dm_gx5_45_gencpp)
+
+
 # Linking
 target_link_libraries(GX4-45_Test rt)
 
@@ -126,6 +131,8 @@ target_link_libraries(microstrain_3dm_gx5_45_node
   microstrain_3dm_gx5_45
   ${catkin_LIBRARIES}
 )
+
+target_link_libraries(set_bias_client ${catkin_LIBRARIES})
 
 #############
 ## Install ##

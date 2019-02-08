@@ -21,7 +21,7 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "microstrain_3dm_gx5_45.h"
-#include "microstrain_3dm_gx5_45/bias_values.h"
+#include "microstrain_3dm_gx5_45/SetBias.h"
 #include <tf2/LinearMath/Transform.h>
 #include <string>
 #include <algorithm>
@@ -536,11 +536,9 @@ namespace Microstrain
   bool Microstrain::bias_data(microstrain_3dm_gx5_45::SetBias::Request &req, microstrain_3dm_gx5_45::SetBias::Response &res){
     float *field_data;
     memset(field_data, 0, 3*sizeof(float));
-    /*while(mip_3dm_cmd_accel_bias(&device_interface_, MIP_FUNCTION_SELECTOR_READ, field_data) != MIP_INTERFACE_OK){}
+    while(mip_3dm_cmd_accel_bias(&device_interface_, MIP_FUNCTION_SELECTOR_READ, field_data) != MIP_INTERFACE_OK){}
 
-    res.x = field_data[0];
-    res.y = field_data[1];
-    res.z = field_data[2];*/
+    ROS_INFO("Bias vector values are: %f %f %f", field_data[0], field_data[1], field_data[2]);
 
     return true;
 
