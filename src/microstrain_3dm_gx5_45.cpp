@@ -180,7 +180,7 @@ namespace Microstrain
     }
 
     ros::ServiceServer service = node.advertiseService("reset_kf", &Microstrain::reset_callback, this);
-    //ros::ServiceServer service2 = node.advertiseService("bias_values", &Microstrain::bias_data, this);
+    ros::ServiceServer service2 = node.advertiseService("bias_values", &Microstrain::bias_data, this);
 
 
     //Initialize the serial interface to the device
@@ -533,7 +533,7 @@ namespace Microstrain
   }
 
 
-  bool Microstrain::bias_data(microstrain_3dm_gx5_45::bias_values::Response &res){
+  bool Microstrain::bias_data(microstrain_3dm_gx5_45::SetBias::Request &req, microstrain_3dm_gx5_45::SetBias::Response &res){
     float *field_data;
     memset(field_data, 0, 3*sizeof(float));
     /*while(mip_3dm_cmd_accel_bias(&device_interface_, MIP_FUNCTION_SELECTOR_READ, field_data) != MIP_INTERFACE_OK){}

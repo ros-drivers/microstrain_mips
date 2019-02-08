@@ -1,2 +1,3 @@
----
 geometry_msgs/Vector3 bias_data_vector
+---
+bool success

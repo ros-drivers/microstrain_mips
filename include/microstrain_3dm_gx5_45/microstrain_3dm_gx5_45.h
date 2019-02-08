@@ -48,7 +48,7 @@ extern "C" {
 #include "std_msgs/Int16MultiArray.h"
 #include "std_msgs/MultiArrayLayout.h"
 #include "std_srvs/Empty.h"
-#include "microstrain_3dm_gx5_45/bias_values.h"
+#include "microstrain_3dm_gx5_45/SetBias.h"
 
 #define MIP_SDK_GX4_45_IMU_STANDARD_MODE	0x01
 #define MIP_SDK_GX4_45_IMU_DIRECT_MODE	0x02
@@ -100,7 +100,7 @@ namespace Microstrain
   //! @brief Convience for printing packet stats
   void print_packet_stats();
 
-  bool bias_data(microstrain_3dm_gx5_45::bias_values::Response &res);
+  bool bias_data(microstrain_3dm_gx5_45::SetBias::Request &req, microstrain_3dm_gx5_45::SetBias::Response &res);
 
   // Variables/fields
   //The primary device interface structure
