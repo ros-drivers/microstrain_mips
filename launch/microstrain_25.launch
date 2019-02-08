@@ -3,7 +3,7 @@
   <!-- Standalone example launch file for 3DM-GX5-25 -->
 
   <!-- Declare arguments with default values -->
-  <arg name="port" default="/dev/microstrain" />
+  <arg name="port" default="/dev/ttyACM0" />
   <arg name="baudrate" default="115200" />
   <arg name="imu_rate" default="100" />
   <arg name="imu_frame_id" default="imu_link" />
@@ -12,13 +12,13 @@
 
   <!-- For setting debug level to debug -->
   <group if="$(arg debug)">
-    <env name="ROSCONSOLE_CONFIG_FILE" 
+    <env name="ROSCONSOLE_CONFIG_FILE"
        value="$(find microstrain_3dm_gx5_45)/config/custom_rosconsole.conf"/>
   </group>
 
   <!-- Microstrain sensor node -->
-  <node name="microstrain_3dm_gx5_25_node" 
-  pkg="microstrain_3dm_gx5_45" 
+  <node name="microstrain_3dm_gx5_25_node"
+  pkg="microstrain_3dm_gx5_45"
   type="microstrain_3dm_gx5_45_node" output="screen">
     <param name="port" value="$(arg port)" type="str" />
     <param name="baudrate" value="$(arg baudrate)" type="int" />
@@ -40,7 +40,7 @@
     <param name="declination" value="0.23" type="double" />
 
     <!-- GPS Settings  -45 and -35 Only -->
-    <param name="gps_rate" value="4" type="int" />    
+    <param name="gps_rate" value="4" type="int" />
     <param name="gps_frame_id" value="navsat_link" type="str" />
     <param name="publish_gps" value="false" type="bool" />
 
@@ -58,5 +58,5 @@
     <!--<node pkg="rqt_plot" type="rqt_plot" name="pid_setpoints"
       args="/yaw_pid_debug/Setpoint /vel_pid_debug/Setpoint"/>-->
   </group>
- 
+
 </launch>

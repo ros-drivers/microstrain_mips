@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   sensor_msgs
   nav_msgs
+  message_generation
 )
 
 set(CMAKE_C_FLAGS "-Wno-implicit-function-declaration -Wno-incompatible-pointer-types -Wno-format -fno-builtin-memcpy")
@@ -26,6 +27,18 @@ set(CMAKE_C_FLAGS "-Wno-implicit-function-declaration -Wno-incompatible-pointer-
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
+add_service_files(
+  FILES
+  bias_values.srv
+)
+
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
+)
+
 catkin_package(
   INCLUDE_DIRS 
     include
@@ -39,8 +52,8 @@ catkin_package(
     geometry_msgs
     sensor_msgs
     nav_msgs
+    message_runtime
 )
-
 ###########
 ## Build ##
 ###########
@@ -140,3 +153,4 @@ install(DIRECTORY launch config udev
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+

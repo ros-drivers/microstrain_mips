@@ -1,4 +1,4 @@
-/* 
+/*
 
 Copyright (c) 2017, Brian Bingham
 All rights reserved
@@ -21,9 +21,10 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "microstrain_3dm_gx5_45.h"
+#include "microstrain_3dm_gx5_45/bias_values.h"
 #include <tf2/LinearMath/Transform.h>
 #include <string>
-#include <algorithm>  
+#include <algorithm>
 
 namespace Microstrain
 {
@@ -44,7 +45,8 @@ namespace Microstrain
     odom_child_frame_id_("odom_frame"),
     publish_gps_(true),
     publish_imu_(true),
-    publish_odom_(true)
+    publish_odom_(true),
+    publish_bias_(true)
   {
     // pass
   }
@@ -69,7 +71,7 @@ namespace Microstrain
     u8 declination_source_u8;
     u8 readback_declination_source;
     double declination;
-    
+
     // Variables
     tf2::Quaternion quat;
     base_device_info_field device_info;
@@ -116,11 +118,11 @@ namespace Microstrain
     mip_filter_zero_update_command zero_update_control, zero_update_readback;
     mip_filter_external_heading_with_time_command external_heading_with_time;
     mip_complementary_filter_settings comp_filter_command, comp_filter_readback;
-    
+
     mip_filter_accel_magnitude_error_adaptive_measurement_command        accel_magnitude_error_command, accel_magnitude_error_readback;
     mip_filter_magnetometer_magnitude_error_adaptive_measurement_command mag_magnitude_error_command, mag_magnitude_error_readback;
     mip_filter_magnetometer_dip_angle_error_adaptive_measurement_command mag_dip_angle_error_command, mag_dip_angle_error_readback;
-    
+
     // ROS setup
     ros::Time::init();
     ros::NodeHandle node;
@@ -132,7 +134,7 @@ namespace Microstrain
     int baud, pdyn_mode;
     private_nh.param("port", port, std::string("/dev/ttyACM0"));
     private_nh.param("baudrate",baud,115200);
-    baudrate = (u32)baud; 
+    baudrate = (u32)baud;
     // Configuration Parameters
     private_nh.param("device_setup",device_setup,false);
     private_nh.param("readback_settings",readback_settings,true);
@@ -164,6 +166,7 @@ namespace Microstrain
     private_nh.param("publish_gps",publish_gps_, true);
     private_nh.param("publish_imu",publish_imu_, true);
     private_nh.param("publish_odom",publish_odom_, true);
+    private_nh.param("publish_bias",publish_bias_, true);
 
     // ROS publishers and subscribers
     if (publish_gps_)
@@ -175,7 +178,12 @@ namespace Microstrain
       nav_pub_ = node.advertise<nav_msgs::Odometry>("nav/odom",100);
       nav_status_pub_ = node.advertise<std_msgs::Int16MultiArray>("nav/status",100);
     }
+    /*if (publish_bias_)
+    {
+      bias_pub_ = node.advertise<geometry_msgs::Vector3>("bias/data",100);
+    }*/
     ros::ServiceServer service = node.advertiseService("reset_kf", &Microstrain::reset_callback, this);
+    ros::ServiceServer service2 = node.advertiseService("bias_values", &Microstrain::bias_data, this);
 
 
     //Initialize the serial interface to the device
@@ -283,23 +291,23 @@ namespace Microstrain
 	if (save_settings)
 	{
 	  ROS_INFO("Saving declination source settings to EEPROM");
-	  while(mip_filter_declination_source(&device_interface_, 
+	  while(mip_filter_declination_source(&device_interface_,
 					      MIP_FUNCTION_SELECTOR_STORE_EEPROM,
 					      NULL) != MIP_INTERFACE_OK)
 	  {}
 	  ros::Duration(dT).sleep();
 	}
-	
+
       } // end of AHRS setup
 
       // GPS Setup
       if (publish_gps_){
-      
+
 	while(mip_3dm_cmd_get_gps_base_rate(&device_interface_, &base_rate) != MIP_INTERFACE_OK){}
 	ROS_INFO("GPS Base Rate => %d Hz", base_rate);
 	u8 gps_decimation = (u8)((float)base_rate/ (float)gps_rate_);
 	ros::Duration(dT).sleep();
-      
+
 	////////// GPS Message Format
 	// Set
 	ROS_INFO("Setting GPS stream format");
@@ -326,7 +334,7 @@ namespace Microstrain
 	ROS_INFO("FILTER Base Rate => %d Hz", base_rate);
 	u8 nav_decimation = (u8)((float)base_rate/ (float)nav_rate_);
 	ros::Duration(dT).sleep();
-	
+
 	////////// Filter Message Format
 	// Set
 	ROS_INFO("Setting Filter stream format");
@@ -371,8 +379,8 @@ namespace Microstrain
 	{
 	  // Read the settings back
 	  ROS_INFO("Reading back dynamics mode setting");
-	  while(mip_filter_vehicle_dynamics_mode(&device_interface_, 
-						 MIP_FUNCTION_SELECTOR_READ, 
+	  while(mip_filter_vehicle_dynamics_mode(&device_interface_,
+						 MIP_FUNCTION_SELECTOR_READ,
 						 &readback_dynamics_mode)
 		!= MIP_INTERFACE_OK)
 	  {}
@@ -386,33 +394,33 @@ namespace Microstrain
 	if (save_settings)
 	{
 	  ROS_INFO("Saving dynamics mode settings to EEPROM");
-	  while(mip_filter_vehicle_dynamics_mode(&device_interface_, 
+	  while(mip_filter_vehicle_dynamics_mode(&device_interface_,
 						 MIP_FUNCTION_SELECTOR_STORE_EEPROM,
 						 NULL) != MIP_INTERFACE_OK)
 	  {}
 	  ros::Duration(dT).sleep();
 	}
-	
+
 	// Heading Source
 	ROS_INFO("Set heading source to internal mag.");
 	heading_source = 0x1;
 	ROS_INFO("Setting heading source to %#04X",heading_source);
 	while(mip_filter_heading_source(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &heading_source) != MIP_INTERFACE_OK)
-	{} 
+	{}
 	ros::Duration(dT).sleep();
-	
+
 	ROS_INFO("Read back heading source...");
-	while(mip_filter_heading_source(&device_interface_, 
-					MIP_FUNCTION_SELECTOR_READ, 
+	while(mip_filter_heading_source(&device_interface_,
+					MIP_FUNCTION_SELECTOR_READ,
 					&readback_headingsource)!= MIP_INTERFACE_OK){}
 	ROS_INFO("Heading source = %#04X",readback_headingsource);
 	ros::Duration(dT).sleep();
-	
+
 	if (save_settings)
 	{
 	  ROS_INFO("Saving heading source to EEPROM");
-	  while(mip_filter_heading_source(&device_interface_, 
-					  MIP_FUNCTION_SELECTOR_STORE_EEPROM, 
+	  while(mip_filter_heading_source(&device_interface_,
+					  MIP_FUNCTION_SELECTOR_STORE_EEPROM,
 					  NULL)!= MIP_INTERFACE_OK){}
 	  ros::Duration(dT).sleep();
 	}
@@ -424,18 +432,18 @@ namespace Microstrain
       // Set auto-initialization based on ROS parameter
       ROS_INFO("Setting auto-initinitalization to: %#04X",auto_init);
       auto_init_u8 = auto_init;  // convert bool to u8
-      while(mip_filter_auto_initialization(&device_interface_, 
-					   MIP_FUNCTION_SELECTOR_WRITE, 
+      while(mip_filter_auto_initialization(&device_interface_,
+					   MIP_FUNCTION_SELECTOR_WRITE,
 					   &auto_init_u8) != MIP_INTERFACE_OK)
       {}
       ros::Duration(dT).sleep();
-      
+
       if (readback_settings)
       {
 	// Read the settings back
 	ROS_INFO("Reading back auto-initialization value");
-	while(mip_filter_auto_initialization(&device_interface_, 
-					     MIP_FUNCTION_SELECTOR_READ, 
+	while(mip_filter_auto_initialization(&device_interface_,
+					     MIP_FUNCTION_SELECTOR_READ,
 					     &readback_auto_init)!= MIP_INTERFACE_OK)
 	{}
 	ros::Duration(dT).sleep();
@@ -448,7 +456,7 @@ namespace Microstrain
       if (save_settings)
       {
 	ROS_INFO("Saving auto init. settings to EEPROM");
-	while(mip_filter_auto_initialization(&device_interface_, 
+	while(mip_filter_auto_initialization(&device_interface_,
 					     MIP_FUNCTION_SELECTOR_STORE_EEPROM,
 					     NULL) != MIP_INTERFACE_OK)
 	{}
@@ -477,12 +485,12 @@ namespace Microstrain
       }
 
       ROS_INFO("End of device setup - starting streaming");
-    } 
+    }
     else
     {
       ROS_INFO("Skipping device setup and listing for existing streams");
     } // end of device_setup
-    
+
     // Reset filter - should be for either the KF or CF
     ROS_INFO("Reset filter");
     while(mip_filter_reset_filter(&device_interface_) != MIP_INTERFACE_OK){}
@@ -506,24 +514,51 @@ namespace Microstrain
     while (ros::ok()){
       //Update the parser (this function reads the port and parses the bytes
       mip_interface_update(&device_interface_);
+
       ros::spinOnce();  // take care of service requests.
       r.sleep();
-      
       //ROS_INFO("Spinning");
+
     } // end loop
-    
+
     // close serial port
     mip_sdk_port_close(device_interface_.port_handle);
-    
+
   } // End of ::run()
-  
+
   bool Microstrain::reset_callback(std_srvs::Empty::Request &req,
 				   std_srvs::Empty::Response &resp)
   {
     ROS_INFO("Reseting the filter");
     while(mip_filter_reset_filter(&device_interface_) != MIP_INTERFACE_OK){}
-    
+
     return true;
+  }
+
+  /*void Microstrain::bias_values(){
+    if (!publish_bias_)
+      return;
+
+    //memset(field_data, 0, 3*sizeof(float));
+    while(mip_3dm_cmd_accel_bias(&device_interface_, MIP_FUNCTION_SELECTOR_READ, field_data) != MIP_INTERFACE_OK){}
+    //ROS_INFO("Reading current Accel Bias Vector:\n");
+    bias_msg_.x = 1;
+    bias_msg_.y = 2;
+    bias_msg_.z = 3;
+    bias_pub_.publish(bias_msg_);
+  }*/
+
+  bool Microstrain::bias_data(microstrain_3dm_gx5_45::bias_values::Response &res){
+    float *field_data;
+    memset(field_data, 0, 3*sizeof(float));
+    //while(mip_3dm_cmd_accel_bias(&device_interface_, MIP_FUNCTION_SELECTOR_READ, field_data) != MIP_INTERFACE_OK){}
+
+    //res.x = field_data[0];
+    //res.y = field_data[1];
+    //res.z = field_data[2];
+
+    //return true;
+
   }
 
   void Microstrain::filter_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type)
@@ -591,19 +626,19 @@ namespace Microstrain
 
 		    //For little-endian targets, byteswap the data field
 		    mip_filter_ned_velocity_byteswap(&curr_filter_vel_);
-      
+
 		    // rotate velocities from NED to sensor coordinates
 		    // Constructor takes x, y, z , w
 		    tf2::Quaternion nav_quat(curr_filter_quaternion_.q[2],
 					     curr_filter_quaternion_.q[1],
 					     -1.0*curr_filter_quaternion_.q[3],
 					     curr_filter_quaternion_.q[0]);
-					     
+
 		    tf2::Vector3 vel_enu(curr_filter_vel_.east,
 					 curr_filter_vel_.north,
 					 -1.0*curr_filter_vel_.down);
 		    tf2::Vector3 vel_in_sensor_frame = tf2::quatRotate(nav_quat.inverse(),vel_enu);
-		      
+
 		    nav_msg_.twist.twist.linear.x = vel_in_sensor_frame[0]; //curr_filter_vel_.east;
 		    nav_msg_.twist.twist.linear.y =  vel_in_sensor_frame[1]; //curr_filter_vel_.north;
 		    nav_msg_.twist.twist.linear.z =  vel_in_sensor_frame[2]; //-1*curr_filter_vel_.down;
@@ -674,7 +709,7 @@ namespace Microstrain
 
 		    //For little-endian targets, byteswap the data field
 		    mip_filter_ned_vel_uncertainty_byteswap(&curr_filter_vel_uncertainty_);
-      
+
 		    nav_msg_.twist.covariance[0] = curr_filter_vel_uncertainty_.east*curr_filter_vel_uncertainty_.east;
 		    nav_msg_.twist.covariance[7] = curr_filter_vel_uncertainty_.north*curr_filter_vel_uncertainty_.north;
 		    nav_msg_.twist.covariance[14] = curr_filter_vel_uncertainty_.down*curr_filter_vel_uncertainty_.down;
@@ -701,7 +736,7 @@ namespace Microstrain
 
 		    //For little-endian targets, byteswap the data field
 		    mip_filter_status_byteswap(&curr_filter_status_);
-      
+
 		    nav_status_msg_.data.clear();
 		    ROS_DEBUG_THROTTLE(1.0,"Filter Status: %#06X, Dyn. Mode: %#06X, Filter State: %#06X",
 				       curr_filter_status_.filter_state,
@@ -796,7 +831,7 @@ namespace Microstrain
 
 		    //For little-endian targets, byteswap the data field
 		    mip_ahrs_scaled_accel_byteswap(&curr_ahrs_accel_);
-      
+
 		    // Stuff into ROS message - acceleration in m/s^2
 		    // Header
 		    imu_msg_.header.seq = ahrs_valid_packet_count_;
@@ -805,7 +840,7 @@ namespace Microstrain
 		    imu_msg_.linear_acceleration.x = 9.81*curr_ahrs_accel_.scaled_accel[0];
 		    imu_msg_.linear_acceleration.y = 9.81*curr_ahrs_accel_.scaled_accel[1];
 		    imu_msg_.linear_acceleration.z = 9.81*curr_ahrs_accel_.scaled_accel[2];
-      
+
 		  }break;
 
 		  ///
@@ -818,7 +853,7 @@ namespace Microstrain
 
 		    //For little-endian targets, byteswap the data field
 		    mip_ahrs_scaled_gyro_byteswap(&curr_ahrs_gyro_);
-      
+
 		    imu_msg_.angular_velocity.x = curr_ahrs_gyro_.scaled_gyro[0];
 		    imu_msg_.angular_velocity.y = curr_ahrs_gyro_.scaled_gyro[1];
 		    imu_msg_.angular_velocity.z = curr_ahrs_gyro_.scaled_gyro[2];
@@ -856,7 +891,7 @@ namespace Microstrain
 		default: break;
 		}
 	    }
-   
+
 	  // Publish
 	  imu_pub_.publish(imu_msg_);
 
@@ -1044,4 +1079,3 @@ namespace Microstrain
   }
 
 } // Microstrain namespace
-

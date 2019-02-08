@@ -1,6 +1,6 @@
-/** ROS node 
+/** ROS node
 
-/* 
+/*
 
 Copyright (c) 2017, Brian Bingham
 All rights reserved
@@ -43,10 +43,12 @@ extern "C" {
 #include "sensor_msgs/NavSatFix.h"
 #include "sensor_msgs/Imu.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
+#include "geometry_msgs/Vector3.h"
 #include "nav_msgs/Odometry.h"
 #include "std_msgs/Int16MultiArray.h"
 #include "std_msgs/MultiArrayLayout.h"
 #include "std_srvs/Empty.h"
+#include "microstrain_3dm_gx5_45/bias_values.h"
 
 #define MIP_SDK_GX4_45_IMU_STANDARD_MODE	0x01
 #define MIP_SDK_GX4_45_IMU_DIRECT_MODE	0x02
@@ -65,37 +67,40 @@ namespace Microstrain
 {
   /**
    * \brief Microstrain class
-   * 
+   *
    */
   class Microstrain
   {
   public:
     /**
-     * Contructor 
+     * Contructor
      */
     Microstrain();
 
     /** Destructor */
     ~Microstrain();
 
-    /** 
+    /**
      * Main run loop
      */
     void run();
-   
+
     //! Nav estimate callback
     void filter_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
     //! @brief AHRS callback
     void ahrs_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
     //! @brief GPS callback
     void gps_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
-    
+
+
   private:
   //! @brief Reset KF service callback
   bool reset_callback(std_srvs::Empty::Request &req,
 		      std_srvs::Empty::Response &resp);
   //! @brief Convience for printing packet stats
   void print_packet_stats();
+
+  bool bias_data(microstrain_3dm_gx5_45::bias_values::Response &res);
 
   // Variables/fields
   //The primary device interface structure
@@ -124,7 +129,7 @@ namespace Microstrain
   mip_gps_llh_pos curr_llh_pos_;
   mip_gps_ned_vel curr_ned_vel_;
   mip_gps_time    curr_gps_time_;
-    
+
   //FILTER
   mip_filter_llh_pos               curr_filter_pos_;
   mip_filter_ned_velocity          curr_filter_vel_;
@@ -136,15 +141,17 @@ namespace Microstrain
   mip_filter_euler_attitude_uncertainty curr_filter_att_uncertainty_;
   mip_filter_status curr_filter_status_;
 
-  // ROS 
+  // ROS
   ros::Publisher gps_pub_;
   ros::Publisher imu_pub_;
   ros::Publisher nav_pub_;
   ros::Publisher nav_status_pub_;
+  ros::Publisher bias_pub_;
   sensor_msgs::NavSatFix gps_msg_;
   sensor_msgs::Imu imu_msg_;
   nav_msgs::Odometry nav_msg_;
   std_msgs::Int16MultiArray nav_status_msg_;
+  geometry_msgs::Vector3 bias_msg_;
   std::string gps_frame_id_;
   std::string imu_frame_id_;
   std::string odom_frame_id_;
@@ -152,20 +159,23 @@ namespace Microstrain
   bool publish_gps_;
   bool publish_imu_;
   bool publish_odom_;
+  bool publish_bias_;
 
   // Update rates
   int nav_rate_;
   int imu_rate_;
   int gps_rate_;
+
+  float *field_data;
   }; // Microstrain class
 
-  
+
   // Define wrapper functions that call the Microstrain member functions
 #ifdef __cplusplus
   extern "C"
 #endif
   {
-   
+
     /**
      * Callback for KF estimate packets from sensor.
      */
@@ -178,11 +188,11 @@ namespace Microstrain
      * Callback for GPS packets from sensor.
      */
     void gps_packet_callback_wrapper(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
-    
+
 #ifdef __cplusplus
   }
 #endif
-  
+
 } // namespace Microstrain
 
 #endif  // _MICROSTRAIN_3DM_GX5_45_H
