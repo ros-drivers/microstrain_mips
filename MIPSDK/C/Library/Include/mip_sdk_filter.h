@@ -10,19 +10,19 @@
 //
 //
 //
-//!@copyright 2014 Lord Microstrain Sensing Systems. 
+//!@copyright 2014 Lord Microstrain Sensing Systems.
 //
 //!@section CHANGES
-//! 
+//!
 //
 //!@section LICENSE
 //!
-//! THE PRESENT SOFTWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING 
-//! CUSTOMERS WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER 
+//! THE PRESENT SOFTWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING
+//! CUSTOMERS WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER
 //! FOR THEM TO SAVE TIME. AS A RESULT, LORD MICROSTRAIN SENSING SYSTEMS
-//! SHALL NOT BE HELD LIABLE FOR ANY DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES 
-//! WITH RESPECT TO ANY CLAIMS ARISING FROM THE CONTENT OF SUCH SOFTWARE AND/OR 
-//! THE USE MADE BY CUSTOMERS OF THE CODING INFORMATION CONTAINED HEREIN IN CONNECTION 
+//! SHALL NOT BE HELD LIABLE FOR ANY DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES
+//! WITH RESPECT TO ANY CLAIMS ARISING FROM THE CONTENT OF SUCH SOFTWARE AND/OR
+//! THE USE MADE BY CUSTOMERS OF THE CODING INFORMATION CONTAINED HEREIN IN CONNECTION
 //! WITH THEIR PRODUCTS.
 //
 /////////////////////////////////////////////////////////////////////////////
@@ -156,18 +156,18 @@
 #define MIP_FILTER_DATA_HEADING_UPDATE_STATE                  0x14
 #define MIP_FILTER_DATA_MAGNETIC_MODEL                        0x15
 
-#define MIP_FILTER_DATA_GYRO_SCALE_FACTOR                     0x16	  
+#define MIP_FILTER_DATA_GYRO_SCALE_FACTOR                     0x16
 #define MIP_FILTER_DATA_ACCEL_SCALE_FACTOR                    0x17
-#define MIP_FILTER_DATA_GYRO_SCALE_FACTOR_UNCERTAINTY         0x18	  
+#define MIP_FILTER_DATA_GYRO_SCALE_FACTOR_UNCERTAINTY         0x18
 #define MIP_FILTER_DATA_ACCEL_SCALE_FACTOR_UNCERTAINTY        0x19
-#define MIP_FILTER_DATA_MAG_BIAS    		  	               0x1A	
+#define MIP_FILTER_DATA_MAG_BIAS    		  	               0x1A
 #define MIP_FILTER_DATA_MAG_BIAS_UNCERTAINTY                  0x1B
-#define MIP_FILTER_DATA_COMPENSATED_ACCELERATION              0x1C	
-#define MIP_FILTER_DATA_STANDARD_ATMOSPHERE_DATA              0x20	
-#define MIP_FILTER_DATA_PRESSURE_ALTITUDE                     0x21	
-#define MIP_FILTER_DATA_DENSITY_ALTITUDE                      0x22	
+#define MIP_FILTER_DATA_COMPENSATED_ACCELERATION              0x1C
+#define MIP_FILTER_DATA_STANDARD_ATMOSPHERE_DATA              0x20
+#define MIP_FILTER_DATA_PRESSURE_ALTITUDE                     0x21
+#define MIP_FILTER_DATA_DENSITY_ALTITUDE                      0x22
 #define MIP_FILTER_DATA_ANTENNA_OFFSET_CORRECTION             0x30
-#define MIP_FILTER_DATA_ANTENNA_OFFSET_CORRECTION_UNCERTAINTY 0x31	  
+#define MIP_FILTER_DATA_ANTENNA_OFFSET_CORRECTION_UNCERTAINTY 0x31
 
 
 
@@ -613,7 +613,7 @@ typedef struct _mip_filter_magnetic_model
 typedef struct _mip_filter_accel_scale_factor_mip_field
 {
  float x, y, z;    //sensor body frame
- u16   valid_flags; 
+ u16   valid_flags;
 }mip_filter_accel_scale_factor_mip_field;
 
 
@@ -621,7 +621,7 @@ typedef struct _mip_filter_accel_scale_factor_mip_field
 typedef struct _mip_filter_accel_scale_factor_uncertainty_mip_field
 {
  float x, y, z;    //sensor body frame
- u16   valid_flags; 
+ u16   valid_flags;
 }mip_filter_accel_scale_factor_uncertainty_mip_field;
 
 
@@ -629,7 +629,7 @@ typedef struct _mip_filter_accel_scale_factor_uncertainty_mip_field
 typedef struct _mip_filter_gyro_scale_factor_mip_field
 {
  float x, y, z;    //sensor body frame
- u16   valid_flags; 
+ u16   valid_flags;
 }mip_filter_gyro_scale_factor_mip_field;
 
 
@@ -637,7 +637,7 @@ typedef struct _mip_filter_gyro_scale_factor_mip_field
 typedef struct _mip_filter_gyro_scale_factor_uncertainty_mip_field
 {
  float x, y, z;    //sensor body frame
- u16   valid_flags; 
+ u16   valid_flags;
 }mip_filter_gyro_scale_factor_uncertainty_mip_field;
 
 
@@ -645,7 +645,7 @@ typedef struct _mip_filter_gyro_scale_factor_uncertainty_mip_field
 typedef struct _mip_filter_mag_bias_mip_field
 {
  float x, y, z;    //sensor body frame (Gauss)
- u16   valid_flags; 
+ u16   valid_flags;
 }mip_filter_mag_bias_mip_field;
 
 
@@ -653,12 +653,12 @@ typedef struct _mip_filter_mag_bias_mip_field
 typedef struct _mip_filter_mag_bias_uncertainty_mip_field
 {
  float x, y, z;    //sensor body frame (Gauss)
- u16   valid_flags; 
+ u16   valid_flags;
 }mip_filter_mag_bias_uncertainty_mip_field;
 
 
 //Compensated Mag Vector Estimate
-typedef struct _mip_filter_compensated_mag_vector_mip_field 
+typedef struct _mip_filter_compensated_mag_vector_mip_field
 {
  float x, y, z;   //sensor body frame (Gauss)
  u16   valid_flags;
@@ -673,7 +673,7 @@ typedef struct _mip_filter_standard_atmosphere_mip_field
  float standard_temperature;  //degC
  float standard_pressure;     //mBar
  float standard_density;      //kg/m^3
- u16   valid_flags; 
+ u16   valid_flags;
 }mip_filter_standard_atmosphere_mip_field;
 
 
@@ -681,7 +681,7 @@ typedef struct _mip_filter_standard_atmosphere_mip_field
 typedef struct _mip_filter_pressure_altitude_mip_field
 {
  float pressure_altitude;    //m
- u16   valid_flags; 
+ u16   valid_flags;
 }mip_filter_pressure_altitude_mip_field;
 
 
@@ -689,7 +689,7 @@ typedef struct _mip_filter_pressure_altitude_mip_field
 typedef struct _mip_filter_density_altitude_mip_field
 {
  float density_altitude;    //m
- u16   valid_flags; 
+ u16   valid_flags;
 }mip_filter_density_altitude_mip_field;
 
 
@@ -697,7 +697,7 @@ typedef struct _mip_filter_density_altitude_mip_field
 typedef struct _mip_filter_antenna_offset_correction_mip_field
 {
  float x, y, z;    //sensor body frame
- u16   valid_flags; 
+ u16   valid_flags;
 }mip_filter_antenna_offset_correction_mip_field;
 
 
@@ -705,7 +705,7 @@ typedef struct _mip_filter_antenna_offset_correction_mip_field
 typedef struct _mip_filter_antenna_offset_correction_uncertainty_mip_field
 {
  float x, y, z;    //sensor body frame
- u16   valid_flags; 
+ u16   valid_flags;
 }mip_filter_antenna_offset_correction_uncertainty_mip_field;
 
 
@@ -797,10 +797,10 @@ u16 mip_filter_external_heading_update_with_time(mip_interface *device_interface
 u16 mip_filter_mag_noise(mip_interface *device_interface, u8 function_selector, float noise_1sigma[3]);
 u16 mip_filter_reference_position(mip_interface *device_interface,  u8 function_selector, u8 *reference_enable, double reference_position[3]);
 u16 mip_filter_estimation_control(mip_interface *device_interface, u8 function_selector, u16 *estimation_control);
-u16 mip_filter_enable_measurement(mip_interface *device_interface, u8 function_selector, u16 *measurement_enable); 
+u16 mip_filter_enable_measurement(mip_interface *device_interface, u8 function_selector, u16 *measurement_enable);
 u16 mip_filter_declination_source(mip_interface *device_interface, u8 function_selector, u8 *declination_source);
 u16 mip_filter_accel_magnitude_error_adaptive_measurement(mip_interface *device_interface, u8 function_selector, mip_filter_accel_magnitude_error_adaptive_measurement_command *params);
-u16 mip_filter_mag_magnitude_error_adaptive_measurement(mip_interface *device_interface, u8 function_selector, mip_filter_magnetometer_magnitude_error_adaptive_measurement_command *params); 
-u16 mip_filter_mag_dip_angle_error_adaptive_measurement(mip_interface *device_interface, u8 function_selector, mip_filter_magnetometer_dip_angle_error_adaptive_measurement_command *params); 
+u16 mip_filter_mag_magnitude_error_adaptive_measurement(mip_interface *device_interface, u8 function_selector, mip_filter_magnetometer_magnitude_error_adaptive_measurement_command *params);
+u16 mip_filter_mag_dip_angle_error_adaptive_measurement(mip_interface *device_interface, u8 function_selector, mip_filter_magnetometer_dip_angle_error_adaptive_measurement_command *params);
 
 #endif

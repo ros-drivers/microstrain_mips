@@ -3,7 +3,32 @@ project(microstrain_3dm_gx5_45)
 
 add_service_files(
   FILES
-  SetBias.srv
+  SetAccelBias.srv
+  SetGyroBias.srv
+  SetHardIronValues.srv
+  DeviceReport.srv
+  GyroBiasCapture.srv
+  SetSoftIronMatrix.srv
+  SetComplementaryFilter.srv
+  SetFilterEuler.srv
+  SetFilterHeading.srv
+  SetAccelBiasModel.srv
+  SetAccelAdaptiveVals.srv
+  SetSensorVehicleFrameTrans.srv
+  SetSensorVehicleFrameOffset.srv
+  GetAccelBias.srv
+  GetGyroBias.srv
+  GetHardIronValues.srv
+  GetSoftIronMatrix.srv
+  GetComplementaryFilter.srv
+  GetSensorVehicleFrameTrans.srv
+  SetReferencePosition.srv
+  GetReferencePosition.srv
+  SetConingScullingComp.srv
+  GetConingScullingComp.srv
+  SetEstimationControlFlags.srv
+  GetEstimationControlFlags.srv
+  SetDynamicsMode.srv
 )
 
 ## Find catkin macros and libraries
@@ -103,6 +128,7 @@ set(MIPSRC
 add_library(microstrain_3dm_gx5_45
   src/microstrain_3dm_gx5_45.cpp
   src/mip_sdk_user_functions.c
+  #src/GX4-45_Test.cpp
   ${MIPSRC}
 )
 
@@ -116,10 +142,107 @@ add_executable(microstrain_3dm_gx5_45_node
   src/microstrain_3dm_gx5_45_node.cpp
 )
 
-add_executable(set_bias_client src/set_bias_client.cpp)
+add_executable(set_accel_bias_client src/set_accel_bias_client.cpp)
 
-add_dependencies(set_bias_client microstrain_3dm_gx5_45_gencpp)
+add_executable(get_accel_bias_client src/get_accel_bias_client.cpp)
 
+add_executable(set_gyro_bias_client src/set_gyro_bias_client.cpp)
+
+add_executable(get_gyro_bias_client src/get_gyro_bias_client.cpp)
+
+add_executable(set_hard_iron_values_client src/set_hard_iron_values_client.cpp)
+
+add_executable(get_hard_iron_values_client src/get_hard_iron_values_client.cpp)
+
+add_executable(device_report_client src/device_report_client.cpp)
+
+add_executable(gyro_bias_capture_client src/gyro_bias_capture_client.cpp)
+
+add_executable(set_soft_iron_matrix_client src/set_soft_iron_matrix_client.cpp)
+
+add_executable(get_soft_iron_matrix_client src/get_soft_iron_matrix_client.cpp)
+
+add_executable(set_complementary_filter_client src/set_complementary_filter_client.cpp)
+
+add_executable(get_complementary_filter_client src/get_complementary_filter_client.cpp)
+
+add_executable(set_filter_euler_client src/set_filter_euler_client.cpp)
+
+add_executable(set_filter_heading_client src/set_filter_heading_client.cpp)
+
+add_executable(set_accel_bias_model_client src/set_accel_bias_model_client.cpp)
+
+add_executable(set_accel_adaptive_vals_client src/set_accel_adaptive_vals_client.cpp)
+
+add_executable(set_sensor_vehicle_frame_trans_client src/set_sensor_vehicle_frame_trans_client.cpp)
+
+add_executable(get_sensor_vehicle_frame_trans_client src/get_sensor_vehicle_frame_trans_client.cpp)
+
+add_executable(set_sensor_vehicle_frame_offset_client src/set_sensor_vehicle_frame_offset_client.cpp)
+
+add_executable(set_reference_position_client src/set_reference_position_client.cpp)
+
+add_executable(get_reference_position_client src/get_reference_position_client.cpp)
+
+add_executable(set_coning_sculling_comp_client src/set_coning_sculling_comp_client.cpp)
+
+add_executable(get_coning_sculling_comp_client src/get_coning_sculling_comp_client.cpp)
+
+add_executable(set_estimation_control_flags_client src/set_estimation_control_flags_client.cpp)
+
+add_executable(get_estimation_control_flags_client src/get_estimation_control_flags_client.cpp)
+
+add_executable(set_dynamics_mode_client src/set_dynamics_mode_client.cpp)
+
+add_dependencies(set_accel_bias_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(get_accel_bias_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(set_gyro_bias_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(get_gyro_bias_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(set_hard_iron_values_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(get_hard_iron_values_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(device_report_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(gyro_bias_capture_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(set_soft_iron_matrix_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(set_complementary_filter_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(get_complementary_filter_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(set_filter_euler_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(set_filter_heading_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(set_accel_bias_model_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(set_accel_adaptive_vals_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(set_sensor_vehicle_frame_trans_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(get_sensor_vehicle_frame_trans_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(set_sensor_vehicle_frame_offset_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(set_reference_position_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(get_reference_position_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(set_coning_sculling_comp_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(get_coning_sculling_comp_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(set_estimation_control_flags_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(get_estimation_control_flags_client microstrain_3dm_gx5_45_gencpp)
+
+add_dependencies(set_dynamics_mode_client microstrain_3dm_gx5_45_gencpp)
 
 # Linking
 target_link_libraries(GX4-45_Test rt)
@@ -132,7 +255,57 @@ target_link_libraries(microstrain_3dm_gx5_45_node
   ${catkin_LIBRARIES}
 )
 
-target_link_libraries(set_bias_client ${catkin_LIBRARIES})
+target_link_libraries(set_accel_bias_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_accel_bias_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_gyro_bias_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_gyro_bias_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_hard_iron_values_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_hard_iron_values_client ${catkin_LIBRARIES})
+
+target_link_libraries(device_report_client ${catkin_LIBRARIES})
+
+target_link_libraries(gyro_bias_capture_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_soft_iron_matrix_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_soft_iron_matrix_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_complementary_filter_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_complementary_filter_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_filter_euler_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_filter_heading_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_accel_bias_model_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_accel_adaptive_vals_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_sensor_vehicle_frame_trans_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_sensor_vehicle_frame_trans_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_sensor_vehicle_frame_offset_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_reference_position_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_reference_position_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_coning_sculling_comp_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_coning_sculling_comp_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_estimation_control_flags_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_estimation_control_flags_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_dynamics_mode_client ${catkin_LIBRARIES})
 
 #############
 ## Install ##
@@ -153,7 +326,7 @@ install(DIRECTORY launch config udev
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_microstrain_3dm_gx5_45.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_microstrain_3dm_gx5.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
