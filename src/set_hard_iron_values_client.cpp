@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm_gx5_45/SetHardIronValues.h"
+#include "microstrain_3dm_gx5/SetHardIronValues.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_hard_iron_values");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5_45::SetHardIronValues>("SetHardIronValues");
-  microstrain_3dm_gx5_45::SetHardIronValues srv;
+  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5::SetHardIronValues>("SetHardIronValues");
+  microstrain_3dm_gx5::SetHardIronValues srv;
 
   srv.request.bias.x = atoll(argv[1]);
   srv.request.bias.y = atoll(argv[2]);

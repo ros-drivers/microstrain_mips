@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm_gx5_45/SetSensorVehicleFrameTrans.h"
+#include "microstrain_3dm_gx5/SetSensorVehicleFrameTrans.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_bias_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5_45::SetSensorVehicleFrameTrans>("SetSensorVehicleFrameTrans");
-  microstrain_3dm_gx5_45::SetSensorVehicleFrameTrans srv;
+  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5::SetSensorVehicleFrameTrans>("SetSensorVehicleFrameTrans");
+  microstrain_3dm_gx5::SetSensorVehicleFrameTrans srv;
 
   srv.request.angle.x = atoll(argv[1]);
   srv.request.angle.y = atoll(argv[2]);

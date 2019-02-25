@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm_gx5_45/GetReferencePosition.h"
+#include "microstrain_3dm_gx5/GetReferencePosition.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "get_reference_position_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5_45::GetReferencePosition>("GetReferencePosition");
-  microstrain_3dm_gx5_45::GetReferencePosition srv;
+  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5::GetReferencePosition>("GetReferencePosition");
+  microstrain_3dm_gx5::GetReferencePosition srv;
 
   if (client.call(srv))
   {

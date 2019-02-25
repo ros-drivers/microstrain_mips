@@ -30,7 +30,7 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
-#include "microstrain_3dm_gx5_45.h"
+#include "microstrain_3dm_gx5.h"
 #include <ros/ros.h>
 
 int main(int argc, char **argv)

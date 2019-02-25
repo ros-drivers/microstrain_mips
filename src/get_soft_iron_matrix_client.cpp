@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm_gx5_45/GetSoftIronMatrix.h"
+#include "microstrain_3dm_gx5/GetSoftIronMatrix.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "get_soft_iron_matrix");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5_45::GetSoftIronMatrix>("GetSoftIronMatrix");
-  microstrain_3dm_gx5_45::GetSoftIronMatrix srv;
+  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5::GetSoftIronMatrix>("GetSoftIronMatrix");
+  microstrain_3dm_gx5::GetSoftIronMatrix srv;
 
   if (client.call(srv))
   {

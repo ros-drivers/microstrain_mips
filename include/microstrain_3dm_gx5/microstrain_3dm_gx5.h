@@ -23,8 +23,8 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef _MICROSTRAIN_3DM_GX5_45_H
-#define _MICROSTRAIN_3DM_GX5_45_H
+#ifndef _MICROSTRAIN_3DM_GX5_H
+#define _MICROSTRAIN_3DM_GX5_H
 
 // Tell compiler that the following MIP SDI are C functions
 extern "C" {
@@ -52,32 +52,33 @@ extern "C" {
 #include "std_msgs/Int16MultiArray.h"
 #include "std_msgs/MultiArrayLayout.h"
 #include "std_srvs/Empty.h"
-#include "microstrain_3dm_gx5_45/SetAccelBias.h"
-#include "microstrain_3dm_gx5_45/GetAccelBias.h"
-#include "microstrain_3dm_gx5_45/GetGyroBias.h"
-#include "microstrain_3dm_gx5_45/GetHardIronValues.h"
-#include "microstrain_3dm_gx5_45/GetSoftIronMatrix.h"
-#include "microstrain_3dm_gx5_45/SetGyroBias.h"
-#include "microstrain_3dm_gx5_45/SetHardIronValues.h"
-#include "microstrain_3dm_gx5_45/DeviceReport.h"
-#include "microstrain_3dm_gx5_45/GyroBiasCapture.h"
-#include "microstrain_3dm_gx5_45/SetSoftIronMatrix.h"
-#include "microstrain_3dm_gx5_45/SetComplementaryFilter.h"
-#include "microstrain_3dm_gx5_45/SetFilterEuler.h"
-#include "microstrain_3dm_gx5_45/SetFilterHeading.h"
-#include "microstrain_3dm_gx5_45/SetAccelBiasModel.h"
-#include "microstrain_3dm_gx5_45/SetAccelAdaptiveVals.h"
-#include "microstrain_3dm_gx5_45/SetSensorVehicleFrameTrans.h"
-#include "microstrain_3dm_gx5_45/SetSensorVehicleFrameOffset.h"
-#include "microstrain_3dm_gx5_45/GetSensorVehicleFrameTrans.h"
-#include "microstrain_3dm_gx5_45/GetComplementaryFilter.h"
-#include "microstrain_3dm_gx5_45/SetReferencePosition.h"
-#include "microstrain_3dm_gx5_45/GetReferencePosition.h"
-#include "microstrain_3dm_gx5_45/SetConingScullingComp.h"
-#include "microstrain_3dm_gx5_45/GetConingScullingComp.h"
-#include "microstrain_3dm_gx5_45/SetEstimationControlFlags.h"
-#include "microstrain_3dm_gx5_45/GetEstimationControlFlags.h"
-#include "microstrain_3dm_gx5_45/SetDynamicsMode.h"
+#include "microstrain_3dm_gx5/SetAccelBias.h"
+#include "microstrain_3dm_gx5/GetAccelBias.h"
+#include "microstrain_3dm_gx5/GetGyroBias.h"
+#include "microstrain_3dm_gx5/GetHardIronValues.h"
+#include "microstrain_3dm_gx5/GetSoftIronMatrix.h"
+#include "microstrain_3dm_gx5/SetGyroBias.h"
+#include "microstrain_3dm_gx5/SetHardIronValues.h"
+#include "microstrain_3dm_gx5/DeviceReport.h"
+#include "microstrain_3dm_gx5/GyroBiasCapture.h"
+#include "microstrain_3dm_gx5/SetSoftIronMatrix.h"
+#include "microstrain_3dm_gx5/SetComplementaryFilter.h"
+#include "microstrain_3dm_gx5/SetFilterEuler.h"
+#include "microstrain_3dm_gx5/SetFilterHeading.h"
+#include "microstrain_3dm_gx5/SetAccelBiasModel.h"
+#include "microstrain_3dm_gx5/SetAccelAdaptiveVals.h"
+#include "microstrain_3dm_gx5/SetSensorVehicleFrameTrans.h"
+#include "microstrain_3dm_gx5/SetSensorVehicleFrameOffset.h"
+#include "microstrain_3dm_gx5/GetSensorVehicleFrameTrans.h"
+#include "microstrain_3dm_gx5/GetComplementaryFilter.h"
+#include "microstrain_3dm_gx5/SetReferencePosition.h"
+#include "microstrain_3dm_gx5/GetReferencePosition.h"
+#include "microstrain_3dm_gx5/SetConingScullingComp.h"
+#include "microstrain_3dm_gx5/GetConingScullingComp.h"
+#include "microstrain_3dm_gx5/SetEstimationControlFlags.h"
+#include "microstrain_3dm_gx5/GetEstimationControlFlags.h"
+#include "microstrain_3dm_gx5/SetDynamicsMode.h"
+
 
 #define MIP_SDK_GX4_45_IMU_STANDARD_MODE	0x01
 #define MIP_SDK_GX4_45_IMU_DIRECT_MODE	0x02
@@ -123,6 +124,58 @@ namespace Microstrain
 
     u16 mip_3dm_cmd_hw_specific_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer);
 
+    bool set_accel_bias(microstrain_3dm_gx5::SetAccelBias::Request &req, microstrain_3dm_gx5::SetAccelBias::Response &res);
+
+    bool get_accel_bias(microstrain_3dm_gx5::GetAccelBias::Request &req, microstrain_3dm_gx5::GetAccelBias::Response &res);
+
+    bool set_gyro_bias(microstrain_3dm_gx5::SetGyroBias::Request &req, microstrain_3dm_gx5::SetGyroBias::Response &res);
+
+    bool get_gyro_bias(microstrain_3dm_gx5::GetGyroBias::Request &req, microstrain_3dm_gx5::GetGyroBias::Response &res);
+
+    bool set_hard_iron_values(microstrain_3dm_gx5::SetHardIronValues::Request &req, microstrain_3dm_gx5::SetHardIronValues::Response &res);
+
+    bool get_hard_iron_values(microstrain_3dm_gx5::GetHardIronValues::Request &req, microstrain_3dm_gx5::GetHardIronValues::Response &res);
+
+    bool device_report(microstrain_3dm_gx5::DeviceReport::Request &req, microstrain_3dm_gx5::DeviceReport::Response &res);
+
+    bool gyro_bias_capture(microstrain_3dm_gx5::GyroBiasCapture::Request &req, microstrain_3dm_gx5::GyroBiasCapture::Response &res);
+
+    bool set_soft_iron_matrix(microstrain_3dm_gx5::SetSoftIronMatrix::Request &req, microstrain_3dm_gx5::SetSoftIronMatrix::Response &res);
+
+    bool get_soft_iron_matrix(microstrain_3dm_gx5::GetSoftIronMatrix::Request &req, microstrain_3dm_gx5::GetSoftIronMatrix::Response &res);
+
+    bool set_complementary_filter(microstrain_3dm_gx5::SetComplementaryFilter::Request &req, microstrain_3dm_gx5::SetComplementaryFilter::Response &res);
+
+    bool get_complementary_filter(microstrain_3dm_gx5::GetComplementaryFilter::Request &req, microstrain_3dm_gx5::GetComplementaryFilter::Response &res);
+
+    bool set_filter_euler(microstrain_3dm_gx5::SetFilterEuler::Request &req, microstrain_3dm_gx5::SetFilterEuler::Response &res);
+
+    bool set_filter_heading(microstrain_3dm_gx5::SetFilterHeading::Request &req, microstrain_3dm_gx5::SetFilterHeading::Response &res);
+
+    bool set_accel_bias_model(microstrain_3dm_gx5::SetAccelBiasModel::Request &req, microstrain_3dm_gx5::SetAccelBiasModel::Response &res);
+
+    bool set_accel_adaptive_vals(microstrain_3dm_gx5::SetAccelAdaptiveVals::Request &req, microstrain_3dm_gx5::SetAccelAdaptiveVals::Response &res);
+
+    bool set_sensor_vehicle_frame_trans(microstrain_3dm_gx5::SetSensorVehicleFrameTrans::Request &req, microstrain_3dm_gx5::SetSensorVehicleFrameTrans::Response &res);
+
+    bool get_sensor_vehicle_frame_trans(microstrain_3dm_gx5::GetSensorVehicleFrameTrans::Request &req, microstrain_3dm_gx5::GetSensorVehicleFrameTrans::Response &res);
+
+    bool set_sensor_vehicle_frame_offset(microstrain_3dm_gx5::SetSensorVehicleFrameOffset::Request &req, microstrain_3dm_gx5::SetSensorVehicleFrameOffset::Response &res);
+
+    bool set_reference_position(microstrain_3dm_gx5::SetReferencePosition::Request &req, microstrain_3dm_gx5::SetReferencePosition::Response &res);
+
+    bool get_reference_position(microstrain_3dm_gx5::GetReferencePosition::Request &req, microstrain_3dm_gx5::GetReferencePosition::Response &res);
+
+    bool set_coning_sculling_comp(microstrain_3dm_gx5::SetConingScullingComp::Request &req, microstrain_3dm_gx5::SetConingScullingComp::Response &res);
+
+    bool get_coning_sculling_comp(microstrain_3dm_gx5::GetConingScullingComp::Request &req, microstrain_3dm_gx5::GetConingScullingComp::Response &res);
+
+    bool set_estimation_control_flags(microstrain_3dm_gx5::SetEstimationControlFlags::Request &req, microstrain_3dm_gx5::SetEstimationControlFlags::Response &res);
+
+    bool get_estimation_control_flags(microstrain_3dm_gx5::GetEstimationControlFlags::Request &req, microstrain_3dm_gx5::GetEstimationControlFlags::Response &res);
+
+    bool set_dynamics_mode(microstrain_3dm_gx5::SetDynamicsMode::Request &req, microstrain_3dm_gx5::SetDynamicsMode::Response &res);
+
 
 
   private:
@@ -132,57 +185,7 @@ namespace Microstrain
   //! @brief Convience for printing packet stats
   void print_packet_stats();
 
-  bool set_accel_bias(microstrain_3dm_gx5_45::SetAccelBias::Request &req, microstrain_3dm_gx5_45::SetAccelBias::Response &res);
 
-  bool get_accel_bias(microstrain_3dm_gx5_45::GetAccelBias::Request &req, microstrain_3dm_gx5_45::GetAccelBias::Response &res);
-
-  bool set_gyro_bias(microstrain_3dm_gx5_45::SetGyroBias::Request &req, microstrain_3dm_gx5_45::SetGyroBias::Response &res);
-
-  bool get_gyro_bias(microstrain_3dm_gx5_45::GetGyroBias::Request &req, microstrain_3dm_gx5_45::GetGyroBias::Response &res);
-
-  bool set_hard_iron_values(microstrain_3dm_gx5_45::SetHardIronValues::Request &req, microstrain_3dm_gx5_45::SetHardIronValues::Response &res);
-
-  bool get_hard_iron_values(microstrain_3dm_gx5_45::GetHardIronValues::Request &req, microstrain_3dm_gx5_45::GetHardIronValues::Response &res);
-
-  bool device_report(microstrain_3dm_gx5_45::DeviceReport::Request &req, microstrain_3dm_gx5_45::DeviceReport::Response &res);
-
-  bool gyro_bias_capture(microstrain_3dm_gx5_45::GyroBiasCapture::Request &req, microstrain_3dm_gx5_45::GyroBiasCapture::Response &res);
-
-  bool set_soft_iron_matrix(microstrain_3dm_gx5_45::SetSoftIronMatrix::Request &req, microstrain_3dm_gx5_45::SetSoftIronMatrix::Response &res);
-
-  bool get_soft_iron_matrix(microstrain_3dm_gx5_45::GetSoftIronMatrix::Request &req, microstrain_3dm_gx5_45::GetSoftIronMatrix::Response &res);
-
-  bool set_complementary_filter(microstrain_3dm_gx5_45::SetComplementaryFilter::Request &req, microstrain_3dm_gx5_45::SetComplementaryFilter::Response &res);
-
-  bool get_complementary_filter(microstrain_3dm_gx5_45::GetComplementaryFilter::Request &req, microstrain_3dm_gx5_45::GetComplementaryFilter::Response &res);
-
-  bool set_filter_euler(microstrain_3dm_gx5_45::SetFilterEuler::Request &req, microstrain_3dm_gx5_45::SetFilterEuler::Response &res);
-
-  bool set_filter_heading(microstrain_3dm_gx5_45::SetFilterHeading::Request &req, microstrain_3dm_gx5_45::SetFilterHeading::Response &res);
-
-  bool set_accel_bias_model(microstrain_3dm_gx5_45::SetAccelBiasModel::Request &req, microstrain_3dm_gx5_45::SetAccelBiasModel::Response &res);
-
-  bool set_accel_adaptive_vals(microstrain_3dm_gx5_45::SetAccelAdaptiveVals::Request &req, microstrain_3dm_gx5_45::SetAccelAdaptiveVals::Response &res);
-
-  bool set_sensor_vehicle_frame_trans(microstrain_3dm_gx5_45::SetSensorVehicleFrameTrans::Request &req, microstrain_3dm_gx5_45::SetSensorVehicleFrameTrans::Response &res);
-
-  bool get_sensor_vehicle_frame_trans(microstrain_3dm_gx5_45::GetSensorVehicleFrameTrans::Request &req, microstrain_3dm_gx5_45::GetSensorVehicleFrameTrans::Response &res);
-
-  bool set_sensor_vehicle_frame_offset(microstrain_3dm_gx5_45::SetSensorVehicleFrameOffset::Request &req, microstrain_3dm_gx5_45::SetSensorVehicleFrameOffset::Response &res);
-
-  bool set_reference_position(microstrain_3dm_gx5_45::SetReferencePosition::Request &req, microstrain_3dm_gx5_45::SetReferencePosition::Response &res);
-
-  bool get_reference_position(microstrain_3dm_gx5_45::GetReferencePosition::Request &req, microstrain_3dm_gx5_45::GetReferencePosition::Response &res);
-
-  bool set_coning_sculling_comp(microstrain_3dm_gx5_45::SetConingScullingComp::Request &req, microstrain_3dm_gx5_45::SetConingScullingComp::Response &res);
-
-  bool get_coning_sculling_comp(microstrain_3dm_gx5_45::GetConingScullingComp::Request &req, microstrain_3dm_gx5_45::GetConingScullingComp::Response &res);
-
-  bool set_estimation_control_flags(microstrain_3dm_gx5_45::SetEstimationControlFlags::Request &req, microstrain_3dm_gx5_45::SetEstimationControlFlags::Response &res);
-
-  bool get_estimation_control_flags(microstrain_3dm_gx5_45::GetEstimationControlFlags::Request &req, microstrain_3dm_gx5_45::GetEstimationControlFlags::Response &res);
-
-  bool set_dynamics_mode(microstrain_3dm_gx5_45::SetDynamicsMode::Request &req, microstrain_3dm_gx5_45::SetDynamicsMode::Response &res);
 
   // Variables/fields
   //The primary device interface structure

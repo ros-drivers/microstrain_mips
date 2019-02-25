@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm_gx5_45/SetFilterHeading.h"
+#include "microstrain_3dm_gx5/SetFilterHeading.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_bias_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5_45::SetFilterHeading>("SetFilterHeading");
-  microstrain_3dm_gx5_45::SetFilterHeading srv;
+  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5::SetFilterHeading>("SetFilterHeading");
+  microstrain_3dm_gx5::SetFilterHeading srv;
 
   srv.request.angle = atoll(argv[1]);
 

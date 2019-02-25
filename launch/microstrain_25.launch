@@ -13,13 +13,13 @@
   <!-- For setting debug level to debug -->
   <group if="$(arg debug)">
     <env name="ROSCONSOLE_CONFIG_FILE"
-       value="$(find microstrain_3dm_gx5_45)/config/custom_rosconsole.conf"/>
+       value="$(find microstrain_3dm_gx5)/config/custom_rosconsole.conf"/>
   </group>
 
   <!-- Microstrain sensor node -->
   <node name="microstrain_3dm_gx5_25_node"
-  pkg="microstrain_3dm_gx5_45"
-  type="microstrain_3dm_gx5_45_node" output="screen">
+  pkg="microstrain_3dm_gx5"
+  type="microstrain_3dm_gx5_node" output="screen">
     <param name="port" value="$(arg port)" type="str" />
     <param name="baudrate" value="$(arg baudrate)" type="int" />
 
@@ -34,7 +34,6 @@
     <param name="publish_imu" value="true" type="bool" />
     <param name="imu_rate" value="$(arg imu_rate)" type="int" />
     <param name="imu_frame_id" value="$(arg imu_frame_id)" type="str" />
-    <!-- Setting manual declination is not yet implemented/testes -->
     <!-- Declination source 1=None, 2=magnetic, 3=manual -->
     <param name="declination_source" value="2" type="int" />
     <param name="declination" value="0.23" type="double" />

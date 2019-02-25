@@ -1,15 +1,15 @@
 #include "ros/ros.h"
-#include "microstrain_3dm_gx5_45/SetAccelAdaptiveVals.h"
+#include "microstrain_3dm_gx5/SetAccelAdaptiveVals.h"
 #include <cstdlib>
 
 
 int main(int argc, char **argv){
 
-  ros::init(argc, argv, "set_bias_client");
+  ros::init(argc, argv, "set_accel_adaptive_vals_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5_45::SetAccelAdaptiveVals>("SetAccelAdaptiveVals");
-  microstrain_3dm_gx5_45::SetAccelAdaptiveVals srv;
+  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5::SetAccelAdaptiveVals>("SetAccelAdaptiveVals");
+  microstrain_3dm_gx5::SetAccelAdaptiveVals srv;
 
   srv.request.enable = atoll(argv[1]);
   srv.request.low_pass_cutoff = atoll(argv[2]);

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(microstrain_3dm_gx5_45)
+project(microstrain_3dm_gx5)
 
 add_service_files(
   FILES
@@ -125,8 +125,8 @@ set(MIPSRC
 )
 
 # Libraries
-add_library(microstrain_3dm_gx5_45
-  src/microstrain_3dm_gx5_45.cpp
+add_library(microstrain_3dm_gx5
+  src/microstrain_3dm_gx5.cpp
   src/mip_sdk_user_functions.c
   #src/GX4-45_Test.cpp
   ${MIPSRC}
@@ -138,8 +138,8 @@ add_executable(GX4-45_Test
   src/mip_sdk_user_functions.c
   ${MIPSRC}
 )
-add_executable(microstrain_3dm_gx5_45_node
-  src/microstrain_3dm_gx5_45_node.cpp
+add_executable(microstrain_3dm_gx5_node
+  src/microstrain_3dm_gx5_node.cpp
 )
 
 add_executable(set_accel_bias_client src/set_accel_bias_client.cpp)
@@ -194,64 +194,65 @@ add_executable(get_estimation_control_flags_client src/get_estimation_control_fl
 
 add_executable(set_dynamics_mode_client src/set_dynamics_mode_client.cpp)
 
-add_dependencies(set_accel_bias_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(set_accel_bias_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(get_accel_bias_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(get_accel_bias_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(set_gyro_bias_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(set_gyro_bias_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(get_gyro_bias_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(get_gyro_bias_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(set_hard_iron_values_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(set_hard_iron_values_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(get_hard_iron_values_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(get_hard_iron_values_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(device_report_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(device_report_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(gyro_bias_capture_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(gyro_bias_capture_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(set_soft_iron_matrix_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(set_soft_iron_matrix_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(set_complementary_filter_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(set_complementary_filter_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(get_complementary_filter_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(get_complementary_filter_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(set_filter_euler_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(set_filter_euler_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(set_filter_heading_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(set_filter_heading_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(set_accel_bias_model_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(set_accel_bias_model_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(set_accel_adaptive_vals_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(set_accel_adaptive_vals_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(set_sensor_vehicle_frame_trans_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(set_sensor_vehicle_frame_trans_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(get_sensor_vehicle_frame_trans_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(get_sensor_vehicle_frame_trans_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(set_sensor_vehicle_frame_offset_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(set_sensor_vehicle_frame_offset_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(set_reference_position_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(set_reference_position_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(get_reference_position_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(get_reference_position_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(set_coning_sculling_comp_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(set_coning_sculling_comp_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(get_coning_sculling_comp_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(get_coning_sculling_comp_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(set_estimation_control_flags_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(set_estimation_control_flags_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(get_estimation_control_flags_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(get_estimation_control_flags_client microstrain_3dm_gx5_gencpp)
 
-add_dependencies(set_dynamics_mode_client microstrain_3dm_gx5_45_gencpp)
+add_dependencies(set_dynamics_mode_client microstrain_3dm_gx5_gencpp)
+
 
 # Linking
 target_link_libraries(GX4-45_Test rt)
 
-target_link_libraries(microstrain_3dm_gx5_45
+target_link_libraries(microstrain_3dm_gx5
   ${catkin_LIBRARIES}
 )
-target_link_libraries(microstrain_3dm_gx5_45_node
-  microstrain_3dm_gx5_45
+target_link_libraries(microstrain_3dm_gx5_node
+  microstrain_3dm_gx5
   ${catkin_LIBRARIES}
 )
 
@@ -307,11 +308,12 @@ target_link_libraries(get_estimation_control_flags_client ${catkin_LIBRARIES})
 
 target_link_libraries(set_dynamics_mode_client ${catkin_LIBRARIES})
 
+
 #############
 ## Install ##
 #############
 
-install(TARGETS microstrain_3dm_gx5_45 microstrain_3dm_gx5_45_node
+install(TARGETS microstrain_3dm_gx5 microstrain_3dm_gx5_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
