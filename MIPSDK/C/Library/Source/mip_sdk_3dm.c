@@ -1524,7 +1524,6 @@ u16 mip_3dm_cmd_power_state(mip_interface *device_interface, u8 function_selecto
 
 u16 mip_3dm_cmd_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer, u16 *response_size)
 {
- printf("In device status function \n");
  u8 *response_data;
  u16 response_data_size;
  u16 return_code;
@@ -1541,7 +1540,6 @@ u16 mip_3dm_cmd_device_status(mip_interface *device_interface, u16 model_number,
  //Byteswap the model number, if enabled
  if(MIP_SDK_CONFIG_BYTESWAP)
  {
-  printf("2: byteswap true\n");
   byteswap_inplace(short_ptr, sizeof(u16));
  }
 
@@ -1550,7 +1548,6 @@ u16 mip_3dm_cmd_device_status(mip_interface *device_interface, u16 model_number,
 
  return_code = mip_interface_send_command_with_response(device_interface, MIP_3DM_COMMAND_SET, MIP_3DM_CMD_DEVICE_STATUS, command_data,
                                                         3, &response_data, &response_data_size, MIP_INTERFACE_DEFAULT_COMMAND_RESPONSE_TIMEOUT_MS);
-
  //Copy the data to the provided buffer on success if present
  if((return_code == MIP_INTERFACE_OK) && (response_data != NULL))
  {

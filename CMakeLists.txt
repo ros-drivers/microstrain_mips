@@ -29,6 +29,8 @@ add_service_files(
   SetEstimationControlFlags.srv
   GetEstimationControlFlags.srv
   SetDynamicsMode.srv
+  GetBasicStatus.srv
+  GetDiagnosticReport.srv
 )
 
 ## Find catkin macros and libraries
@@ -194,6 +196,10 @@ add_executable(get_estimation_control_flags_client src/get_estimation_control_fl
 
 add_executable(set_dynamics_mode_client src/set_dynamics_mode_client.cpp)
 
+add_executable(get_basic_status_client src/get_basic_status_client.cpp)
+
+add_executable(get_diagnostic_report_client src/get_diagnostic_report_client.cpp)
+
 add_dependencies(set_accel_bias_client microstrain_3dm_gx5_gencpp)
 
 add_dependencies(get_accel_bias_client microstrain_3dm_gx5_gencpp)
@@ -244,6 +250,9 @@ add_dependencies(get_estimation_control_flags_client microstrain_3dm_gx5_gencpp)
 
 add_dependencies(set_dynamics_mode_client microstrain_3dm_gx5_gencpp)
 
+add_dependencies(get_basic_status_client microstrain_3dm_gx5_gencpp)
+
+add_dependencies(get_diagnostic_report_client microstrain_3dm_gx5_gencpp)
 
 # Linking
 target_link_libraries(GX4-45_Test rt)
@@ -307,6 +316,10 @@ target_link_libraries(set_estimation_control_flags_client ${catkin_LIBRARIES})
 target_link_libraries(get_estimation_control_flags_client ${catkin_LIBRARIES})
 
 target_link_libraries(set_dynamics_mode_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_basic_status_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_diagnostic_report_client ${catkin_LIBRARIES})
 
 
 #############

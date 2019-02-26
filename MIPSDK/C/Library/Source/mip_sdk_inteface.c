@@ -983,6 +983,7 @@ u16 mip_interface_send_preformatted_command_with_response(mip_interface *device_
  u8               *field_data_ptr;
  u16               field_offset = 0;
 
+
  //Null-check inputs
  if((device_interface == NULL) ||(command == NULL) || (command_size == 0))
  {
@@ -1011,15 +1012,13 @@ u16 mip_interface_send_preformatted_command_with_response(mip_interface *device_
 
  if((return_code != MIP_INTERFACE_OK) || (acknack_response != MIP_ACK_NACK_ERROR_NONE)){
    if (return_code != MIP_INTERFACE_OK){
-   printf("Return code is: %d \n", return_code);
+   printf("ERROR: Return code is: %d \n", return_code);
  }
    if (acknack_response != MIP_ACK_NACK_ERROR_NONE){
-   printf("acknack response is %d \n", acknack_response);
+   printf("ERROR: acknack response is %d \n", acknack_response);
  }
   return MIP_INTERFACE_ERROR;
 }
-
-
  return MIP_INTERFACE_OK;
 }
 

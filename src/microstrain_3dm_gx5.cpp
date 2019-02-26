@@ -47,6 +47,8 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 #include "microstrain_3dm_gx5/SetEstimationControlFlags.h"
 #include "microstrain_3dm_gx5/GetEstimationControlFlags.h"
 #include "microstrain_3dm_gx5/SetDynamicsMode.h"
+#include "microstrain_3dm_gx5/GetBasicStatus.h"
+#include "microstrain_3dm_gx5/GetDiagnosticReport.h"
 #include <tf2/LinearMath/Transform.h>
 #include <string>
 #include <algorithm>
@@ -124,9 +126,6 @@ namespace Microstrain
     mip_low_pass_filter_settings filter_settings;
     float bias_vector[3]		   = {0};
     u16 duration = 0;
-    gx4_imu_diagnostic_device_status_field imu_diagnostic_field;
-    gx4_45_diagnostic_device_status_field diagnostic_field;
-    gx4_45_basic_status_field basic_field;
     mip_filter_external_gps_update_command external_gps_update;
     mip_filter_external_heading_update_command external_heading_update;
     mip_filter_zero_update_command zero_update_control, zero_update_readback;
@@ -220,7 +219,8 @@ namespace Microstrain
     ros::ServiceServer service26 = node.advertiseService("SetEstimationControlFlags", &Microstrain::set_estimation_control_flags, this);
     ros::ServiceServer service27 = node.advertiseService("GetEstimationControlFlags", &Microstrain::get_estimation_control_flags, this);
     ros::ServiceServer service28 = node.advertiseService("SetDynamicsMode", &Microstrain::set_dynamics_mode, this);
-
+    ros::ServiceServer service29 = node.advertiseService("GetBasicStatus", &Microstrain::get_basic_status, this);
+    ros::ServiceServer service30 = node.advertiseService("GetDiagnosticReport", &Microstrain::get_diagnostic_report, this);
 
 
     //Initialize the serial interface to the device
@@ -1335,7 +1335,7 @@ namespace Microstrain
   else{
     ROS_INFO("Error: Input must be either 0 (disable) or 1 (enable).");
   }
-  res.success = true;
+  res.success = false;
   return true;
   }
 
@@ -1391,6 +1391,45 @@ namespace Microstrain
 
   res.success = true;
   return true;
+  }
+
+
+  bool Microstrain::get_basic_status(microstrain_3dm_gx5::GetBasicStatus::Request &req, microstrain_3dm_gx5::GetBasicStatus::Response &res)
+  {
+    u8* response_buffer;
+    while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_25_MODEL_NUMBER, GX4_25_BASIC_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){}
+    printf("Model Number: \t\t\t\t\t%04u\n", basic_field.device_model);
+    printf("Status Selector: \t\t\t\t%s\n", basic_field.status_selector == GX4_25_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
+    printf("Status Flags: \t\t\t\t\t0x%08x\n", basic_field.status_flags);
+    printf("System state: \t\t\t\t\t0x%08x\n", basic_field.system_state);
+    printf("System Microsecond Timer Count: \t\t%d ms\n\n", basic_field.system_timer_ms);
+
+    res.success = true;
+    return true;
+  }
+
+  bool Microstrain::get_diagnostic_report(microstrain_3dm_gx5::GetDiagnosticReport::Request &req, microstrain_3dm_gx5::GetDiagnosticReport::Response &res)
+  {
+    u8* response_buffer;
+    while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_25_MODEL_NUMBER, GX4_25_DIAGNOSTICS_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){}
+    printf("Model Number: \t\t\t\t\t%04u\n", diagnostic_field.device_model);
+    printf("Status Selector: \t\t\t\t%s\n", diagnostic_field.status_selector == GX4_25_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
+    printf("Status Flags: \t\t\t\t\t0x%08x\n", diagnostic_field.status_flags);
+    printf("System Millisecond Timer Count: \t\t%llu ms\n", diagnostic_field.system_timer_ms);
+    printf("IMU Streaming Enabled: \t\t\t\t%s\n", diagnostic_field.imu_stream_enabled == 1 ? "TRUE" : "FALSE");
+    printf("FILTER Streaming Enabled: \t\t\t\t%s\n", diagnostic_field.filter_stream_enabled == 1 ? "TRUE" : "FALSE");
+    printf("Number of Dropped IMU Packets: \t\t\t%u packets\n", diagnostic_field.imu_dropped_packets);
+    printf("Number of Dropped FILTER Packets: \t\t\t%u packets\n", diagnostic_field.filter_dropped_packets);
+    printf("Communications Port Bytes Written: \t\t%u Bytes\n", diagnostic_field.com1_port_bytes_written);
+    printf("Communications Port Bytes Read: \t\t%u Bytes\n", diagnostic_field.com1_port_bytes_read);
+    printf("Communications Port Write Overruns: \t\t%u Bytes\n", diagnostic_field.com1_port_write_overruns);
+    printf("Communications Port Read Overruns: \t\t%u Bytes\n", diagnostic_field.com1_port_read_overruns);
+    printf("IMU Parser Errors: \t\t\t\t%u Errors\n", diagnostic_field.imu_parser_errors);
+    printf("IMU Message Count: \t\t\t\t%u Messages\n", diagnostic_field.imu_message_count);
+    printf("IMU Last Message Received: \t\t\t%u ms\n", diagnostic_field.imu_last_message_ms);
+
+    res.success = true;
+    return true;
   }
 
   bool Microstrain::set_dynamics_mode(microstrain_3dm_gx5::SetDynamicsMode::Request &req, microstrain_3dm_gx5::SetDynamicsMode::Response &res)
@@ -1556,6 +1595,68 @@ namespace Microstrain
   ROS_INFO("Sent values: Enable: %i, Parameters: %f %f %f %f %f %f", accel_magnitude_error_command.enable, accel_magnitude_error_command.low_pass_cutoff, accel_magnitude_error_command.min_1sigma, accel_magnitude_error_command.low_limit, accel_magnitude_error_command.high_limit, accel_magnitude_error_command.low_limit_1sigma, accel_magnitude_error_command.high_limit_1sigma);
   ROS_INFO("Returned values: Enable: %i, Parameters: %f %f %f %f %f %f", accel_magnitude_error_readback.enable, accel_magnitude_error_readback.low_pass_cutoff, accel_magnitude_error_readback.min_1sigma, accel_magnitude_error_readback.low_limit, accel_magnitude_error_readback.high_limit, accel_magnitude_error_readback.low_limit_1sigma, accel_magnitude_error_readback.high_limit_1sigma);
   }
+
+  }
+
+  u16 Microstrain::mip_3dm_cmd_hw_specific_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer)
+  {
+   gx4_25_basic_status_field *basic_ptr;
+   gx4_25_diagnostic_device_status_field *diagnostic_ptr;
+   u16 response_size = MIP_FIELD_HEADER_SIZE;
+
+   if(status_selector == GX4_25_BASIC_STATUS_SEL)
+    response_size += sizeof(gx4_25_basic_status_field);
+   else if(status_selector == GX4_25_DIAGNOSTICS_STATUS_SEL)
+    response_size += sizeof(gx4_25_diagnostic_device_status_field);
+
+   while(mip_3dm_cmd_device_status(device_interface, model_number, status_selector, response_buffer, &response_size) != MIP_INTERFACE_OK){}
+
+   if(status_selector == GX4_25_BASIC_STATUS_SEL)
+   {
+    if(response_size != sizeof(gx4_25_basic_status_field)){
+     return MIP_INTERFACE_ERROR;
+   }
+    else if(MIP_SDK_CONFIG_BYTESWAP){
+
+     basic_ptr = (gx4_25_basic_status_field *)response_buffer;
+
+     byteswap_inplace(&basic_ptr->device_model, sizeof(basic_ptr->device_model));
+     byteswap_inplace(&basic_ptr->status_flags, sizeof(basic_ptr->status_flags));
+     byteswap_inplace(&basic_ptr->status_selector, sizeof(basic_ptr->status_selector));
+     byteswap_inplace(&basic_ptr->system_state, sizeof(basic_ptr->system_state));
+     byteswap_inplace(&basic_ptr->system_timer_ms, sizeof(basic_ptr->system_timer_ms));
+
+    }
+
+   }
+   else if(status_selector == GX4_25_DIAGNOSTICS_STATUS_SEL)
+   {
+
+    if(response_size != sizeof(gx4_25_diagnostic_device_status_field)){
+     return MIP_INTERFACE_ERROR;
+   }
+    else if(MIP_SDK_CONFIG_BYTESWAP){
+
+     diagnostic_ptr = (gx4_25_diagnostic_device_status_field *)response_buffer;
+
+     byteswap_inplace(&diagnostic_ptr->device_model, sizeof(diagnostic_ptr->device_model));
+     byteswap_inplace(&diagnostic_ptr->status_flags, sizeof(diagnostic_ptr->status_flags));
+     byteswap_inplace(&diagnostic_ptr->system_timer_ms, sizeof(diagnostic_ptr->system_timer_ms));
+     byteswap_inplace(&diagnostic_ptr->imu_dropped_packets, sizeof(diagnostic_ptr->imu_dropped_packets));
+     byteswap_inplace(&diagnostic_ptr->filter_dropped_packets, sizeof(diagnostic_ptr->filter_dropped_packets));
+     byteswap_inplace(&diagnostic_ptr->com1_port_bytes_written, sizeof(diagnostic_ptr->com1_port_bytes_written));
+     byteswap_inplace(&diagnostic_ptr->com1_port_bytes_read, sizeof(diagnostic_ptr->com1_port_bytes_read));
+     byteswap_inplace(&diagnostic_ptr->com1_port_write_overruns, sizeof(diagnostic_ptr->com1_port_write_overruns));
+     byteswap_inplace(&diagnostic_ptr->com1_port_read_overruns, sizeof(diagnostic_ptr->com1_port_read_overruns));
+     byteswap_inplace(&diagnostic_ptr->imu_parser_errors, sizeof(diagnostic_ptr->imu_parser_errors));
+     byteswap_inplace(&diagnostic_ptr->imu_message_count, sizeof(diagnostic_ptr->imu_message_count));
+     byteswap_inplace(&diagnostic_ptr->imu_last_message_ms, sizeof(diagnostic_ptr->imu_last_message_ms));
+    }
+   }
+   else
+    return MIP_INTERFACE_ERROR;
+
+   return MIP_INTERFACE_OK;
 
   }
 
@@ -2057,83 +2158,7 @@ namespace Microstrain
 		       gps_valid_packet_count_,  gps_timeout_packet_count_ + gps_checksum_error_packet_count_);
   } // print_packet_stats
 
-  u16 Microstrain::mip_3dm_cmd_hw_specific_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer)
-  {
 
-   gx4_45_basic_status_field *basic_ptr;
-   gx4_45_diagnostic_device_status_field *diagnostic_ptr;
-   u16 response_size = MIP_FIELD_HEADER_SIZE;
-
-   if(status_selector == GX4_45_BASIC_STATUS_SEL)
-    response_size += sizeof(gx4_45_basic_status_field);
-   else if(status_selector == GX4_45_DIAGNOSTICS_STATUS_SEL)
-    response_size += sizeof(gx4_45_diagnostic_device_status_field);
-
-   com_mode = MIP_SDK_GX4_45_IMU_DIRECT_MODE;
-
-   while(mip_system_com_mode(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &com_mode) != MIP_INTERFACE_OK && (clock() - start < 5000)){}
-   while(mip_system_com_mode(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &com_mode) != MIP_INTERFACE_OK && (clock() - start < 5000)){}
-   ROS_INFO("Device mode: %d", com_mode);
-
-   if (mip_3dm_cmd_device_status(device_interface, model_number, status_selector, response_buffer, &response_size) != MIP_INTERFACE_OK)
-   {
-      ROS_INFO("ERROR!");
-   }
-
-   ROS_INFO("Made it past device status function");
-   if(status_selector == GX4_45_BASIC_STATUS_SEL)
-   {
-
-    if(response_size != sizeof(gx4_45_basic_status_field))
-     return MIP_INTERFACE_ERROR;
-    else if(MIP_SDK_CONFIG_BYTESWAP){
-
-     basic_ptr = (gx4_45_basic_status_field *)response_buffer;
-
-     byteswap_inplace(&basic_ptr->device_model, sizeof(basic_ptr->device_model));
-     byteswap_inplace(&basic_ptr->status_flags, sizeof(basic_ptr->status_flags));
-     byteswap_inplace(&basic_ptr->system_state, sizeof(basic_ptr->system_state));
-     byteswap_inplace(&basic_ptr->system_timer_ms, sizeof(basic_ptr->system_timer_ms));
-
-    }
-
-   }
-   else if(status_selector == GX4_45_DIAGNOSTICS_STATUS_SEL)
-   {
-
-    if(response_size != sizeof(gx4_45_diagnostic_device_status_field))
-     return MIP_INTERFACE_ERROR;
-    else if(MIP_SDK_CONFIG_BYTESWAP){
-
-     diagnostic_ptr = (gx4_45_diagnostic_device_status_field *)response_buffer;
-
-     byteswap_inplace(&diagnostic_ptr->device_model, sizeof(diagnostic_ptr->device_model));
-     byteswap_inplace(&diagnostic_ptr->status_flags, sizeof(diagnostic_ptr->status_flags));
-     byteswap_inplace(&diagnostic_ptr->system_state, sizeof(diagnostic_ptr->system_state));
-     byteswap_inplace(&diagnostic_ptr->system_timer_ms, sizeof(diagnostic_ptr->system_timer_ms));
-     byteswap_inplace(&diagnostic_ptr->num_gps_pps_triggers, sizeof(diagnostic_ptr->num_gps_pps_triggers));
-     byteswap_inplace(&diagnostic_ptr->last_gps_pps_trigger_ms, sizeof(diagnostic_ptr->last_gps_pps_trigger_ms));
-     byteswap_inplace(&diagnostic_ptr->imu_dropped_packets, sizeof(diagnostic_ptr->imu_dropped_packets));
-     byteswap_inplace(&diagnostic_ptr->gps_dropped_packets, sizeof(diagnostic_ptr->gps_dropped_packets));
-     byteswap_inplace(&diagnostic_ptr->filter_dropped_packets, sizeof(diagnostic_ptr->filter_dropped_packets));
-     byteswap_inplace(&diagnostic_ptr->com1_port_bytes_written, sizeof(diagnostic_ptr->com1_port_bytes_written));
-     byteswap_inplace(&diagnostic_ptr->com1_port_bytes_read, sizeof(diagnostic_ptr->com1_port_bytes_read));
-     byteswap_inplace(&diagnostic_ptr->com1_port_write_overruns, sizeof(diagnostic_ptr->com1_port_write_overruns));
-     byteswap_inplace(&diagnostic_ptr->com1_port_read_overruns, sizeof(diagnostic_ptr->com1_port_read_overruns));
-     byteswap_inplace(&diagnostic_ptr->imu_parser_errors, sizeof(diagnostic_ptr->imu_parser_errors));
-     byteswap_inplace(&diagnostic_ptr->imu_message_count, sizeof(diagnostic_ptr->imu_message_count));
-     byteswap_inplace(&diagnostic_ptr->imu_last_message_ms, sizeof(diagnostic_ptr->imu_last_message_ms));
-     byteswap_inplace(&diagnostic_ptr->gps_parser_errors, sizeof(diagnostic_ptr->gps_parser_errors));
-     byteswap_inplace(&diagnostic_ptr->gps_message_count, sizeof(diagnostic_ptr->gps_message_count));
-     byteswap_inplace(&diagnostic_ptr->gps_last_message_ms, sizeof(diagnostic_ptr->gps_last_message_ms));
-    }
-   }
-   else
-    return MIP_INTERFACE_ERROR;
-
-   return MIP_INTERFACE_OK;
-
-  }
 
 
   // Wrapper callbacks

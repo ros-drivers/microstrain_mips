@@ -32,6 +32,7 @@ extern "C" {
 #include "byteswap_utilities.h"
 #include "mip_gx4_imu.h"
 #include "mip_gx4_45.h"
+#include "mip_gx4_25.h"
 #include "mip_sdk_3dm.h"
 #include "GX4-45_Test.h"
 }
@@ -78,7 +79,8 @@ extern "C" {
 #include "microstrain_3dm_gx5/SetEstimationControlFlags.h"
 #include "microstrain_3dm_gx5/GetEstimationControlFlags.h"
 #include "microstrain_3dm_gx5/SetDynamicsMode.h"
-
+#include "microstrain_3dm_gx5/GetBasicStatus.h"
+#include "microstrain_3dm_gx5/GetDiagnosticReport.h"
 
 #define MIP_SDK_GX4_45_IMU_STANDARD_MODE	0x01
 #define MIP_SDK_GX4_45_IMU_DIRECT_MODE	0x02
@@ -121,8 +123,6 @@ namespace Microstrain
     void ahrs_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
     //! @brief GPS callback
     void gps_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
-
-    u16 mip_3dm_cmd_hw_specific_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer);
 
     bool set_accel_bias(microstrain_3dm_gx5::SetAccelBias::Request &req, microstrain_3dm_gx5::SetAccelBias::Response &res);
 
@@ -176,7 +176,11 @@ namespace Microstrain
 
     bool set_dynamics_mode(microstrain_3dm_gx5::SetDynamicsMode::Request &req, microstrain_3dm_gx5::SetDynamicsMode::Response &res);
 
+    bool get_basic_status(microstrain_3dm_gx5::GetBasicStatus::Request &req, microstrain_3dm_gx5::GetBasicStatus::Response &res);
 
+    u16 mip_3dm_cmd_hw_specific_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer);
+
+    bool get_diagnostic_report(microstrain_3dm_gx5::GetDiagnosticReport::Request &req, microstrain_3dm_gx5::GetDiagnosticReport::Response &res);
 
   private:
   //! @brief Reset KF service callback
@@ -278,6 +282,9 @@ namespace Microstrain
   u16 estimation_control_readback;
   u8 dynamics_mode;
   u8 readback_dynamics_mode;
+  gx4_25_basic_status_field basic_field;
+  gx4_imu_diagnostic_device_status_field imu_diagnostic_field;
+  gx4_25_diagnostic_device_status_field diagnostic_field;
   mip_complementary_filter_settings comp_filter_command, comp_filter_readback;
   mip_filter_accel_magnitude_error_adaptive_measurement_command accel_magnitude_error_command, accel_magnitude_error_readback;
   }; // Microstrain class
