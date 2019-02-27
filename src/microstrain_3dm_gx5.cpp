@@ -49,6 +49,15 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 #include "microstrain_3dm_gx5/SetDynamicsMode.h"
 #include "microstrain_3dm_gx5/GetBasicStatus.h"
 #include "microstrain_3dm_gx5/GetDiagnosticReport.h"
+#include "microstrain_3dm_gx5/SetZeroAngleUpdateThreshold.h"
+#include "microstrain_3dm_gx5/GetZeroAngleUpdateThreshold.h"
+#include "microstrain_3dm_gx5/SetTareOrientation.h"
+#include "microstrain_3dm_gx5/SetAccelNoise.h"
+#include "microstrain_3dm_gx5/GetAccelNoise.h"
+#include "microstrain_3dm_gx5/SetGyroNoise.h"
+#include "microstrain_3dm_gx5/GetGyroNoise.h"
+#include "microstrain_3dm_gx5/SetMagNoise.h"
+#include "microstrain_3dm_gx5/GetMagNoise.h"
 #include <tf2/LinearMath/Transform.h>
 #include <string>
 #include <algorithm>
@@ -128,9 +137,7 @@ namespace Microstrain
     u16 duration = 0;
     mip_filter_external_gps_update_command external_gps_update;
     mip_filter_external_heading_update_command external_heading_update;
-    mip_filter_zero_update_command zero_update_control, zero_update_readback;
     mip_filter_external_heading_with_time_command external_heading_with_time;
-
     mip_filter_magnetometer_magnitude_error_adaptive_measurement_command mag_magnitude_error_command, mag_magnitude_error_readback;
     mip_filter_magnetometer_dip_angle_error_adaptive_measurement_command mag_dip_angle_error_command, mag_dip_angle_error_readback;
 
@@ -221,7 +228,15 @@ namespace Microstrain
     ros::ServiceServer service28 = node.advertiseService("SetDynamicsMode", &Microstrain::set_dynamics_mode, this);
     ros::ServiceServer service29 = node.advertiseService("GetBasicStatus", &Microstrain::get_basic_status, this);
     ros::ServiceServer service30 = node.advertiseService("GetDiagnosticReport", &Microstrain::get_diagnostic_report, this);
-
+    ros::ServiceServer service31 = node.advertiseService("SetZeroAngleUpdateThreshold", &Microstrain::set_zero_angle_update_threshold, this);
+    ros::ServiceServer service32 = node.advertiseService("GetZeroAngleUpdateThreshold", &Microstrain::get_zero_angle_update_threshold, this);
+    ros::ServiceServer service33 = node.advertiseService("SetTareOrientation", &Microstrain::set_tare_orientation, this);
+    ros::ServiceServer service34 = node.advertiseService("SetAccelNoise", &Microstrain::set_accel_noise, this);
+    ros::ServiceServer service35 = node.advertiseService("GetAccelNoise", &Microstrain::get_accel_noise, this);
+    ros::ServiceServer service36 = node.advertiseService("SetGyroNoise", &Microstrain::set_gyro_noise, this);
+    ros::ServiceServer service37 = node.advertiseService("GetGyroNoise", &Microstrain::get_gyro_noise, this);
+    ros::ServiceServer service38 = node.advertiseService("SetMagNoise", &Microstrain::set_mag_noise, this);
+    ros::ServiceServer service39 = node.advertiseService("GetMagNoise", &Microstrain::get_mag_noise, this);
 
     //Initialize the serial interface to the device
     ROS_INFO("Attempting to open serial port <%s> at <%d> \n",
@@ -1402,7 +1417,7 @@ namespace Microstrain
     printf("Status Selector: \t\t\t\t%s\n", basic_field.status_selector == GX4_25_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
     printf("Status Flags: \t\t\t\t\t0x%08x\n", basic_field.status_flags);
     printf("System state: \t\t\t\t\t0x%08x\n", basic_field.system_state);
-    printf("System Microsecond Timer Count: \t\t%d ms\n\n", basic_field.system_timer_ms);
+    printf("System Microsecond Timer Count: \t\t%llu ms\n\n", basic_field.system_timer_ms);
 
     res.success = true;
     return true;
@@ -1432,6 +1447,242 @@ namespace Microstrain
     return true;
   }
 
+  bool Microstrain::set_zero_angle_update_threshold(microstrain_3dm_gx5::SetZeroAngleUpdateThreshold::Request &req, microstrain_3dm_gx5::SetZeroAngleUpdateThreshold::Response &res)
+  {
+    ROS_INFO("Setting Zero Angular-Rate-Update threshold\n");
+
+    zero_update_control.threshold = req.threshold; // rads/s
+    zero_update_control.enable = req.enable; //enable zero-angular-rate update
+
+    //Set ZUPT parameters
+    while(mip_filter_zero_angular_rate_update_control(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &zero_update_control) != MIP_INTERFACE_OK){}
+
+    //Read back parameter settings
+    while(mip_filter_zero_angular_rate_update_control(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &zero_update_readback) != MIP_INTERFACE_OK){}
+
+    if(zero_update_control.enable != zero_update_readback.enable || zero_update_control.threshold != zero_update_readback.threshold)
+     ROS_INFO("ERROR configuring Zero Angular Rate Update.\n");
+
+    ROS_INFO("Enable value set to: %d, Threshold is: %f rad/s", zero_update_readback.enable, zero_update_readback.threshold);
+
+    res.success = true;
+    return true;
+  }
+
+  bool Microstrain::set_tare_orientation(microstrain_3dm_gx5::SetTareOrientation::Request &req, microstrain_3dm_gx5::SetTareOrientation::Response &res)
+  {
+    if(req.axis < 1 || req.axis > 7){
+      ROS_INFO("Value must be between 1-7. 1 = Roll, 2 = Pitch, 3 = Roll/Pitch, 4 = Yaw, 5 = Roll/Yaw, 6 = Pitch/Yaw, 7 = Roll/Pitch/Yaw");
+      res.success = false;
+    }
+
+    angles[0] = angles[1] = angles[2] = 0;
+    int i = req.axis;
+    while(mip_filter_set_init_attitude(&device_interface_, angles) != MIP_INTERFACE_OK){}
+
+      //Wait for Filter to re-establish running state
+    Sleep(5000);
+    //Cycle through axes combinations
+    if(mip_filter_tare_orientation(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, i) != MIP_INTERFACE_OK)
+    {
+      ROS_INFO("ERROR: Failed Axis - ");
+
+      if(i & FILTER_TARE_ROLL_AXIS)
+        ROS_INFO(" Roll Axis ");
+
+      if(i & FILTER_TARE_PITCH_AXIS)
+        ROS_INFO(" Pitch Axis ");
+
+      if(i & FILTER_TARE_YAW_AXIS)
+        ROS_INFO(" Yaw Axis ");
+    }
+    else
+    {
+    ROS_INFO("Tare Configuration = %d\n", i);
+
+    ROS_INFO("Tared -");
+
+    if(i & FILTER_TARE_ROLL_AXIS)
+     ROS_INFO(" Roll Axis ");
+
+    if(i & FILTER_TARE_PITCH_AXIS)
+     ROS_INFO(" Pitch Axis ");
+
+    if(i & FILTER_TARE_YAW_AXIS)
+     ROS_INFO(" Yaw Axis ");
+
+    res.success = true;
+    return true;
+  }
+
+ Sleep(1000);
+  }
+
+  bool Microstrain::get_zero_angle_update_threshold(microstrain_3dm_gx5::GetZeroAngleUpdateThreshold::Request &req, microstrain_3dm_gx5::GetZeroAngleUpdateThreshold::Response &res)
+  {
+    ROS_INFO("Setting Zero Angular-Rate-Update threshold\n");
+    //Read back parameter settings
+    while(mip_filter_zero_angular_rate_update_control(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &zero_update_readback) != MIP_INTERFACE_OK){}
+    ROS_INFO("Enable value set to: %d, Threshold is: %f rad/s", zero_update_readback.enable, zero_update_readback.threshold);
+
+    res.success = true;
+    return true;
+  }
+
+  bool Microstrain::set_accel_noise(microstrain_3dm_gx5::SetAccelNoise::Request &req, microstrain_3dm_gx5::SetAccelNoise::Response &res)
+  {
+    ROS_INFO("Setting the accel noise values\n");
+
+    noise[0] = req.noise.x;
+    noise[1] = req.noise.y;
+    noise[2] = req.noise.z;
+
+    start = clock();
+    while(mip_filter_accel_noise(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, noise) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_estimation_control function timed out.");
+        break;
+      }
+    }
+
+    //Read back the accel noise values
+    start = clock();
+    while(mip_filter_accel_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_estimation_control function timed out.");
+        break;
+      }
+    }
+
+    if((abs(readback_noise[0]-noise[0]) < 0.001) &&
+       (abs(readback_noise[1]-noise[1]) < 0.001) &&
+       (abs(readback_noise[2]-noise[2]) < 0.001))
+    {
+     ROS_INFO("Accel noise values successfully set.\n");
+    }
+    else
+    {
+     ROS_INFO("ERROR: Failed to set accel noise values!!!\n");
+     ROS_INFO("Sent values:     %f X %f Y %f Z\n", noise[0], noise[1], noise[2]);
+     ROS_INFO("Returned values: %f X %f Y %f Z\n", readback_noise[0], readback_noise[1], readback_noise[2]);
+    }
+
+    res.success;
+    return true;
+  }
+
+  bool Microstrain::get_accel_noise(microstrain_3dm_gx5::GetAccelNoise::Request &req, microstrain_3dm_gx5::GetAccelNoise::Response &res)
+  {
+    start = clock();
+    while(mip_filter_accel_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_estimation_control function timed out.");
+        break;
+      }
+    }
+    ROS_INFO("Accel noise values: %f X %f Y %f Z\n", readback_noise[0], readback_noise[1], readback_noise[2]);
+
+    res.success = true;
+    return true;
+  }
+
+  bool Microstrain::set_gyro_noise(microstrain_3dm_gx5::SetGyroNoise::Request &req, microstrain_3dm_gx5::SetGyroNoise::Response &res)
+  {
+    ROS_INFO("Setting the gyro noise values\n");
+
+    noise[0] = req.noise.x;
+    noise[1] = req.noise.y;
+    noise[2] = req.noise.z;
+
+    start = clock();
+    while(mip_filter_gyro_noise(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, noise) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_estimation_control function timed out.");
+        break;
+      }
+    }
+
+    //Read back the gyro noise values
+    start = clock();
+    while(mip_filter_gyro_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_estimation_control function timed out.");
+        break;
+      }
+    }
+
+    if((abs(readback_noise[0]-noise[0]) < 0.001) &&
+       (abs(readback_noise[1]-noise[1]) < 0.001) &&
+       (abs(readback_noise[2]-noise[2]) < 0.001))
+    {
+     ROS_INFO("Gyro noise values successfully set.\n");
+    }
+    else
+    {
+     ROS_INFO("ERROR: Failed to set gyro noise values!!!\n");
+     ROS_INFO("Sent values:     %f X %f Y %f Z\n", noise[0], noise[1], noise[2]);
+     ROS_INFO("Returned values: %f X %f Y %f Z\n", readback_noise[0], readback_noise[1], readback_noise[2]);
+    }
+
+    res.success = true;
+    return true;
+  }
+
+  bool Microstrain::get_gyro_noise(microstrain_3dm_gx5::GetGyroNoise::Request &req, microstrain_3dm_gx5::GetGyroNoise::Response &res)
+  {
+    start = clock();
+    while(mip_filter_gyro_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_gyro_noise function timed out.");
+        break;
+      }
+    }
+    ROS_INFO("Gyro noise values: %f X %f Y %f Z\n", readback_noise[0], readback_noise[1], readback_noise[2]);
+
+    res.success = true;
+    return true;
+  }
+
+  bool Microstrain::set_mag_noise(microstrain_3dm_gx5::SetMagNoise::Request &req, microstrain_3dm_gx5::SetMagNoise::Response &res)
+  {
+    ROS_INFO("Setting the mag noise values\n");
+
+    noise[0] = req.noise.x;
+    noise[1] = req.noise.y;
+    noise[2] = req.noise.z;
+
+    while(mip_filter_mag_noise(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, noise) != MIP_INTERFACE_OK){}
+
+    //Read back the mag white noise values
+    while(mip_filter_mag_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){}
+
+    if((abs(readback_noise[0] - noise[0]) < 0.001) &&
+       (abs(readback_noise[1] - noise[1]) < 0.001) &&
+       (abs(readback_noise[2] - noise[2]) < 0.001))
+    {
+     ROS_INFO("Mag noise values successfully set.\n");
+    }
+    else
+    {
+     ROS_INFO("ERROR: Failed to set mag noise values!!!\n");
+     ROS_INFO("Sent values:     %f X %f Y %f Z\n", noise[0], noise[1], noise[2]);
+     ROS_INFO("Returned values: %f X %f Y %f Z\n", readback_noise[0], readback_noise[1], readback_noise[2]);
+    }
+
+    res.success = true;
+    return true;
+  }
+
+  bool Microstrain::get_mag_noise(microstrain_3dm_gx5::GetMagNoise::Request &req, microstrain_3dm_gx5::GetMagNoise::Response &res)
+  {
+    while(mip_filter_mag_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){}
+    ROS_INFO("Returned values: %f X %f Y %f Z\n", readback_noise[0], readback_noise[1], readback_noise[2]);
+
+    res.success = true;
+    return true;
+  }
+
+  //Only in 45
   bool Microstrain::set_dynamics_mode(microstrain_3dm_gx5::SetDynamicsMode::Request &req, microstrain_3dm_gx5::SetDynamicsMode::Response &res)
   {
   dynamics_mode = req.mode;
@@ -1441,13 +1692,13 @@ namespace Microstrain
     res.success = false;
   }
   else{
-    /*start = clock();
+    start = clock();
     while(mip_filter_vehicle_dynamics_mode(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &dynamics_mode) != MIP_INTERFACE_OK){
       if (clock() - start > 5000){
         ROS_INFO("mip_filter_vehicle_dynamics_mode function timed out.");
         break;
       }
-    }*/
+    }
 
     readback_dynamics_mode = 0;
     while(mip_filter_vehicle_dynamics_mode(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &readback_dynamics_mode) != MIP_INTERFACE_OK){}

@@ -31,6 +31,15 @@ add_service_files(
   SetDynamicsMode.srv
   GetBasicStatus.srv
   GetDiagnosticReport.srv
+  SetZeroAngleUpdateThreshold.srv
+  GetZeroAngleUpdateThreshold.srv
+  SetTareOrientation.srv
+  SetAccelNoise.srv
+  GetAccelNoise.srv
+  SetGyroNoise.srv
+  GetGyroNoise.srv
+  SetMagNoise.srv
+  GetMagNoise.srv
 )
 
 ## Find catkin macros and libraries
@@ -200,6 +209,24 @@ add_executable(get_basic_status_client src/get_basic_status_client.cpp)
 
 add_executable(get_diagnostic_report_client src/get_diagnostic_report_client.cpp)
 
+add_executable(set_zero_angle_update_threshold_client src/set_zero_angle_update_threshold_client.cpp)
+
+add_executable(get_zero_angle_update_threshold_client src/get_zero_angle_update_threshold_client.cpp)
+
+add_executable(set_tare_orientation_client src/set_tare_orientation_client.cpp)
+
+add_executable(set_accel_noise_client src/set_accel_noise_client.cpp)
+
+add_executable(get_accel_noise_client src/get_accel_noise_client.cpp)
+
+add_executable(set_gyro_noise_client src/set_gyro_noise_client.cpp)
+
+add_executable(get_gyro_noise_client src/get_gyro_noise_client.cpp)
+
+add_executable(set_mag_noise_client src/set_mag_noise_client.cpp)
+
+add_executable(get_mag_noise_client src/get_mag_noise_client.cpp)
+
 add_dependencies(set_accel_bias_client microstrain_3dm_gx5_gencpp)
 
 add_dependencies(get_accel_bias_client microstrain_3dm_gx5_gencpp)
@@ -253,6 +280,24 @@ add_dependencies(set_dynamics_mode_client microstrain_3dm_gx5_gencpp)
 add_dependencies(get_basic_status_client microstrain_3dm_gx5_gencpp)
 
 add_dependencies(get_diagnostic_report_client microstrain_3dm_gx5_gencpp)
+
+add_dependencies(set_zero_angle_update_threshold_client microstrain_3dm_gx5_gencpp)
+
+add_dependencies(get_zero_angle_update_threshold_client microstrain_3dm_gx5_gencpp)
+
+add_dependencies(set_tare_orientation_client microstrain_3dm_gx5_gencpp)
+
+add_dependencies(set_accel_noise_client microstrain_3dm_gx5_gencpp)
+
+add_dependencies(get_accel_noise_client microstrain_3dm_gx5_gencpp)
+
+add_dependencies(set_gyro_noise_client microstrain_3dm_gx5_gencpp)
+
+add_dependencies(get_gyro_noise_client microstrain_3dm_gx5_gencpp)
+
+add_dependencies(set_mag_noise_client microstrain_3dm_gx5_gencpp)
+
+add_dependencies(get_mag_noise_client microstrain_3dm_gx5_gencpp)
 
 # Linking
 target_link_libraries(GX4-45_Test rt)
@@ -321,6 +366,23 @@ target_link_libraries(get_basic_status_client ${catkin_LIBRARIES})
 
 target_link_libraries(get_diagnostic_report_client ${catkin_LIBRARIES})
 
+target_link_libraries(set_zero_angle_update_threshold_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_zero_angle_update_threshold_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_tare_orientation_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_accel_noise_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_accel_noise_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_gyro_noise_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_gyro_noise_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_mag_noise_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_mag_noise_client ${catkin_LIBRARIES})
 
 #############
 ## Install ##

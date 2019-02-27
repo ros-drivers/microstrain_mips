@@ -81,6 +81,15 @@ extern "C" {
 #include "microstrain_3dm_gx5/SetDynamicsMode.h"
 #include "microstrain_3dm_gx5/GetBasicStatus.h"
 #include "microstrain_3dm_gx5/GetDiagnosticReport.h"
+#include "microstrain_3dm_gx5/SetZeroAngleUpdateThreshold.h"
+#include "microstrain_3dm_gx5/GetZeroAngleUpdateThreshold.h"
+#include "microstrain_3dm_gx5/SetTareOrientation.h"
+#include "microstrain_3dm_gx5/SetAccelNoise.h"
+#include "microstrain_3dm_gx5/GetAccelNoise.h"
+#include "microstrain_3dm_gx5/SetGyroNoise.h"
+#include "microstrain_3dm_gx5/GetGyroNoise.h"
+#include "microstrain_3dm_gx5/SetMagNoise.h"
+#include "microstrain_3dm_gx5/GetMagNoise.h"
 
 #define MIP_SDK_GX4_45_IMU_STANDARD_MODE	0x01
 #define MIP_SDK_GX4_45_IMU_DIRECT_MODE	0x02
@@ -181,6 +190,24 @@ namespace Microstrain
     u16 mip_3dm_cmd_hw_specific_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer);
 
     bool get_diagnostic_report(microstrain_3dm_gx5::GetDiagnosticReport::Request &req, microstrain_3dm_gx5::GetDiagnosticReport::Response &res);
+
+    bool set_zero_angle_update_threshold(microstrain_3dm_gx5::SetZeroAngleUpdateThreshold::Request &req, microstrain_3dm_gx5::SetZeroAngleUpdateThreshold::Response &res);
+
+    bool get_zero_angle_update_threshold(microstrain_3dm_gx5::GetZeroAngleUpdateThreshold::Request &req, microstrain_3dm_gx5::GetZeroAngleUpdateThreshold::Response &res);
+
+    bool set_tare_orientation(microstrain_3dm_gx5::SetTareOrientation::Request &req, microstrain_3dm_gx5::SetTareOrientation::Response &res);
+
+    bool set_accel_noise(microstrain_3dm_gx5::SetAccelNoise::Request &req, microstrain_3dm_gx5::SetAccelNoise::Response &res);
+
+    bool get_accel_noise(microstrain_3dm_gx5::GetAccelNoise::Request &req, microstrain_3dm_gx5::GetAccelNoise::Response &res);
+
+    bool set_gyro_noise(microstrain_3dm_gx5::SetGyroNoise::Request &req, microstrain_3dm_gx5::SetGyroNoise::Response &res);
+
+    bool get_gyro_noise(microstrain_3dm_gx5::GetGyroNoise::Request &req, microstrain_3dm_gx5::GetGyroNoise::Response &res);
+
+    bool set_mag_noise(microstrain_3dm_gx5::SetMagNoise::Request &req, microstrain_3dm_gx5::SetMagNoise::Response &res);
+
+    bool get_mag_noise(microstrain_3dm_gx5::GetMagNoise::Request &req, microstrain_3dm_gx5::GetMagNoise::Response &res);
 
   private:
   //! @brief Reset KF service callback
@@ -287,6 +314,7 @@ namespace Microstrain
   gx4_25_diagnostic_device_status_field diagnostic_field;
   mip_complementary_filter_settings comp_filter_command, comp_filter_readback;
   mip_filter_accel_magnitude_error_adaptive_measurement_command accel_magnitude_error_command, accel_magnitude_error_readback;
+  mip_filter_zero_update_command zero_update_control, zero_update_readback;
   }; // Microstrain class
 
 

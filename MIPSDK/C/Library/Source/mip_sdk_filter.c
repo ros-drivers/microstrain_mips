@@ -1882,7 +1882,6 @@ u16 mip_filter_auto_initialization(mip_interface *device_interface, u8 function_
 
 u16 mip_filter_accel_noise(mip_interface *device_interface, u8 function_selector, float noise_1sigma[3])
 {
- printf("In accel noise function \n");
  u8 i;
  u8 *response_data;
  u16 response_data_size;
@@ -1910,7 +1909,6 @@ u16 mip_filter_accel_noise(mip_interface *device_interface, u8 function_selector
 
  return_code = mip_interface_send_command_with_response(device_interface, MIP_FILTER_COMMAND_SET, MIP_FILTER_CMD_ACCEL_NOISE, command_data,
                                                         sizeof(u8) + sizeof(float)*3, &response_data, &response_data_size, MIP_INTERFACE_DEFAULT_COMMAND_RESPONSE_TIMEOUT_MS);
- printf("%d", return_code);
  //Copy the data to the provided buffer on success if present
  if((return_code == MIP_INTERFACE_OK) && (response_data != NULL))
  {
