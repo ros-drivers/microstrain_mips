@@ -40,6 +40,13 @@ add_service_files(
   GetGyroNoise.srv
   SetMagNoise.srv
   GetMagNoise.srv
+  SetGyroBiasModel.srv
+  GetGyroBiasModel.srv
+  GetAccelAdaptiveVals.srv
+  SetAccelAdaptiveVals.srv
+  SetMagAdaptiveVals.srv
+  GetMagAdaptiveVals.srv
+  SetMagDipAdaptiveVals.srv
 )
 
 ## Find catkin macros and libraries
@@ -227,6 +234,18 @@ add_executable(set_mag_noise_client src/set_mag_noise_client.cpp)
 
 add_executable(get_mag_noise_client src/get_mag_noise_client.cpp)
 
+add_executable(set_gyro_bias_model_client src/set_gyro_bias_model_client.cpp)
+
+add_executable(get_gyro_bias_model_client src/get_gyro_bias_model_client.cpp)
+
+add_executable(get_accel_adaptive_vals_client src/get_accel_adaptive_vals_client.cpp)
+
+add_executable(set_mag_adaptive_vals_client src/set_mag_adaptive_vals_client.cpp)
+
+add_executable(get_mag_adaptive_vals_client src/get_mag_adaptive_vals_client.cpp)
+
+add_executable(set_mag_dip_adaptive_vals_client src/set_mag_dip_adaptive_vals_client.cpp)
+
 add_dependencies(set_accel_bias_client microstrain_3dm_gx5_gencpp)
 
 add_dependencies(get_accel_bias_client microstrain_3dm_gx5_gencpp)
@@ -298,6 +317,18 @@ add_dependencies(get_gyro_noise_client microstrain_3dm_gx5_gencpp)
 add_dependencies(set_mag_noise_client microstrain_3dm_gx5_gencpp)
 
 add_dependencies(get_mag_noise_client microstrain_3dm_gx5_gencpp)
+
+add_dependencies(set_gyro_bias_model_client microstrain_3dm_gx5_gencpp)
+
+add_dependencies(get_gyro_bias_model_client microstrain_3dm_gx5_gencpp)
+
+add_dependencies(get_accel_adaptive_vals_client microstrain_3dm_gx5_gencpp)
+
+add_dependencies(set_mag_adaptive_vals_client microstrain_3dm_gx5_gencpp)
+
+add_dependencies(get_mag_adaptive_vals_client microstrain_3dm_gx5_gencpp)
+
+add_dependencies(set_mag_dip_adaptive_vals_client microstrain_3dm_gx5_gencpp)
 
 # Linking
 target_link_libraries(GX4-45_Test rt)
@@ -383,6 +414,18 @@ target_link_libraries(get_gyro_noise_client ${catkin_LIBRARIES})
 target_link_libraries(set_mag_noise_client ${catkin_LIBRARIES})
 
 target_link_libraries(get_mag_noise_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_gyro_bias_model_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_gyro_bias_model_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_accel_adaptive_vals_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_mag_adaptive_vals_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_mag_adaptive_vals_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_mag_dip_adaptive_vals_client ${catkin_LIBRARIES})
 
 #############
 ## Install ##

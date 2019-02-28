@@ -58,6 +58,12 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 #include "microstrain_3dm_gx5/GetGyroNoise.h"
 #include "microstrain_3dm_gx5/SetMagNoise.h"
 #include "microstrain_3dm_gx5/GetMagNoise.h"
+#include "microstrain_3dm_gx5/SetGyroBiasModel.h"
+#include "microstrain_3dm_gx5/GetGyroBiasModel.h"
+#include "microstrain_3dm_gx5/GetAccelAdaptiveVals.h"
+#include "microstrain_3dm_gx5/SetMagAdaptiveVals.h"
+#include "microstrain_3dm_gx5/GetMagAdaptiveVals.h"
+#include "microstrain_3dm_gx5/SetMagDipAdaptiveVals.h"
 #include <tf2/LinearMath/Transform.h>
 #include <string>
 #include <algorithm>
@@ -138,8 +144,6 @@ namespace Microstrain
     mip_filter_external_gps_update_command external_gps_update;
     mip_filter_external_heading_update_command external_heading_update;
     mip_filter_external_heading_with_time_command external_heading_with_time;
-    mip_filter_magnetometer_magnitude_error_adaptive_measurement_command mag_magnitude_error_command, mag_magnitude_error_readback;
-    mip_filter_magnetometer_dip_angle_error_adaptive_measurement_command mag_dip_angle_error_command, mag_dip_angle_error_readback;
 
     com_mode = 0;
 
@@ -237,6 +241,12 @@ namespace Microstrain
     ros::ServiceServer service37 = node.advertiseService("GetGyroNoise", &Microstrain::get_gyro_noise, this);
     ros::ServiceServer service38 = node.advertiseService("SetMagNoise", &Microstrain::set_mag_noise, this);
     ros::ServiceServer service39 = node.advertiseService("GetMagNoise", &Microstrain::get_mag_noise, this);
+    ros::ServiceServer service40 = node.advertiseService("SetGyroBiasModel", &Microstrain::set_gyro_bias_model, this);
+    ros::ServiceServer service41 = node.advertiseService("GetGyroBiasModel", &Microstrain::get_gyro_bias_model, this);
+    ros::ServiceServer service42 = node.advertiseService("GetAccelAdaptiveVals", &Microstrain::get_accel_adaptive_vals, this);
+    ros::ServiceServer service43 = node.advertiseService("SetMagAdaptiveVals", &Microstrain::set_mag_adaptive_vals, this);
+    ros::ServiceServer service44 = node.advertiseService("GetMagAdaptiveVals", &Microstrain::get_mag_adaptive_vals, this);
+    ros::ServiceServer service45 = node.advertiseService("SetMagDipAdaptiveVals", &Microstrain::set_mag_dip_adaptive_vals, this);
 
     //Initialize the serial interface to the device
     ROS_INFO("Attempting to open serial port <%s> at <%d> \n",
@@ -1682,172 +1692,315 @@ namespace Microstrain
     return true;
   }
 
-  //Only in 45
-  bool Microstrain::set_dynamics_mode(microstrain_3dm_gx5::SetDynamicsMode::Request &req, microstrain_3dm_gx5::SetDynamicsMode::Response &res)
-  {
-  dynamics_mode = req.mode;
 
-  if (dynamics_mode < 1 || dynamics_mode > 3){
-    ROS_INFO("Error: Vehicle dynamics mode must be between 1-3");
-    res.success = false;
-  }
-  else{
+  bool Microstrain::set_gyro_bias_model(microstrain_3dm_gx5::SetGyroBiasModel::Request &req, microstrain_3dm_gx5::SetGyroBiasModel::Response &res)
+  {
+    ROS_INFO("Setting the gyro bias model values\n");
+
+    noise[0] = req.noise_vector.x;
+    noise[1] = req.noise_vector.y;
+    noise[2] = req.noise_vector.z;
+
+    beta[0] = req.beta_vector.x;
+    beta[1] = req.beta_vector.x;
+    beta[2] = req.beta_vector.x;
+
     start = clock();
-    while(mip_filter_vehicle_dynamics_mode(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &dynamics_mode) != MIP_INTERFACE_OK){
+    while(mip_filter_gyro_bias_model(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, beta, noise) != MIP_INTERFACE_OK){
       if (clock() - start > 5000){
-        ROS_INFO("mip_filter_vehicle_dynamics_mode function timed out.");
+        ROS_INFO("mip_filter_gyro_bias_model function timed out.");
         break;
       }
     }
 
-    readback_dynamics_mode = 0;
-    while(mip_filter_vehicle_dynamics_mode(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &readback_dynamics_mode) != MIP_INTERFACE_OK){}
+    //Read back the gyro bias model values
+    start = clock();
+    while(mip_filter_gyro_bias_model(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_beta, readback_noise) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_gyro_bias_model function timed out.");
+        break;
+      }
+    }
 
-    if(dynamics_mode == readback_dynamics_mode)
+    if((abs(readback_noise[0]-noise[0]) < 0.001) &&
+       (abs(readback_noise[1]-noise[1]) < 0.001) &&
+       (abs(readback_noise[2]-noise[2]) < 0.001) &&
+       (abs(readback_beta[0]-beta[0]) < 0.001) &&
+       (abs(readback_beta[1]-beta[1]) < 0.001) &&
+       (abs(readback_beta[2]-beta[2]) < 0.001))
     {
-     printf("Vehicle dynamics mode successfully set to %d\n", dynamics_mode);
-     res.success = true;
+     ROS_INFO("Gyro bias model values successfully set.\n");
     }
     else
     {
-     printf("ERROR: Failed to set vehicle dynamics mode to %d!!!\n", dynamics_mode);
-     res.success = false;
+     ROS_INFO("ERROR: Failed to set gyro bias model values!!!\n");
+     ROS_INFO("Sent values:     Beta: %f X %f Y %f Z, White Noise: %f X %f Y %f Z\n", beta[0], beta[1], beta[2], noise[0], noise[1], noise[2]);
+     ROS_INFO("Returned values:  Beta: %f X %f Y %f Z, White Noise: %f X %f Y %f Z\n", readback_beta[0], readback_beta[1], readback_beta[2],
+                         readback_noise[0], readback_noise[1], readback_noise[2]);
     }
-  }
-  return true;
+
+    res.success = true;
+    return true;
   }
 
-  bool Microstrain::set_sensor_vehicle_frame_offset(microstrain_3dm_gx5::SetSensorVehicleFrameOffset::Request &req, microstrain_3dm_gx5::SetSensorVehicleFrameOffset::Response &res)
+  bool Microstrain::get_gyro_bias_model(microstrain_3dm_gx5::GetGyroBiasModel::Request &req, microstrain_3dm_gx5::GetGyroBiasModel::Response &res)
   {
-  memset(offset, 0, 3*sizeof(float));
-  memset(readback_offset, 0, 3*sizeof(float));
-  ROS_INFO("Setting the sensor to vehicle frame offset\n");
-
-  offset[0] = req.offset.x;
-  offset[1] = req.offset.y;
-  offset[2] = req.offset.z;
-
-  start = clock();
-  while(mip_filter_sensor2vehicle_offset(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, offset) != MIP_INTERFACE_OK){
-    if (clock() - start > 5000){
-      ROS_INFO("mip_filter_sensor2vehicle_offset function timed out.");
-      break;
+    start = clock();
+    while(mip_filter_gyro_bias_model(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_beta, readback_noise) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_gyro_bias_model function timed out.");
+        break;
+      }
     }
-  }
 
-  //Read back the transformation
-  start = clock();
-  while(mip_filter_sensor2vehicle_offset(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_offset) != MIP_INTERFACE_OK){
-    if (clock() - start > 5000){
-      ROS_INFO("mip_filter_sensor2vehicle_offset function timed out.");
-      break;
-    }
-  }
-
-  if((abs(readback_offset[0]-offset[0]) < 0.001) &&
-     (abs(readback_offset[1]-offset[1]) < 0.001) &&
-     (abs(readback_offset[2]-offset[2]) < 0.001))
-  {
-   printf("Offset successfully set.\n");
-  }
-  else
-  {
-   ROS_INFO("ERROR: Failed to set offset!!!\n");
-   ROS_INFO("Sent offset:     %f X %f Y %f Z\n", offset[0], offset[1], offset[2]);
-   ROS_INFO("Returned offset: %f X %f Y %f Z\n", readback_offset[0], readback_offset[1], readback_offset[2]);
-  }
+    ROS_INFO("Gyro bias model values:  Beta: %f X %f Y %f Z, White Noise: %f X %f Y %f Z\n", readback_beta[0], readback_beta[1], readback_beta[2], readback_noise[0], readback_noise[1], readback_noise[2]);
+    res.success = true;
+    return true;
   }
 
   bool Microstrain::set_accel_bias_model(microstrain_3dm_gx5::SetAccelBiasModel::Request &req, microstrain_3dm_gx5::SetAccelBiasModel::Response &res)
   {
-  memset(noise, 0, 3*sizeof(float));
-  memset(beta, 0, 3*sizeof(float));
-  memset(readback_noise, 0, 3*sizeof(float));
-  memset(readback_beta, 0, 3*sizeof(float));
-  ROS_INFO("Setting the accel bias model values\n");
+    memset(noise, 0, 3*sizeof(float));
+    memset(beta, 0, 3*sizeof(float));
+    memset(readback_noise, 0, 3*sizeof(float));
+    memset(readback_beta, 0, 3*sizeof(float));
+    ROS_INFO("Setting the accel bias model values\n");
 
-  noise[0] = req.noise_vector.x;
-  noise[1] = req.noise_vector.y;
-  noise[2] = req.noise_vector.z;
+    noise[0] = req.noise_vector.x;
+    noise[1] = req.noise_vector.y;
+    noise[2] = req.noise_vector.z;
 
-  beta[0] = req.beta_vector.x;
-  beta[1] = req.beta_vector.x;
-  beta[2] = req.beta_vector.x;
+    beta[0] = req.beta_vector.x;
+    beta[1] = req.beta_vector.x;
+    beta[2] = req.beta_vector.x;
 
-  //while(mip_filter_accel_bias_model(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, beta, noise) != MIP_INTERFACE_OK){}
+    start = clock();
+    while(mip_filter_accel_bias_model(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, beta, noise) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_sensor2vehicle_offset function timed out.");
+        break;
+      }
+    }
 
-  //Read back the accel bias model values
-  //while(mip_filter_accel_bias_model(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_beta, readback_noise) != MIP_INTERFACE_OK){}
+    //Read back the accel bias model values
+    start = clock();
+    while(mip_filter_accel_bias_model(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_beta, readback_noise) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_sensor2vehicle_offset function timed out.");
+        break;
+      }
+    }
 
-  /*if((abs(readback_noise[0]-noise[0]) < 0.001) &&
-    (abs(readback_noise[1]-noise[1]) < 0.001) &&
-    (abs(readback_noise[2]-noise[2]) < 0.001) &&
-    (abs(readback_beta[0]-beta[0]) < 0.001) &&
-    (abs(readback_beta[1]-beta[1]) < 0.001) &&
-    (abs(readback_beta[2]-beta[2]) < 0.001))
-  {
-  printf("Accel bias model values successfully set.\n");
-  }
-  else
-  {
-  ROS_INFO("ERROR: Failed to set accel bias model values!!!\n");
-  ROS_INFO("Sent values:     Beta: %f X %f Y %f Z, White Noise: %f X %f Y %f Z\n", beta[0], beta[1], beta[2], noise[0], noise[1], noise[2]);
-  ROS_INFO("Returned values:  Beta: %f X %f Y %f Z, White Noise: %f X %f Y %f Z\n", readback_beta[0], readback_beta[1], readback_beta[2],
-                      readback_noise[0], readback_noise[1], readback_noise[2]);
-  }*/
+    if((abs(readback_noise[0]-noise[0]) < 0.001) &&
+      (abs(readback_noise[1]-noise[1]) < 0.001) &&
+      (abs(readback_noise[2]-noise[2]) < 0.001) &&
+      (abs(readback_beta[0]-beta[0]) < 0.001) &&
+      (abs(readback_beta[1]-beta[1]) < 0.001) &&
+      (abs(readback_beta[2]-beta[2]) < 0.001))
+    {
+      printf("Accel bias model values successfully set.\n");
+    }
+    else
+    {
+      ROS_INFO("ERROR: Failed to set accel bias model values!!!\n");
+      ROS_INFO("Sent values:     Beta: %f X %f Y %f Z, White Noise: %f X %f Y %f Z\n", beta[0], beta[1], beta[2], noise[0], noise[1], noise[2]);
+      ROS_INFO("Returned values:  Beta: %f X %f Y %f Z, White Noise: %f X %f Y %f Z\n", readback_beta[0], readback_beta[1], readback_beta[2],
+                          readback_noise[0], readback_noise[1], readback_noise[2]);
+    }
 
-  res.success = true;
-  return true;
+    res.success = true;
+    return true;
 
   }
 
   bool Microstrain::set_accel_adaptive_vals(microstrain_3dm_gx5::SetAccelAdaptiveVals::Request &req, microstrain_3dm_gx5::SetAccelAdaptiveVals::Response &res )
   {
-  ROS_INFO("Setting the accel magnitude error adaptive measurement values\n");
+    ROS_INFO("Setting the accel magnitude error adaptive measurement values\n");
 
-  accel_magnitude_error_command.enable            = req.enable;
-  accel_magnitude_error_command.low_pass_cutoff   = req.low_pass_cutoff;
-  accel_magnitude_error_command.min_1sigma        = req.min_1sigma;
-  accel_magnitude_error_command.low_limit         = req.low_limit;
-  accel_magnitude_error_command.high_limit        = req.high_limit;
-  accel_magnitude_error_command.low_limit_1sigma  = req.low_limit_1sigma;
-  accel_magnitude_error_command.high_limit_1sigma = req.high_limit_1sigma;
+    accel_magnitude_error_command.enable            = req.enable;
+    accel_magnitude_error_command.low_pass_cutoff   = req.low_pass_cutoff;
+    accel_magnitude_error_command.min_1sigma        = req.min_1sigma;
+    accel_magnitude_error_command.low_limit         = req.low_limit;
+    accel_magnitude_error_command.high_limit        = req.high_limit;
+    accel_magnitude_error_command.low_limit_1sigma  = req.low_limit_1sigma;
+    accel_magnitude_error_command.high_limit_1sigma = req.high_limit_1sigma;
 
-  start = clock();
-  while(mip_filter_accel_magnitude_error_adaptive_measurement(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &accel_magnitude_error_command) != MIP_INTERFACE_OK){
-   if (clock() - start > 5000){
-     ROS_INFO("mip_filter_accel_magnitude_error_adaptive_measurement function timed out.");
-     break;
-   }
+    start = clock();
+    while(mip_filter_accel_magnitude_error_adaptive_measurement(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &accel_magnitude_error_command) != MIP_INTERFACE_OK){
+     if (clock() - start > 5000){
+       ROS_INFO("mip_filter_accel_magnitude_error_adaptive_measurement function timed out.");
+       break;
+     }
+    }
+
+    //Read back the accel magnitude error adaptive measurement values
+    start = clock();
+    while(mip_filter_accel_magnitude_error_adaptive_measurement(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &accel_magnitude_error_readback) != MIP_INTERFACE_OK){
+     if (clock() - start > 5000){
+       ROS_INFO("mip_filter_accel_magnitude_error_adaptive_measurement function timed out.");
+       break;
+     }
+    }
+
+    if((accel_magnitude_error_command.enable == accel_magnitude_error_readback.enable) &&
+    (abs(accel_magnitude_error_command.low_pass_cutoff   - accel_magnitude_error_readback.low_pass_cutoff)   < 0.001) &&
+    (abs(accel_magnitude_error_command.min_1sigma        - accel_magnitude_error_readback.min_1sigma)        < 0.001) &&
+    (abs(accel_magnitude_error_command.low_limit         - accel_magnitude_error_readback.low_limit)         < 0.001) &&
+    (abs(accel_magnitude_error_command.high_limit        - accel_magnitude_error_readback.high_limit)        < 0.001) &&
+    (abs(accel_magnitude_error_command.low_limit_1sigma  - accel_magnitude_error_readback.low_limit_1sigma)  < 0.001) &&
+    (abs(accel_magnitude_error_command.high_limit_1sigma - accel_magnitude_error_readback.high_limit_1sigma) < 0.001))
+    {
+      ROS_INFO("accel magnitude error adaptive measurement values successfully set.\n");
+    }
+    else
+    {
+      ROS_INFO("ERROR: Failed to set accel magnitude error adaptive measurement values!!!");
+      ROS_INFO("Sent values: Enable: %i, Parameters: %f %f %f %f %f %f", accel_magnitude_error_command.enable, accel_magnitude_error_command.low_pass_cutoff, accel_magnitude_error_command.min_1sigma, accel_magnitude_error_command.low_limit, accel_magnitude_error_command.high_limit, accel_magnitude_error_command.low_limit_1sigma, accel_magnitude_error_command.high_limit_1sigma);
+      ROS_INFO("Returned values: Enable: %i, Parameters: %f %f %f %f %f %f", accel_magnitude_error_readback.enable, accel_magnitude_error_readback.low_pass_cutoff, accel_magnitude_error_readback.min_1sigma, accel_magnitude_error_readback.low_limit, accel_magnitude_error_readback.high_limit, accel_magnitude_error_readback.low_limit_1sigma, accel_magnitude_error_readback.high_limit_1sigma);
+    }
+
+    res.success = true;
+    return true;
+
   }
 
-  //Read back the accel magnitude error adaptive measurement values
-  start = clock();
-  while(mip_filter_accel_magnitude_error_adaptive_measurement(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &accel_magnitude_error_readback) != MIP_INTERFACE_OK){
-   if (clock() - start > 5000){
-     ROS_INFO("mip_filter_accel_magnitude_error_adaptive_measurement function timed out.");
-     break;
-   }
-  }
-
-  if((accel_magnitude_error_command.enable == accel_magnitude_error_readback.enable) &&
-  (abs(accel_magnitude_error_command.low_pass_cutoff   - accel_magnitude_error_readback.low_pass_cutoff)   < 0.001) &&
-  (abs(accel_magnitude_error_command.min_1sigma        - accel_magnitude_error_readback.min_1sigma)        < 0.001) &&
-  (abs(accel_magnitude_error_command.low_limit         - accel_magnitude_error_readback.low_limit)         < 0.001) &&
-  (abs(accel_magnitude_error_command.high_limit        - accel_magnitude_error_readback.high_limit)        < 0.001) &&
-  (abs(accel_magnitude_error_command.low_limit_1sigma  - accel_magnitude_error_readback.low_limit_1sigma)  < 0.001) &&
-  (abs(accel_magnitude_error_command.high_limit_1sigma - accel_magnitude_error_readback.high_limit_1sigma) < 0.001))
+  bool Microstrain::get_accel_adaptive_vals(microstrain_3dm_gx5::GetAccelAdaptiveVals::Request &req, microstrain_3dm_gx5::GetAccelAdaptiveVals::Response &res )
   {
-  ROS_INFO("accel magnitude error adaptive measurement values successfully set.\n");
-  }
-  else
-  {
-  ROS_INFO("ERROR: Failed to set accel magnitude error adaptive measurement values!!!");
-  ROS_INFO("Sent values: Enable: %i, Parameters: %f %f %f %f %f %f", accel_magnitude_error_command.enable, accel_magnitude_error_command.low_pass_cutoff, accel_magnitude_error_command.min_1sigma, accel_magnitude_error_command.low_limit, accel_magnitude_error_command.high_limit, accel_magnitude_error_command.low_limit_1sigma, accel_magnitude_error_command.high_limit_1sigma);
-  ROS_INFO("Returned values: Enable: %i, Parameters: %f %f %f %f %f %f", accel_magnitude_error_readback.enable, accel_magnitude_error_readback.low_pass_cutoff, accel_magnitude_error_readback.min_1sigma, accel_magnitude_error_readback.low_limit, accel_magnitude_error_readback.high_limit, accel_magnitude_error_readback.low_limit_1sigma, accel_magnitude_error_readback.high_limit_1sigma);
+    start = clock();
+    while(mip_filter_accel_magnitude_error_adaptive_measurement(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &accel_magnitude_error_readback) != MIP_INTERFACE_OK){
+     if (clock() - start > 5000){
+       ROS_INFO("mip_filter_accel_magnitude_error_adaptive_measurement function timed out.");
+       break;
+     }
+    }
+    ROS_INFO("Accel magnitude error adaptive measurement values are: Enable: %i, Parameters: %f %f %f %f %f %f", accel_magnitude_error_readback.enable, accel_magnitude_error_readback.low_pass_cutoff, accel_magnitude_error_readback.min_1sigma, accel_magnitude_error_readback.low_limit, accel_magnitude_error_readback.high_limit, accel_magnitude_error_readback.low_limit_1sigma, accel_magnitude_error_readback.high_limit_1sigma);
+
+    res.success = true;
+    return true;
   }
 
+  bool Microstrain::set_mag_adaptive_vals(microstrain_3dm_gx5::SetMagAdaptiveVals::Request &req, microstrain_3dm_gx5::SetMagAdaptiveVals::Response &res )
+  {
+    ROS_INFO("Setting the mag magnitude error adaptive measurement values\n");
+
+    mag_magnitude_error_command.enable            = req.enable;
+    mag_magnitude_error_command.low_pass_cutoff   = req.low_pass_cutoff;
+    mag_magnitude_error_command.min_1sigma        = req.min_1sigma;
+    mag_magnitude_error_command.low_limit         = req.low_limit;
+    mag_magnitude_error_command.high_limit        = req.high_limit;
+    mag_magnitude_error_command.low_limit_1sigma  = req.low_limit_1sigma;
+    mag_magnitude_error_command.high_limit_1sigma = req.high_limit_1sigma;
+
+    start = clock();
+    while(mip_filter_mag_magnitude_error_adaptive_measurement(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &mag_magnitude_error_command) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_mag_magnitude_error_adaptive_measurement function timed out.");
+        break;
+      }
+    }
+
+    //Read back the mag magnitude error adaptive measurement values
+    start = clock();
+    while(mip_filter_mag_magnitude_error_adaptive_measurement(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &mag_magnitude_error_readback) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_mag_magnitude_error_adaptive_measurement function timed out.");
+        break;
+      }
+    }
+
+    if((mag_magnitude_error_command.enable == mag_magnitude_error_readback.enable) &&
+   	(abs(mag_magnitude_error_command.low_pass_cutoff   - mag_magnitude_error_readback.low_pass_cutoff)   < 0.001) &&
+    (abs(mag_magnitude_error_command.min_1sigma        - mag_magnitude_error_readback.min_1sigma)        < 0.001) &&
+   	(abs(mag_magnitude_error_command.low_limit         - mag_magnitude_error_readback.low_limit)         < 0.001) &&
+   	(abs(mag_magnitude_error_command.high_limit        - mag_magnitude_error_readback.high_limit)        < 0.001) &&
+   	(abs(mag_magnitude_error_command.low_limit_1sigma  - mag_magnitude_error_readback.low_limit_1sigma)  < 0.001) &&
+   	(abs(mag_magnitude_error_command.high_limit_1sigma - mag_magnitude_error_readback.high_limit_1sigma) < 0.001))
+    {
+     ROS_INFO("mag magnitude error adaptive measurement values successfully set.\n");
+    }
+    else
+    {
+     ROS_INFO("ERROR: Failed to set mag magnitude error adaptive measurement values!!!\n");
+     ROS_INFO("Sent values:     Enable: %i, Parameters: %f %f %f %f %f %f\n", mag_magnitude_error_command.enable, mag_magnitude_error_command.low_pass_cutoff, mag_magnitude_error_command.min_1sigma, mag_magnitude_error_command.low_limit, mag_magnitude_error_command.high_limit, mag_magnitude_error_command.low_limit_1sigma, mag_magnitude_error_command.high_limit_1sigma);
+     ROS_INFO("Returned values: Enable: %i, Parameters: %f %f %f %f %f %f\n", mag_magnitude_error_readback.enable, mag_magnitude_error_readback.low_pass_cutoff, mag_magnitude_error_readback.min_1sigma, mag_magnitude_error_readback.low_limit, mag_magnitude_error_readback.high_limit, mag_magnitude_error_readback.low_limit_1sigma, mag_magnitude_error_readback.high_limit_1sigma);
+    }
+
+    res.success = true;
+    return true;
   }
+
+  bool Microstrain::get_mag_adaptive_vals(microstrain_3dm_gx5::GetMagAdaptiveVals::Request &req, microstrain_3dm_gx5::GetMagAdaptiveVals::Response &res )
+  {
+    start = clock();
+    while(mip_filter_mag_magnitude_error_adaptive_measurement(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &mag_magnitude_error_readback) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_mag_magnitude_error_adaptive_measurement function timed out.");
+        break;
+      }
+    }
+
+    ROS_INFO("Returned values: Enable: %i, Parameters: %f %f %f %f %f %f\n", mag_magnitude_error_readback.enable, mag_magnitude_error_readback.low_pass_cutoff, mag_magnitude_error_readback.min_1sigma, mag_magnitude_error_readback.low_limit, mag_magnitude_error_readback.high_limit, mag_magnitude_error_readback.low_limit_1sigma, mag_magnitude_error_readback.high_limit_1sigma);
+    res.success = true;
+    return true;
+
+  }
+
+
+  bool Microstrain::set_mag_dip_adaptive_vals(microstrain_3dm_gx5::SetMagDipAdaptiveVals::Request &req, microstrain_3dm_gx5::SetMagDipAdaptiveVals::Response &res )
+  {
+    ROS_INFO("Setting the mag dip angle error adaptive measurement values\n");
+
+    mag_dip_angle_error_command.enable            = req.enable;
+    mag_dip_angle_error_command.low_pass_cutoff   = req.low_pass_cutoff;
+    mag_dip_angle_error_command.min_1sigma        = req.min_1sigma;
+    mag_dip_angle_error_command.high_limit        = req.high_limit;
+    mag_dip_angle_error_command.high_limit_1sigma = req.high_limit_1sigma;
+
+    start = clock();
+    while(mip_filter_mag_dip_angle_error_adaptive_measurement(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &mag_dip_angle_error_command) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_mag_magnitude_error_adaptive_measurement function timed out.");
+        break;
+      }
+    }
+
+    //Read back the mag magnitude error adaptive measurement values
+    start = clock();
+    while(mip_filter_mag_dip_angle_error_adaptive_measurement(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &mag_dip_angle_error_readback) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_mag_magnitude_error_adaptive_measurement function timed out.");
+        break;
+      }
+    }
+
+    if((mag_dip_angle_error_command.enable == mag_magnitude_error_readback.enable) &&
+     (abs(mag_dip_angle_error_command.low_pass_cutoff   - mag_dip_angle_error_readback.low_pass_cutoff)   < 0.001) &&
+     (abs(mag_dip_angle_error_command.min_1sigma        - mag_dip_angle_error_readback.min_1sigma)        < 0.001) &&
+     (abs(mag_dip_angle_error_command.high_limit        - mag_dip_angle_error_readback.high_limit)        < 0.001) &&
+     (abs(mag_dip_angle_error_command.high_limit_1sigma - mag_dip_angle_error_readback.high_limit_1sigma) < 0.001))
+    {
+     ROS_INFO("mag dip angle error adaptive measurement values successfully set.\n");
+    }
+    else
+    {
+     ROS_INFO("ERROR: Failed to set mag dip angle error adaptive measurement values!!!\n");
+     ROS_INFO("Sent values:     Enable: %i, Parameters: %f %f %f %f\n", mag_dip_angle_error_command.enable,
+                                                                      mag_dip_angle_error_command.low_pass_cutoff,
+                                      mag_dip_angle_error_command.min_1sigma,
+                                      mag_dip_angle_error_command.high_limit,
+                                      mag_dip_angle_error_command.high_limit_1sigma);
+
+     ROS_INFO("Returned values: Enable: %i, Parameters: %f %f %f %f\n", mag_dip_angle_error_readback.enable,
+                                                                      mag_dip_angle_error_readback.low_pass_cutoff,
+                                      mag_dip_angle_error_readback.min_1sigma,
+                                      mag_dip_angle_error_readback.high_limit,
+                                      mag_dip_angle_error_readback.high_limit_1sigma);
+    }
+
+    res.success = true;
+    return true;
+  }
+
 
   u16 Microstrain::mip_3dm_cmd_hw_specific_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer)
   {
@@ -1909,6 +2062,83 @@ namespace Microstrain
 
    return MIP_INTERFACE_OK;
 
+  }
+
+  //Only in 45
+  bool Microstrain::set_dynamics_mode(microstrain_3dm_gx5::SetDynamicsMode::Request &req, microstrain_3dm_gx5::SetDynamicsMode::Response &res)
+  {
+  dynamics_mode = req.mode;
+
+  if (dynamics_mode < 1 || dynamics_mode > 3){
+    ROS_INFO("Error: Vehicle dynamics mode must be between 1-3");
+    res.success = false;
+  }
+  else{
+    start = clock();
+    while(mip_filter_vehicle_dynamics_mode(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &dynamics_mode) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_vehicle_dynamics_mode function timed out.");
+        break;
+      }
+    }
+
+    readback_dynamics_mode = 0;
+    while(mip_filter_vehicle_dynamics_mode(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &readback_dynamics_mode) != MIP_INTERFACE_OK){}
+
+    if(dynamics_mode == readback_dynamics_mode)
+    {
+     printf("Vehicle dynamics mode successfully set to %d\n", dynamics_mode);
+     res.success = true;
+    }
+    else
+    {
+     printf("ERROR: Failed to set vehicle dynamics mode to %d!!!\n", dynamics_mode);
+     res.success = false;
+    }
+  }
+  return true;
+  }
+
+  //Only in 45
+  bool Microstrain::set_sensor_vehicle_frame_offset(microstrain_3dm_gx5::SetSensorVehicleFrameOffset::Request &req, microstrain_3dm_gx5::SetSensorVehicleFrameOffset::Response &res)
+  {
+    memset(offset, 0, 3*sizeof(float));
+    memset(readback_offset, 0, 3*sizeof(float));
+    ROS_INFO("Setting the sensor to vehicle frame offset\n");
+
+    offset[0] = req.offset.x;
+    offset[1] = req.offset.y;
+    offset[2] = req.offset.z;
+
+    start = clock();
+    while(mip_filter_sensor2vehicle_offset(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, offset) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_sensor2vehicle_offset function timed out.");
+        break;
+      }
+    }
+
+    //Read back the transformation
+    start = clock();
+    while(mip_filter_sensor2vehicle_offset(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_offset) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_sensor2vehicle_offset function timed out.");
+        break;
+      }
+    }
+
+    if((abs(readback_offset[0]-offset[0]) < 0.001) &&
+       (abs(readback_offset[1]-offset[1]) < 0.001) &&
+       (abs(readback_offset[2]-offset[2]) < 0.001))
+    {
+     ROS_INFO("Offset successfully set.\n");
+    }
+    else
+    {
+     ROS_INFO("ERROR: Failed to set offset!!!\n");
+     ROS_INFO("Sent offset:     %f X %f Y %f Z\n", offset[0], offset[1], offset[2]);
+     ROS_INFO("Returned offset: %f X %f Y %f Z\n", readback_offset[0], readback_offset[1], readback_offset[2]);
+    }
   }
 
 

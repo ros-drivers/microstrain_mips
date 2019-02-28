@@ -90,6 +90,12 @@ extern "C" {
 #include "microstrain_3dm_gx5/GetGyroNoise.h"
 #include "microstrain_3dm_gx5/SetMagNoise.h"
 #include "microstrain_3dm_gx5/GetMagNoise.h"
+#include "microstrain_3dm_gx5/SetGyroBiasModel.h"
+#include "microstrain_3dm_gx5/GetGyroBiasModel.h"
+#include "microstrain_3dm_gx5/GetAccelAdaptiveVals.h"
+#include "microstrain_3dm_gx5/SetMagAdaptiveVals.h"
+#include "microstrain_3dm_gx5/GetMagAdaptiveVals.h"
+#include "microstrain_3dm_gx5/SetMagDipAdaptiveVals.h"
 
 #define MIP_SDK_GX4_45_IMU_STANDARD_MODE	0x01
 #define MIP_SDK_GX4_45_IMU_DIRECT_MODE	0x02
@@ -209,6 +215,18 @@ namespace Microstrain
 
     bool get_mag_noise(microstrain_3dm_gx5::GetMagNoise::Request &req, microstrain_3dm_gx5::GetMagNoise::Response &res);
 
+    bool set_gyro_bias_model(microstrain_3dm_gx5::SetGyroBiasModel::Request &req, microstrain_3dm_gx5::SetGyroBiasModel::Response &res);
+
+    bool get_gyro_bias_model(microstrain_3dm_gx5::GetGyroBiasModel::Request &req, microstrain_3dm_gx5::GetGyroBiasModel::Response &res);
+
+    bool get_accel_adaptive_vals(microstrain_3dm_gx5::GetAccelAdaptiveVals::Request &req, microstrain_3dm_gx5::GetAccelAdaptiveVals::Response &res );
+
+    bool set_mag_adaptive_vals(microstrain_3dm_gx5::SetMagAdaptiveVals::Request &req, microstrain_3dm_gx5::SetMagAdaptiveVals::Response &res );
+
+    bool get_mag_adaptive_vals(microstrain_3dm_gx5::GetMagAdaptiveVals::Request &req, microstrain_3dm_gx5::GetMagAdaptiveVals::Response &res );
+
+    bool set_mag_dip_adaptive_vals(microstrain_3dm_gx5::SetMagDipAdaptiveVals::Request &req, microstrain_3dm_gx5::SetMagDipAdaptiveVals::Response &res );
+
   private:
   //! @brief Reset KF service callback
   bool reset_callback(std_srvs::Empty::Request &req,
@@ -314,6 +332,8 @@ namespace Microstrain
   gx4_25_diagnostic_device_status_field diagnostic_field;
   mip_complementary_filter_settings comp_filter_command, comp_filter_readback;
   mip_filter_accel_magnitude_error_adaptive_measurement_command accel_magnitude_error_command, accel_magnitude_error_readback;
+  mip_filter_magnetometer_magnitude_error_adaptive_measurement_command mag_magnitude_error_command, mag_magnitude_error_readback;
+  mip_filter_magnetometer_dip_angle_error_adaptive_measurement_command mag_dip_angle_error_command, mag_dip_angle_error_readback;
   mip_filter_zero_update_command zero_update_control, zero_update_readback;
   }; // Microstrain class
 
