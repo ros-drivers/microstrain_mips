@@ -13,13 +13,13 @@
   <!-- For setting debug level to debug -->
   <group if="$(arg debug)">
     <env name="ROSCONSOLE_CONFIG_FILE"
-       value="$(find microstrain_3dm_gx5)/config/custom_rosconsole.conf"/>
+       value="$(find microstrain_3dm)/config/custom_rosconsole.conf"/>
   </group>
 
   <!-- Microstrain sensor node -->
-  <node name="microstrain_3dm_gx5_25_node"
-  pkg="microstrain_3dm_gx5"
-  type="microstrain_3dm_gx5_node" output="screen">
+  <node name="microstrain_3dm_25_node"
+  pkg="microstrain_3dm"
+  type="microstrain_3dm_node" output="screen">
     <param name="port" value="$(arg port)" type="str" />
     <param name="baudrate" value="$(arg baudrate)" type="int" />
 

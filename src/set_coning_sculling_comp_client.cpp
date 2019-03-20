@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm_gx5/SetConingScullingComp.h"
+#include "microstrain_3dm/SetConingScullingComp.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_coning_sculling_comp_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5::SetConingScullingComp>("SetConingScullingComp");
-  microstrain_3dm_gx5::SetConingScullingComp srv;
+  ros::ServiceClient client = n.serviceClient<microstrain_3dm::SetConingScullingComp>("SetConingScullingComp");
+  microstrain_3dm::SetConingScullingComp srv;
 
   srv.request.enable = atoll(argv[1]);
 

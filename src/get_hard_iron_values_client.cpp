@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm_gx5/GetHardIronValues.h"
+#include "microstrain_3dm/GetHardIronValues.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "get_hard_iron_values");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5::GetHardIronValues>("GetHardIronValues");
-  microstrain_3dm_gx5::GetHardIronValues srv;
+  ros::ServiceClient client = n.serviceClient<microstrain_3dm::GetHardIronValues>("GetHardIronValues");
+  microstrain_3dm::GetHardIronValues srv;
 
   if (client.call(srv))
   {

@@ -20,50 +20,51 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "microstrain_3dm_gx5.h"
-#include "microstrain_3dm_gx5/SetAccelBias.h"
-#include "microstrain_3dm_gx5/GetAccelBias.h"
-#include "microstrain_3dm_gx5/GetGyroBias.h"
-#include "microstrain_3dm_gx5/GetHardIronValues.h"
-#include "microstrain_3dm_gx5/GetSoftIronMatrix.h"
-#include "microstrain_3dm_gx5/SetGyroBias.h"
-#include "microstrain_3dm_gx5/SetHardIronValues.h"
-#include "microstrain_3dm_gx5/DeviceReport.h"
-#include "microstrain_3dm_gx5/GyroBiasCapture.h"
-#include "microstrain_3dm_gx5/SetSoftIronMatrix.h"
-#include "microstrain_3dm_gx5/SetComplementaryFilter.h"
-#include "microstrain_3dm_gx5/SetFilterEuler.h"
-#include "microstrain_3dm_gx5/SetFilterHeading.h"
-#include "microstrain_3dm_gx5/SetAccelBiasModel.h"
-#include "microstrain_3dm_gx5/SetAccelAdaptiveVals.h"
-#include "microstrain_3dm_gx5/SetSensorVehicleFrameTrans.h"
-#include "microstrain_3dm_gx5/SetSensorVehicleFrameOffset.h"
-#include "microstrain_3dm_gx5/GetSensorVehicleFrameTrans.h"
-#include "microstrain_3dm_gx5/GetComplementaryFilter.h"
-#include "microstrain_3dm_gx5/SetReferencePosition.h"
-#include "microstrain_3dm_gx5/GetReferencePosition.h"
-#include "microstrain_3dm_gx5/SetConingScullingComp.h"
-#include "microstrain_3dm_gx5/GetConingScullingComp.h"
-#include "microstrain_3dm_gx5/SetEstimationControlFlags.h"
-#include "microstrain_3dm_gx5/GetEstimationControlFlags.h"
-#include "microstrain_3dm_gx5/SetDynamicsMode.h"
-#include "microstrain_3dm_gx5/GetBasicStatus.h"
-#include "microstrain_3dm_gx5/GetDiagnosticReport.h"
-#include "microstrain_3dm_gx5/SetZeroAngleUpdateThreshold.h"
-#include "microstrain_3dm_gx5/GetZeroAngleUpdateThreshold.h"
-#include "microstrain_3dm_gx5/SetTareOrientation.h"
-#include "microstrain_3dm_gx5/SetAccelNoise.h"
-#include "microstrain_3dm_gx5/GetAccelNoise.h"
-#include "microstrain_3dm_gx5/SetGyroNoise.h"
-#include "microstrain_3dm_gx5/GetGyroNoise.h"
-#include "microstrain_3dm_gx5/SetMagNoise.h"
-#include "microstrain_3dm_gx5/GetMagNoise.h"
-#include "microstrain_3dm_gx5/SetGyroBiasModel.h"
-#include "microstrain_3dm_gx5/GetGyroBiasModel.h"
-#include "microstrain_3dm_gx5/GetAccelAdaptiveVals.h"
-#include "microstrain_3dm_gx5/SetMagAdaptiveVals.h"
-#include "microstrain_3dm_gx5/GetMagAdaptiveVals.h"
-#include "microstrain_3dm_gx5/SetMagDipAdaptiveVals.h"
+#include "microstrain_3dm.h"
+#include "microstrain_3dm/SetAccelBias.h"
+#include "microstrain_3dm/GetAccelBias.h"
+#include "microstrain_3dm/GetGyroBias.h"
+#include "microstrain_3dm/GetHardIronValues.h"
+#include "microstrain_3dm/GetSoftIronMatrix.h"
+#include "microstrain_3dm/SetGyroBias.h"
+#include "microstrain_3dm/SetHardIronValues.h"
+#include "microstrain_3dm/DeviceReport.h"
+#include "microstrain_3dm/GyroBiasCapture.h"
+#include "microstrain_3dm/SetSoftIronMatrix.h"
+#include "microstrain_3dm/SetComplementaryFilter.h"
+#include "microstrain_3dm/SetFilterEuler.h"
+#include "microstrain_3dm/SetFilterHeading.h"
+#include "microstrain_3dm/SetAccelBiasModel.h"
+#include "microstrain_3dm/SetAccelAdaptiveVals.h"
+#include "microstrain_3dm/SetSensorVehicleFrameTrans.h"
+#include "microstrain_3dm/SetSensorVehicleFrameOffset.h"
+#include "microstrain_3dm/GetSensorVehicleFrameTrans.h"
+#include "microstrain_3dm/GetComplementaryFilter.h"
+#include "microstrain_3dm/SetReferencePosition.h"
+#include "microstrain_3dm/GetReferencePosition.h"
+#include "microstrain_3dm/SetConingScullingComp.h"
+#include "microstrain_3dm/GetConingScullingComp.h"
+#include "microstrain_3dm/SetEstimationControlFlags.h"
+#include "microstrain_3dm/GetEstimationControlFlags.h"
+#include "microstrain_3dm/SetDynamicsMode.h"
+#include "microstrain_3dm/GetBasicStatus.h"
+#include "microstrain_3dm/GetDiagnosticReport.h"
+#include "microstrain_3dm/SetZeroAngleUpdateThreshold.h"
+#include "microstrain_3dm/GetZeroAngleUpdateThreshold.h"
+#include "microstrain_3dm/SetTareOrientation.h"
+#include "microstrain_3dm/SetAccelNoise.h"
+#include "microstrain_3dm/GetAccelNoise.h"
+#include "microstrain_3dm/SetGyroNoise.h"
+#include "microstrain_3dm/GetGyroNoise.h"
+#include "microstrain_3dm/SetMagNoise.h"
+#include "microstrain_3dm/GetMagNoise.h"
+#include "microstrain_3dm/SetGyroBiasModel.h"
+#include "microstrain_3dm/GetGyroBiasModel.h"
+#include "microstrain_3dm/GetAccelAdaptiveVals.h"
+#include "microstrain_3dm/SetMagAdaptiveVals.h"
+#include "microstrain_3dm/GetMagAdaptiveVals.h"
+#include "microstrain_3dm/SetMagDipAdaptiveVals.h"
+
 #include <tf2/LinearMath/Transform.h>
 #include <string>
 #include <algorithm>
@@ -147,6 +148,11 @@ namespace Microstrain
 
     com_mode = 0;
 
+    GX5_15 = false;
+    GX5_25 = false;
+    GX5_35 = false;
+    GX5_45 = false;
+
     // ROS setup
     ros::Time::init();
     ros::NodeHandle node;
@@ -203,6 +209,8 @@ namespace Microstrain
       nav_status_pub_ = node.advertise<std_msgs::Int16MultiArray>("nav/status",100);
     }
 
+    device_status_ = node.advertise<std_msgs::String>("device/status", 100);
+
     ros::ServiceServer service = node.advertiseService("reset_kf", &Microstrain::reset_callback, this);
     ros::ServiceServer service3 = node.advertiseService("DeviceReport", &Microstrain::device_report, this);
     ros::ServiceServer service4 = node.advertiseService("GyroBiasCapture", &Microstrain::gyro_bias_capture, this);
@@ -247,6 +255,7 @@ namespace Microstrain
     ros::ServiceServer service43 = node.advertiseService("SetMagAdaptiveVals", &Microstrain::set_mag_adaptive_vals, this);
     ros::ServiceServer service44 = node.advertiseService("GetMagAdaptiveVals", &Microstrain::get_mag_adaptive_vals, this);
     ros::ServiceServer service45 = node.advertiseService("SetMagDipAdaptiveVals", &Microstrain::set_mag_dip_adaptive_vals, this);
+
 
     //Initialize the serial interface to the device
     ROS_INFO("Attempting to open serial port <%s> at <%d> \n",
@@ -305,6 +314,47 @@ namespace Microstrain
       {
 	ROS_ERROR("Appears we didn't get into standard mode!");
       }
+
+      //Get device model
+      start = clock();
+      while(mip_base_cmd_get_device_info(&device_interface_, &device_info) != MIP_INTERFACE_OK){
+        if (clock() - start > 5000){
+          ROS_INFO("mip_base_cmd_get_device_info function timed out.");
+          break;
+        }
+      }
+      ROS_INFO("\n\nDevice Info:\n");
+
+      memset(temp_string, 0, 20*sizeof(char));
+
+
+      memcpy(temp_string, device_info.model_name, BASE_DEVICE_INFO_PARAM_LENGTH*2);
+      ROS_INFO("Model Name  => %s\n", temp_string);
+      std::string model_name;
+
+      for(int i = 6; i < 20; i++){
+        model_name += temp_string[i];
+      }
+
+      model_name = model_name.c_str();
+      if(model_name == GX5_45_DEVICE){
+        GX5_45 = true;
+        ROS_INFO("45");
+      }
+      if(model_name == GX5_35_DEVICE){
+        GX5_35 = true;
+        ROS_INFO("35");
+      }
+      if(model_name == GX5_25_DEVICE){
+        GX5_25 = true;
+        ROS_INFO("25");
+      }
+      if(model_name == GX5_15_DEVICE){
+        GX5_15 = true;
+        ROS_INFO("15");
+      }
+
+      ROS_INFO("%s", model_name);
 
       // Put into idle mode
       ROS_INFO("Idling Device: Stopping data streams and/or waking from sleep");
@@ -758,7 +808,7 @@ namespace Microstrain
     return true;
   }
 
-  bool Microstrain::set_accel_bias(microstrain_3dm_gx5::SetAccelBias::Request &req, microstrain_3dm_gx5::SetAccelBias::Response &res)
+  bool Microstrain::set_accel_bias(microstrain_3dm::SetAccelBias::Request &req, microstrain_3dm::SetAccelBias::Response &res)
    {
      ROS_INFO("Setting accel bias values");
      memset(field_data, 0, 3*sizeof(float));
@@ -797,7 +847,7 @@ namespace Microstrain
      return true;
    }
 
-   bool Microstrain::get_accel_bias(microstrain_3dm_gx5::GetAccelBias::Request &req, microstrain_3dm_gx5::GetAccelBias::Response &res)
+   bool Microstrain::get_accel_bias(microstrain_3dm::GetAccelBias::Request &req, microstrain_3dm::GetAccelBias::Response &res)
     {
       ROS_INFO("Getting accel bias values");
       memset(field_data, 0, 3*sizeof(float));
@@ -815,7 +865,7 @@ namespace Microstrain
       return true;
     }
 
-   bool Microstrain::set_gyro_bias(microstrain_3dm_gx5::SetGyroBias::Request &req, microstrain_3dm_gx5::SetGyroBias::Response &res)
+   bool Microstrain::set_gyro_bias(microstrain_3dm::SetGyroBias::Request &req, microstrain_3dm::SetGyroBias::Response &res)
     {
       ROS_INFO("Setting gyro bias values");
       memset(field_data, 0, 3*sizeof(float));
@@ -855,7 +905,7 @@ namespace Microstrain
       return true;
     }
 
-    bool Microstrain::get_gyro_bias(microstrain_3dm_gx5::GetGyroBias::Request &req, microstrain_3dm_gx5::GetGyroBias::Response &res)
+    bool Microstrain::get_gyro_bias(microstrain_3dm::GetGyroBias::Request &req, microstrain_3dm::GetGyroBias::Response &res)
      {
        ROS_INFO("Getting gyro bias values");
        memset(field_data, 0, 3*sizeof(float));
@@ -873,8 +923,14 @@ namespace Microstrain
        return true;
      }
 
-    bool Microstrain::set_hard_iron_values(microstrain_3dm_gx5::SetHardIronValues::Request &req, microstrain_3dm_gx5::SetHardIronValues::Response &res)
+    bool Microstrain::set_hard_iron_values(microstrain_3dm::SetHardIronValues::Request &req, microstrain_3dm::SetHardIronValues::Response &res)
      {
+       if(GX5_15 == true){
+         ROS_INFO("Device does not support this feature");
+         res.success = false;
+         return true;
+       }
+
        ROS_INFO("Setting hard iron values");
        float field_data[3] = {0};
 
@@ -913,8 +969,15 @@ namespace Microstrain
        return true;
      }
 
-     bool Microstrain::get_hard_iron_values(microstrain_3dm_gx5::GetHardIronValues::Request &req, microstrain_3dm_gx5::GetHardIronValues::Response &res)
+     bool Microstrain::get_hard_iron_values(microstrain_3dm::GetHardIronValues::Request &req, microstrain_3dm::GetHardIronValues::Response &res)
       {
+
+        if(GX5_15 == true){
+          ROS_INFO("Device does not support this feature");
+          res.success = false;
+          return true;
+        }
+
         ROS_INFO("Getting hard iron values");
         memset(field_data, 0, 3*sizeof(float));
 
@@ -932,7 +995,7 @@ namespace Microstrain
       }
 
 
-  bool Microstrain::device_report(microstrain_3dm_gx5::DeviceReport::Request &req, microstrain_3dm_gx5::DeviceReport::Response &res)
+  bool Microstrain::device_report(microstrain_3dm::DeviceReport::Request &req, microstrain_3dm::DeviceReport::Response &res)
   {
     start = clock();
     while(mip_base_cmd_get_device_info(&device_interface_, &device_info) != MIP_INTERFACE_OK){
@@ -967,7 +1030,7 @@ namespace Microstrain
   }
 
   //Capture the gryo bias values
-  bool Microstrain::gyro_bias_capture(microstrain_3dm_gx5::GyroBiasCapture::Request &req, microstrain_3dm_gx5::GyroBiasCapture::Response &res)
+  bool Microstrain::gyro_bias_capture(microstrain_3dm::GyroBiasCapture::Request &req, microstrain_3dm::GyroBiasCapture::Response &res)
   {
     memset(field_data, 0, 3*sizeof(float));
     ROS_INFO("Performing Gyro Bias capture.\nPlease keep device stationary during the 5 second gyro bias capture interval\n");
@@ -985,8 +1048,14 @@ namespace Microstrain
     return true;
   }
 
-  bool Microstrain::set_soft_iron_matrix(microstrain_3dm_gx5::SetSoftIronMatrix::Request &req, microstrain_3dm_gx5::SetSoftIronMatrix::Response &res)
+  bool Microstrain::set_soft_iron_matrix(microstrain_3dm::SetSoftIronMatrix::Request &req, microstrain_3dm::SetSoftIronMatrix::Response &res)
   {
+    if(GX5_15 == true){
+      ROS_INFO("Device does not support this feature");
+      res.success = false;
+      return true;
+    }
+
     memset(soft_iron, 0, 9*sizeof(float));
     memset(soft_iron_readback, 0, 9*sizeof(float));
 
@@ -1045,8 +1114,14 @@ namespace Microstrain
     return true;
   }
 
-  bool Microstrain::get_soft_iron_matrix(microstrain_3dm_gx5::GetSoftIronMatrix::Request &req, microstrain_3dm_gx5::GetSoftIronMatrix::Response &res)
+  bool Microstrain::get_soft_iron_matrix(microstrain_3dm::GetSoftIronMatrix::Request &req, microstrain_3dm::GetSoftIronMatrix::Response &res)
    {
+     if(GX5_15 == true){
+       ROS_INFO("Device does not support this feature");
+       res.success = false;
+       return true;
+     }
+
      memset(soft_iron, 0, 9*sizeof(float));
      memset(soft_iron_readback, 0, 9*sizeof(float));
 
@@ -1066,7 +1141,7 @@ namespace Microstrain
      return true;
    }
 
-  bool Microstrain::set_complementary_filter(microstrain_3dm_gx5::SetComplementaryFilter::Request &req, microstrain_3dm_gx5::SetComplementaryFilter::Response &res)
+  bool Microstrain::set_complementary_filter(microstrain_3dm::SetComplementaryFilter::Request &req, microstrain_3dm::SetComplementaryFilter::Response &res)
   {
    ROS_INFO("Setting the complementary filter values\n");
 
@@ -1111,7 +1186,7 @@ namespace Microstrain
    return true;
   }
 
-  bool Microstrain::get_complementary_filter(microstrain_3dm_gx5::GetComplementaryFilter::Request &req, microstrain_3dm_gx5::GetComplementaryFilter::Response &res)
+  bool Microstrain::get_complementary_filter(microstrain_3dm::GetComplementaryFilter::Request &req, microstrain_3dm::GetComplementaryFilter::Response &res)
   {
    //Read back the complementary filter values
    start = clock();
@@ -1127,7 +1202,7 @@ namespace Microstrain
   }
 
 
-  bool Microstrain::set_filter_euler(microstrain_3dm_gx5::SetFilterEuler::Request &req, microstrain_3dm_gx5::SetFilterEuler::Response &res)
+  bool Microstrain::set_filter_euler(microstrain_3dm::SetFilterEuler::Request &req, microstrain_3dm::SetFilterEuler::Response &res)
   {
    memset(angles, 0, 3*sizeof(float));
    ROS_INFO("Resetting the Filter\n");
@@ -1158,7 +1233,7 @@ namespace Microstrain
    return true;
   }
 
-  bool Microstrain::set_filter_heading(microstrain_3dm_gx5::SetFilterHeading::Request &req, microstrain_3dm_gx5::SetFilterHeading::Response &res)
+  bool Microstrain::set_filter_heading(microstrain_3dm::SetFilterHeading::Request &req, microstrain_3dm::SetFilterHeading::Response &res)
   {
    ROS_INFO("Resetting the Filter\n");
 
@@ -1186,70 +1261,81 @@ namespace Microstrain
   }
 
 
-  bool Microstrain::set_sensor_vehicle_frame_trans(microstrain_3dm_gx5::SetSensorVehicleFrameTrans::Request &req, microstrain_3dm_gx5::SetSensorVehicleFrameTrans::Response &res)
+  bool Microstrain::set_sensor_vehicle_frame_trans(microstrain_3dm::SetSensorVehicleFrameTrans::Request &req, microstrain_3dm::SetSensorVehicleFrameTrans::Response &res)
   {
-  memset(angles, 0, 3*sizeof(float));
-  memset(readback_angles, 0, 3*sizeof(float));
-
-  ROS_INFO("Setting the sensor to vehicle frame transformation\n");
-
-  angles[0] = req.angle.x;
-  angles[1] = req.angle.y;
-  angles[2] = req.angle.z;
-
-  start = clock();
-  while(mip_filter_sensor2vehicle_tranformation(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, angles) != MIP_INTERFACE_OK){
-    if (clock() - start > 5000){
-      ROS_INFO("mip_filter_sensor2vehicle_tranformation function timed out.");
-      break;
+    if(GX5_15 == true){
+      ROS_INFO("Device does not support this feature");
+      res.success = false;
+      return true;
     }
-  }
 
-  //Read back the transformation
-  start = clock();
-  while(mip_filter_sensor2vehicle_tranformation(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_angles) != MIP_INTERFACE_OK){
-    if (clock() - start > 5000){
-      ROS_INFO("mip_filter_sensor2vehicle_tranformation function timed out.");
-      break;
+    memset(angles, 0, 3*sizeof(float));
+    memset(readback_angles, 0, 3*sizeof(float));
+
+    ROS_INFO("Setting the sensor to vehicle frame transformation\n");
+
+    angles[0] = req.angle.x;
+    angles[1] = req.angle.y;
+    angles[2] = req.angle.z;
+
+    start = clock();
+    while(mip_filter_sensor2vehicle_tranformation(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, angles) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_sensor2vehicle_tranformation function timed out.");
+        break;
+      }
     }
-  }
 
-  if((abs(readback_angles[0]-angles[0]) < 0.001) &&
-     (abs(readback_angles[1]-angles[1]) < 0.001) &&
-     (abs(readback_angles[2]-angles[2]) < 0.001))
-  {
-   ROS_INFO("Transformation successfully set.\n");
-   ROS_INFO("New angles: %f roll %f pitch %f yaw\n", readback_angles[0], readback_angles[1], readback_angles[2]);
-  }
-  else
-  {
-   ROS_INFO("ERROR: Failed to set transformation!!!\n");
-   ROS_INFO("Sent angles:     %f roll %f pitch %f yaw\n", angles[0], angles[1], angles[2]);
-   ROS_INFO("Returned angles: %f roll %f pitch %f yaw\n", readback_angles[0], readback_angles[1], readback_angles[2]);
-  }
-  res.success = true;
-  return true;
-  }
-
-  bool Microstrain::get_sensor_vehicle_frame_trans(microstrain_3dm_gx5::GetSensorVehicleFrameTrans::Request &req, microstrain_3dm_gx5::GetSensorVehicleFrameTrans::Response &res)
-  {
-  memset(readback_angles, 0, 3*sizeof(float));
-  //Read back the transformation
-  start = clock();
-  while(mip_filter_sensor2vehicle_tranformation(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_angles) != MIP_INTERFACE_OK){
-    if (clock() - start > 5000){
-      ROS_INFO("mip_filter_sensor2vehicle_tranformation function timed out.");
-      break;
+    //Read back the transformation
+    start = clock();
+    while(mip_filter_sensor2vehicle_tranformation(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_angles) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_sensor2vehicle_tranformation function timed out.");
+        break;
+      }
     }
+
+    if((abs(readback_angles[0]-angles[0]) < 0.001) &&
+       (abs(readback_angles[1]-angles[1]) < 0.001) &&
+       (abs(readback_angles[2]-angles[2]) < 0.001))
+    {
+     ROS_INFO("Transformation successfully set.\n");
+     ROS_INFO("New angles: %f roll %f pitch %f yaw\n", readback_angles[0], readback_angles[1], readback_angles[2]);
+    }
+    else
+    {
+     ROS_INFO("ERROR: Failed to set transformation!!!\n");
+     ROS_INFO("Sent angles:     %f roll %f pitch %f yaw\n", angles[0], angles[1], angles[2]);
+     ROS_INFO("Returned angles: %f roll %f pitch %f yaw\n", readback_angles[0], readback_angles[1], readback_angles[2]);
+    }
+    res.success = true;
+    return true;
   }
 
-  ROS_INFO("Sensor Vehicle Frame Transformation Angles: %f roll %f pitch %f yaw\n", readback_angles[0], readback_angles[1], readback_angles[2]);
+  bool Microstrain::get_sensor_vehicle_frame_trans(microstrain_3dm::GetSensorVehicleFrameTrans::Request &req, microstrain_3dm::GetSensorVehicleFrameTrans::Response &res)
+  {
+    if(GX5_15 == true){
+      ROS_INFO("Device does not support this feature");
+      res.success = false;
+      return true;
+    }
+    memset(readback_angles, 0, 3*sizeof(float));
+    //Read back the transformation
+    start = clock();
+    while(mip_filter_sensor2vehicle_tranformation(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_angles) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_sensor2vehicle_tranformation function timed out.");
+        break;
+      }
+    }
 
-  res.success = true;
-  return true;
+    ROS_INFO("Sensor Vehicle Frame Transformation Angles: %f roll %f pitch %f yaw\n", readback_angles[0], readback_angles[1], readback_angles[2]);
+
+    res.success = true;
+    return true;
   }
 
-  bool Microstrain::set_reference_position(microstrain_3dm_gx5::SetReferencePosition::Request &req, microstrain_3dm_gx5::SetReferencePosition::Response &res)
+  bool Microstrain::set_reference_position(microstrain_3dm::SetReferencePosition::Request &req, microstrain_3dm::SetReferencePosition::Response &res)
   {
   ROS_INFO("Setting reference Position\n");
 
@@ -1295,7 +1381,7 @@ namespace Microstrain
   return true;
   }
 
-  bool Microstrain::get_reference_position(microstrain_3dm_gx5::GetReferencePosition::Request &req, microstrain_3dm_gx5::GetReferencePosition::Response &res)
+  bool Microstrain::get_reference_position(microstrain_3dm::GetReferencePosition::Request &req, microstrain_3dm::GetReferencePosition::Response &res)
   {
   ROS_INFO("Getting reference position");
   memset(reference_position_readback, 0, 3*sizeof(double));
@@ -1312,7 +1398,7 @@ namespace Microstrain
   return true;
   }
 
-  bool Microstrain::set_coning_sculling_comp(microstrain_3dm_gx5::SetConingScullingComp::Request &req, microstrain_3dm_gx5::SetConingScullingComp::Response &res)
+  bool Microstrain::set_coning_sculling_comp(microstrain_3dm::SetConingScullingComp::Request &req, microstrain_3dm::SetConingScullingComp::Response &res)
   {
   if(req.enable == 0){
     ROS_INFO("Disabling Coning and Sculling compensation\n");
@@ -1364,7 +1450,7 @@ namespace Microstrain
   return true;
   }
 
-  bool Microstrain::get_coning_sculling_comp(microstrain_3dm_gx5::GetConingScullingComp::Request &req, microstrain_3dm_gx5::GetConingScullingComp::Response &res)
+  bool Microstrain::get_coning_sculling_comp(microstrain_3dm::GetConingScullingComp::Request &req, microstrain_3dm::GetConingScullingComp::Response &res)
   {
   start = clock();
   while(mip_3dm_cmd_coning_sculling_compensation(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &enable_flag) != MIP_INTERFACE_OK){
@@ -1378,7 +1464,7 @@ namespace Microstrain
   return true;
   }
 
-  bool Microstrain::set_estimation_control_flags(microstrain_3dm_gx5::SetEstimationControlFlags::Request &req, microstrain_3dm_gx5::SetEstimationControlFlags::Response &res)
+  bool Microstrain::set_estimation_control_flags(microstrain_3dm::SetEstimationControlFlags::Request &req, microstrain_3dm::SetEstimationControlFlags::Response &res)
   {
   estimation_control = req.flag;
   start = clock();
@@ -1403,7 +1489,7 @@ namespace Microstrain
   }
 
 
-  bool Microstrain::get_estimation_control_flags(microstrain_3dm_gx5::GetEstimationControlFlags::Request &req, microstrain_3dm_gx5::GetEstimationControlFlags::Response &res)
+  bool Microstrain::get_estimation_control_flags(microstrain_3dm::GetEstimationControlFlags::Request &req, microstrain_3dm::GetEstimationControlFlags::Response &res)
   {
   start = clock();
   while(mip_filter_estimation_control(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &estimation_control_readback) != MIP_INTERFACE_OK){
@@ -1419,45 +1505,45 @@ namespace Microstrain
   }
 
 
-  bool Microstrain::get_basic_status(microstrain_3dm_gx5::GetBasicStatus::Request &req, microstrain_3dm_gx5::GetBasicStatus::Response &res)
+  bool Microstrain::get_basic_status(microstrain_3dm::GetBasicStatus::Request &req, microstrain_3dm::GetBasicStatus::Response &res)
   {
-    u8* response_buffer;
+    u8 response_buffer[sizeof(gx4_25_basic_status_field)];
     while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_25_MODEL_NUMBER, GX4_25_BASIC_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){}
     printf("Model Number: \t\t\t\t\t%04u\n", basic_field.device_model);
-    printf("Status Selector: \t\t\t\t%s\n", basic_field.status_selector == GX4_25_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
-    printf("Status Flags: \t\t\t\t\t0x%08x\n", basic_field.status_flags);
-    printf("System state: \t\t\t\t\t0x%08x\n", basic_field.system_state);
-    printf("System Microsecond Timer Count: \t\t%llu ms\n\n", basic_field.system_timer_ms);
+    printf("Status Selector: \t\t\t\t%u\n", basic_field.status_selector);// == GX4_25_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
+    printf("Status Flags: \t\t\t\t\t%lu\n", basic_field.status_flags);
+    printf("System state: \t\t\t\t\t%04u\n", basic_field.system_state);
+    printf("System Microsecond Timer Count: \t\t%lu ms\n\n", basic_field.system_timer_ms);
 
     res.success = true;
     return true;
   }
 
-  bool Microstrain::get_diagnostic_report(microstrain_3dm_gx5::GetDiagnosticReport::Request &req, microstrain_3dm_gx5::GetDiagnosticReport::Response &res)
+  bool Microstrain::get_diagnostic_report(microstrain_3dm::GetDiagnosticReport::Request &req, microstrain_3dm::GetDiagnosticReport::Response &res)
   {
     u8* response_buffer;
     while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_25_MODEL_NUMBER, GX4_25_DIAGNOSTICS_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){}
     printf("Model Number: \t\t\t\t\t%04u\n", diagnostic_field.device_model);
-    printf("Status Selector: \t\t\t\t%s\n", diagnostic_field.status_selector == GX4_25_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
-    printf("Status Flags: \t\t\t\t\t0x%08x\n", diagnostic_field.status_flags);
-    printf("System Millisecond Timer Count: \t\t%llu ms\n", diagnostic_field.system_timer_ms);
+    /*printf("Status Selector: \t\t\t\t%u\n", diagnostic_field.status_selector);// == 114 ? "Basic Status Report" : "Diagnostic Status Report");
+    printf("Status Flags: \t\t\t\t\t%lu\n", diagnostic_field.status_flags);
+    printf("System Millisecond Timer Count: \t\t%lu ms\n", diagnostic_field.system_timer_ms);
     printf("IMU Streaming Enabled: \t\t\t\t%s\n", diagnostic_field.imu_stream_enabled == 1 ? "TRUE" : "FALSE");
-    printf("FILTER Streaming Enabled: \t\t\t\t%s\n", diagnostic_field.filter_stream_enabled == 1 ? "TRUE" : "FALSE");
-    printf("Number of Dropped IMU Packets: \t\t\t%u packets\n", diagnostic_field.imu_dropped_packets);
-    printf("Number of Dropped FILTER Packets: \t\t\t%u packets\n", diagnostic_field.filter_dropped_packets);
-    printf("Communications Port Bytes Written: \t\t%u Bytes\n", diagnostic_field.com1_port_bytes_written);
-    printf("Communications Port Bytes Read: \t\t%u Bytes\n", diagnostic_field.com1_port_bytes_read);
-    printf("Communications Port Write Overruns: \t\t%u Bytes\n", diagnostic_field.com1_port_write_overruns);
-    printf("Communications Port Read Overruns: \t\t%u Bytes\n", diagnostic_field.com1_port_read_overruns);
-    printf("IMU Parser Errors: \t\t\t\t%u Errors\n", diagnostic_field.imu_parser_errors);
-    printf("IMU Message Count: \t\t\t\t%u Messages\n", diagnostic_field.imu_message_count);
-    printf("IMU Last Message Received: \t\t\t%u ms\n", diagnostic_field.imu_last_message_ms);
+    printf("FILTER Streaming Enabled: \t\t\t%s\n", diagnostic_field.filter_stream_enabled == 1 ? "TRUE" : "FALSE");
+    printf("Number of Dropped IMU Packets: \t\t\t%lu packets\n", diagnostic_field.imu_dropped_packets);
+    printf("Number of Dropped FILTER Packets: \t\t%lu packets\n", diagnostic_field.filter_dropped_packets);
+    printf("Communications Port Bytes Written: \t\t%lu Bytes\n", diagnostic_field.com1_port_bytes_written);
+    printf("Communications Port Bytes Read: \t\t%lu Bytes\n", diagnostic_field.com1_port_bytes_read);
+    printf("Communications Port Write Overruns: \t\t%lu Bytes\n", diagnostic_field.com1_port_write_overruns);
+    printf("Communications Port Read Overruns: \t\t%lu Bytes\n", diagnostic_field.com1_port_read_overruns);
+    printf("IMU Parser Errors: \t\t\t\t%lu Errors\n", diagnostic_field.imu_parser_errors);
+    printf("IMU Message Count: \t\t\t\t%lu Messages\n", diagnostic_field.imu_message_count);
+    printf("IMU Last Message Received: \t\t\t%lu ms\n", diagnostic_field.imu_last_message_ms);*/
 
     res.success = true;
     return true;
   }
 
-  bool Microstrain::set_zero_angle_update_threshold(microstrain_3dm_gx5::SetZeroAngleUpdateThreshold::Request &req, microstrain_3dm_gx5::SetZeroAngleUpdateThreshold::Response &res)
+  bool Microstrain::set_zero_angle_update_threshold(microstrain_3dm::SetZeroAngleUpdateThreshold::Request &req, microstrain_3dm::SetZeroAngleUpdateThreshold::Response &res)
   {
     ROS_INFO("Setting Zero Angular-Rate-Update threshold\n");
 
@@ -1479,7 +1565,7 @@ namespace Microstrain
     return true;
   }
 
-  bool Microstrain::set_tare_orientation(microstrain_3dm_gx5::SetTareOrientation::Request &req, microstrain_3dm_gx5::SetTareOrientation::Response &res)
+  bool Microstrain::set_tare_orientation(microstrain_3dm::SetTareOrientation::Request &req, microstrain_3dm::SetTareOrientation::Response &res)
   {
     if(req.axis < 1 || req.axis > 7){
       ROS_INFO("Value must be between 1-7. 1 = Roll, 2 = Pitch, 3 = Roll/Pitch, 4 = Yaw, 5 = Roll/Yaw, 6 = Pitch/Yaw, 7 = Roll/Pitch/Yaw");
@@ -1525,10 +1611,10 @@ namespace Microstrain
     return true;
   }
 
- Sleep(1000);
+  Sleep(1000);
   }
 
-  bool Microstrain::get_zero_angle_update_threshold(microstrain_3dm_gx5::GetZeroAngleUpdateThreshold::Request &req, microstrain_3dm_gx5::GetZeroAngleUpdateThreshold::Response &res)
+  bool Microstrain::get_zero_angle_update_threshold(microstrain_3dm::GetZeroAngleUpdateThreshold::Request &req, microstrain_3dm::GetZeroAngleUpdateThreshold::Response &res)
   {
     ROS_INFO("Setting Zero Angular-Rate-Update threshold\n");
     //Read back parameter settings
@@ -1539,7 +1625,7 @@ namespace Microstrain
     return true;
   }
 
-  bool Microstrain::set_accel_noise(microstrain_3dm_gx5::SetAccelNoise::Request &req, microstrain_3dm_gx5::SetAccelNoise::Response &res)
+  bool Microstrain::set_accel_noise(microstrain_3dm::SetAccelNoise::Request &req, microstrain_3dm::SetAccelNoise::Response &res)
   {
     ROS_INFO("Setting the accel noise values\n");
 
@@ -1581,7 +1667,7 @@ namespace Microstrain
     return true;
   }
 
-  bool Microstrain::get_accel_noise(microstrain_3dm_gx5::GetAccelNoise::Request &req, microstrain_3dm_gx5::GetAccelNoise::Response &res)
+  bool Microstrain::get_accel_noise(microstrain_3dm::GetAccelNoise::Request &req, microstrain_3dm::GetAccelNoise::Response &res)
   {
     start = clock();
     while(mip_filter_accel_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){
@@ -1596,7 +1682,7 @@ namespace Microstrain
     return true;
   }
 
-  bool Microstrain::set_gyro_noise(microstrain_3dm_gx5::SetGyroNoise::Request &req, microstrain_3dm_gx5::SetGyroNoise::Response &res)
+  bool Microstrain::set_gyro_noise(microstrain_3dm::SetGyroNoise::Request &req, microstrain_3dm::SetGyroNoise::Response &res)
   {
     ROS_INFO("Setting the gyro noise values\n");
 
@@ -1638,7 +1724,7 @@ namespace Microstrain
     return true;
   }
 
-  bool Microstrain::get_gyro_noise(microstrain_3dm_gx5::GetGyroNoise::Request &req, microstrain_3dm_gx5::GetGyroNoise::Response &res)
+  bool Microstrain::get_gyro_noise(microstrain_3dm::GetGyroNoise::Request &req, microstrain_3dm::GetGyroNoise::Response &res)
   {
     start = clock();
     while(mip_filter_gyro_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){
@@ -1653,8 +1739,14 @@ namespace Microstrain
     return true;
   }
 
-  bool Microstrain::set_mag_noise(microstrain_3dm_gx5::SetMagNoise::Request &req, microstrain_3dm_gx5::SetMagNoise::Response &res)
+  bool Microstrain::set_mag_noise(microstrain_3dm::SetMagNoise::Request &req, microstrain_3dm::SetMagNoise::Response &res)
   {
+    if(GX5_15 == true){
+      ROS_INFO("Device does not support this feature");
+      res.success = false;
+      return true;
+    }
+
     ROS_INFO("Setting the mag noise values\n");
 
     noise[0] = req.noise.x;
@@ -1683,8 +1775,14 @@ namespace Microstrain
     return true;
   }
 
-  bool Microstrain::get_mag_noise(microstrain_3dm_gx5::GetMagNoise::Request &req, microstrain_3dm_gx5::GetMagNoise::Response &res)
+  bool Microstrain::get_mag_noise(microstrain_3dm::GetMagNoise::Request &req, microstrain_3dm::GetMagNoise::Response &res)
   {
+    if(GX5_15 == true){
+      ROS_INFO("Device does not support this feature");
+      res.success = false;
+      return true;
+    }
+
     while(mip_filter_mag_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){}
     ROS_INFO("Returned values: %f X %f Y %f Z\n", readback_noise[0], readback_noise[1], readback_noise[2]);
 
@@ -1693,7 +1791,7 @@ namespace Microstrain
   }
 
 
-  bool Microstrain::set_gyro_bias_model(microstrain_3dm_gx5::SetGyroBiasModel::Request &req, microstrain_3dm_gx5::SetGyroBiasModel::Response &res)
+  bool Microstrain::set_gyro_bias_model(microstrain_3dm::SetGyroBiasModel::Request &req, microstrain_3dm::SetGyroBiasModel::Response &res)
   {
     ROS_INFO("Setting the gyro bias model values\n");
 
@@ -1743,7 +1841,7 @@ namespace Microstrain
     return true;
   }
 
-  bool Microstrain::get_gyro_bias_model(microstrain_3dm_gx5::GetGyroBiasModel::Request &req, microstrain_3dm_gx5::GetGyroBiasModel::Response &res)
+  bool Microstrain::get_gyro_bias_model(microstrain_3dm::GetGyroBiasModel::Request &req, microstrain_3dm::GetGyroBiasModel::Response &res)
   {
     start = clock();
     while(mip_filter_gyro_bias_model(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_beta, readback_noise) != MIP_INTERFACE_OK){
@@ -1758,8 +1856,14 @@ namespace Microstrain
     return true;
   }
 
-  bool Microstrain::set_accel_bias_model(microstrain_3dm_gx5::SetAccelBiasModel::Request &req, microstrain_3dm_gx5::SetAccelBiasModel::Response &res)
+  bool Microstrain::set_accel_bias_model(microstrain_3dm::SetAccelBiasModel::Request &req, microstrain_3dm::SetAccelBiasModel::Response &res)
   {
+    if(GX5_15 == true || GX5_25 == true){
+      ROS_INFO("Device does not support this feature");
+      res.success = false;
+      return true;
+    }
+
     memset(noise, 0, 3*sizeof(float));
     memset(beta, 0, 3*sizeof(float));
     memset(readback_noise, 0, 3*sizeof(float));
@@ -1813,7 +1917,7 @@ namespace Microstrain
 
   }
 
-  bool Microstrain::set_accel_adaptive_vals(microstrain_3dm_gx5::SetAccelAdaptiveVals::Request &req, microstrain_3dm_gx5::SetAccelAdaptiveVals::Response &res )
+  bool Microstrain::set_accel_adaptive_vals(microstrain_3dm::SetAccelAdaptiveVals::Request &req, microstrain_3dm::SetAccelAdaptiveVals::Response &res )
   {
     ROS_INFO("Setting the accel magnitude error adaptive measurement values\n");
 
@@ -1864,7 +1968,7 @@ namespace Microstrain
 
   }
 
-  bool Microstrain::get_accel_adaptive_vals(microstrain_3dm_gx5::GetAccelAdaptiveVals::Request &req, microstrain_3dm_gx5::GetAccelAdaptiveVals::Response &res )
+  bool Microstrain::get_accel_adaptive_vals(microstrain_3dm::GetAccelAdaptiveVals::Request &req, microstrain_3dm::GetAccelAdaptiveVals::Response &res )
   {
     start = clock();
     while(mip_filter_accel_magnitude_error_adaptive_measurement(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &accel_magnitude_error_readback) != MIP_INTERFACE_OK){
@@ -1879,8 +1983,14 @@ namespace Microstrain
     return true;
   }
 
-  bool Microstrain::set_mag_adaptive_vals(microstrain_3dm_gx5::SetMagAdaptiveVals::Request &req, microstrain_3dm_gx5::SetMagAdaptiveVals::Response &res )
+  bool Microstrain::set_mag_adaptive_vals(microstrain_3dm::SetMagAdaptiveVals::Request &req, microstrain_3dm::SetMagAdaptiveVals::Response &res )
   {
+    if(GX5_15 == true){
+      ROS_INFO("Device does not support this feature");
+      res.success = false;
+      return true;
+    }
+
     ROS_INFO("Setting the mag magnitude error adaptive measurement values\n");
 
     mag_magnitude_error_command.enable            = req.enable;
@@ -1909,12 +2019,12 @@ namespace Microstrain
     }
 
     if((mag_magnitude_error_command.enable == mag_magnitude_error_readback.enable) &&
-   	(abs(mag_magnitude_error_command.low_pass_cutoff   - mag_magnitude_error_readback.low_pass_cutoff)   < 0.001) &&
+    (abs(mag_magnitude_error_command.low_pass_cutoff   - mag_magnitude_error_readback.low_pass_cutoff)   < 0.001) &&
     (abs(mag_magnitude_error_command.min_1sigma        - mag_magnitude_error_readback.min_1sigma)        < 0.001) &&
-   	(abs(mag_magnitude_error_command.low_limit         - mag_magnitude_error_readback.low_limit)         < 0.001) &&
-   	(abs(mag_magnitude_error_command.high_limit        - mag_magnitude_error_readback.high_limit)        < 0.001) &&
-   	(abs(mag_magnitude_error_command.low_limit_1sigma  - mag_magnitude_error_readback.low_limit_1sigma)  < 0.001) &&
-   	(abs(mag_magnitude_error_command.high_limit_1sigma - mag_magnitude_error_readback.high_limit_1sigma) < 0.001))
+    (abs(mag_magnitude_error_command.low_limit         - mag_magnitude_error_readback.low_limit)         < 0.001) &&
+    (abs(mag_magnitude_error_command.high_limit        - mag_magnitude_error_readback.high_limit)        < 0.001) &&
+    (abs(mag_magnitude_error_command.low_limit_1sigma  - mag_magnitude_error_readback.low_limit_1sigma)  < 0.001) &&
+    (abs(mag_magnitude_error_command.high_limit_1sigma - mag_magnitude_error_readback.high_limit_1sigma) < 0.001))
     {
      ROS_INFO("mag magnitude error adaptive measurement values successfully set.\n");
     }
@@ -1929,8 +2039,14 @@ namespace Microstrain
     return true;
   }
 
-  bool Microstrain::get_mag_adaptive_vals(microstrain_3dm_gx5::GetMagAdaptiveVals::Request &req, microstrain_3dm_gx5::GetMagAdaptiveVals::Response &res )
+  bool Microstrain::get_mag_adaptive_vals(microstrain_3dm::GetMagAdaptiveVals::Request &req, microstrain_3dm::GetMagAdaptiveVals::Response &res )
   {
+    if(GX5_15 == true){
+      ROS_INFO("Device does not support this feature");
+      res.success = false;
+      return true;
+    }
+
     start = clock();
     while(mip_filter_mag_magnitude_error_adaptive_measurement(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &mag_magnitude_error_readback) != MIP_INTERFACE_OK){
       if (clock() - start > 5000){
@@ -1946,8 +2062,14 @@ namespace Microstrain
   }
 
 
-  bool Microstrain::set_mag_dip_adaptive_vals(microstrain_3dm_gx5::SetMagDipAdaptiveVals::Request &req, microstrain_3dm_gx5::SetMagDipAdaptiveVals::Response &res )
+  bool Microstrain::set_mag_dip_adaptive_vals(microstrain_3dm::SetMagDipAdaptiveVals::Request &req, microstrain_3dm::SetMagDipAdaptiveVals::Response &res )
   {
+    if(GX5_15 == true || GX5_25 == true){
+      ROS_INFO("Device does not support this feature");
+      res.success = false;
+      return true;
+    }
+
     ROS_INFO("Setting the mag dip angle error adaptive measurement values\n");
 
     mag_dip_angle_error_command.enable            = req.enable;
@@ -2005,6 +2127,7 @@ namespace Microstrain
   u16 Microstrain::mip_3dm_cmd_hw_specific_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer)
   {
    gx4_25_basic_status_field *basic_ptr;
+   printf("Initial basic ptr size: %d %d \n", sizeof(basic_ptr),sizeof(gx4_25_basic_status_field));
    gx4_25_diagnostic_device_status_field *diagnostic_ptr;
    u16 response_size = MIP_FIELD_HEADER_SIZE;
 
@@ -2021,7 +2144,7 @@ namespace Microstrain
      return MIP_INTERFACE_ERROR;
    }
     else if(MIP_SDK_CONFIG_BYTESWAP){
-
+     printf("Response_size = %d, basic_ptr size = %d, sizeof status field = %d \n", response_size, sizeof(basic_ptr), sizeof(gx4_25_basic_status_field));
      basic_ptr = (gx4_25_basic_status_field *)response_buffer;
 
      byteswap_inplace(&basic_ptr->device_model, sizeof(basic_ptr->device_model));
@@ -2029,7 +2152,7 @@ namespace Microstrain
      byteswap_inplace(&basic_ptr->status_selector, sizeof(basic_ptr->status_selector));
      byteswap_inplace(&basic_ptr->system_state, sizeof(basic_ptr->system_state));
      byteswap_inplace(&basic_ptr->system_timer_ms, sizeof(basic_ptr->system_timer_ms));
-
+     printf("Byteswap config true. Size of basic_ptr = %d \n", sizeof(basic_ptr));
     }
 
    }
@@ -2065,43 +2188,55 @@ namespace Microstrain
   }
 
   //Only in 45
-  bool Microstrain::set_dynamics_mode(microstrain_3dm_gx5::SetDynamicsMode::Request &req, microstrain_3dm_gx5::SetDynamicsMode::Response &res)
+  bool Microstrain::set_dynamics_mode(microstrain_3dm::SetDynamicsMode::Request &req, microstrain_3dm::SetDynamicsMode::Response &res)
   {
-  dynamics_mode = req.mode;
+    if(GX5_15 == true || GX5_25 == true){
+      ROS_INFO("Device does not support this feature");
+      res.success = false;
+      return true;
+    }
 
-  if (dynamics_mode < 1 || dynamics_mode > 3){
-    ROS_INFO("Error: Vehicle dynamics mode must be between 1-3");
-    res.success = false;
-  }
-  else{
-    start = clock();
-    while(mip_filter_vehicle_dynamics_mode(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &dynamics_mode) != MIP_INTERFACE_OK){
-      if (clock() - start > 5000){
-        ROS_INFO("mip_filter_vehicle_dynamics_mode function timed out.");
-        break;
+    dynamics_mode = req.mode;
+
+    if (dynamics_mode < 1 || dynamics_mode > 3){
+      ROS_INFO("Error: Vehicle dynamics mode must be between 1-3");
+      res.success = false;
+    }
+    else{
+      start = clock();
+      while(mip_filter_vehicle_dynamics_mode(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &dynamics_mode) != MIP_INTERFACE_OK){
+        if (clock() - start > 5000){
+          ROS_INFO("mip_filter_vehicle_dynamics_mode function timed out.");
+          break;
+        }
+      }
+
+      readback_dynamics_mode = 0;
+      while(mip_filter_vehicle_dynamics_mode(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &readback_dynamics_mode) != MIP_INTERFACE_OK){}
+
+      if(dynamics_mode == readback_dynamics_mode)
+      {
+       printf("Vehicle dynamics mode successfully set to %d\n", dynamics_mode);
+       res.success = true;
+      }
+      else
+      {
+       printf("ERROR: Failed to set vehicle dynamics mode to %d!!!\n", dynamics_mode);
+       res.success = false;
       }
     }
-
-    readback_dynamics_mode = 0;
-    while(mip_filter_vehicle_dynamics_mode(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &readback_dynamics_mode) != MIP_INTERFACE_OK){}
-
-    if(dynamics_mode == readback_dynamics_mode)
-    {
-     printf("Vehicle dynamics mode successfully set to %d\n", dynamics_mode);
-     res.success = true;
-    }
-    else
-    {
-     printf("ERROR: Failed to set vehicle dynamics mode to %d!!!\n", dynamics_mode);
-     res.success = false;
-    }
-  }
-  return true;
+    return true;
   }
 
   //Only in 45
-  bool Microstrain::set_sensor_vehicle_frame_offset(microstrain_3dm_gx5::SetSensorVehicleFrameOffset::Request &req, microstrain_3dm_gx5::SetSensorVehicleFrameOffset::Response &res)
+  bool Microstrain::set_sensor_vehicle_frame_offset(microstrain_3dm::SetSensorVehicleFrameOffset::Request &req, microstrain_3dm::SetSensorVehicleFrameOffset::Response &res)
   {
+   if(GX5_15 == true || GX5_25 == true){
+      ROS_INFO("Device does not support this feature");
+      res.success = false;
+      return true;
+    }
+
     memset(offset, 0, 3*sizeof(float));
     memset(readback_offset, 0, 3*sizeof(float));
     ROS_INFO("Setting the sensor to vehicle frame offset\n");

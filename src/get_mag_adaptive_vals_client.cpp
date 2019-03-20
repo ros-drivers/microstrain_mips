@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm_gx5/GetMagAdaptiveVals.h"
+#include "microstrain_3dm/GetMagAdaptiveVals.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "get_mag_adaptive_vals_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5::GetMagAdaptiveVals>("GetMagAdaptiveVals");
-  microstrain_3dm_gx5::GetMagAdaptiveVals srv;
+  ros::ServiceClient client = n.serviceClient<microstrain_3dm::GetMagAdaptiveVals>("GetMagAdaptiveVals");
+  microstrain_3dm::GetMagAdaptiveVals srv;
 
 
   if (client.call(srv))

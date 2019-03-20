@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm_gx5/GetDiagnosticReport.h"
+#include "microstrain_3dm/GetDiagnosticReport.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "get_diagnostic_report_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5::GetDiagnosticReport>("GetDiagnosticReport");
-  microstrain_3dm_gx5::GetDiagnosticReport srv;
+  ros::ServiceClient client = n.serviceClient<microstrain_3dm::GetDiagnosticReport>("GetDiagnosticReport");
+  microstrain_3dm::GetDiagnosticReport srv;
 
 
   if (client.call(srv))

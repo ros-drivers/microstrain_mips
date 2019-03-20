@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm_gx5/SetSensorVehicleFrameOffset.h"
+#include "microstrain_3dm/SetSensorVehicleFrameOffset.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_sensor_vehicle_frame_offset");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5::SetSensorVehicleFrameOffset>("SetSensorVehicleFrameOffset");
-  microstrain_3dm_gx5::SetSensorVehicleFrameOffset srv;
+  ros::ServiceClient client = n.serviceClient<microstrain_3dm::SetSensorVehicleFrameOffset>("SetSensorVehicleFrameOffset");
+  microstrain_3dm::SetSensorVehicleFrameOffset srv;
 
   srv.request.offset.x = atoll(argv[1]);
   srv.request.offset.y = atoll(argv[2]);

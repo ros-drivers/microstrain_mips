@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm_gx5/SetFilterEuler.h"
+#include "microstrain_3dm/SetFilterEuler.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_filter_euler_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5::SetFilterEuler>("SetFilterEuler");
-  microstrain_3dm_gx5::SetFilterEuler srv;
+  ros::ServiceClient client = n.serviceClient<microstrain_3dm::SetFilterEuler>("SetFilterEuler");
+  microstrain_3dm::SetFilterEuler srv;
 
   srv.request.angle.x = atoll(argv[1]);
   srv.request.angle.y = atoll(argv[2]);

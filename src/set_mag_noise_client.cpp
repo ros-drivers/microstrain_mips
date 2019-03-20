@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm_gx5/SetMagNoise.h"
+#include "microstrain_3dm/SetMagNoise.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_mag_noise_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5::SetMagNoise>("SetMagNoise");
-  microstrain_3dm_gx5::SetMagNoise srv;
+  ros::ServiceClient client = n.serviceClient<microstrain_3dm::SetMagNoise>("SetMagNoise");
+  microstrain_3dm::SetMagNoise srv;
 
   srv.request.noise.x = atoll(argv[1]);
   srv.request.noise.y = atoll(argv[2]);

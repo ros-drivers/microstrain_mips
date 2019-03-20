@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm_gx5/GetAccelAdaptiveVals.h"
+#include "microstrain_3dm/GetAccelAdaptiveVals.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "get_accel_adaptive_vals_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5::GetAccelAdaptiveVals>("GetAccelAdaptiveVals");
-  microstrain_3dm_gx5::GetAccelAdaptiveVals srv;
+  ros::ServiceClient client = n.serviceClient<microstrain_3dm::GetAccelAdaptiveVals>("GetAccelAdaptiveVals");
+  microstrain_3dm::GetAccelAdaptiveVals srv;
 
   if (client.call(srv))
   {

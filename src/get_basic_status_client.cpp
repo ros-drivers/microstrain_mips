@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm_gx5/GetBasicStatus.h"
+#include "microstrain_3dm/GetBasicStatus.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "get_basic_status_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5::GetBasicStatus>("GetBasicStatus");
-  microstrain_3dm_gx5::GetBasicStatus srv;
+  ros::ServiceClient client = n.serviceClient<microstrain_3dm::GetBasicStatus>("GetBasicStatus");
+  microstrain_3dm::GetBasicStatus srv;
 
 
   if (client.call(srv))

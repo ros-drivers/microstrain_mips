@@ -1537,6 +1537,8 @@ u16 mip_3dm_cmd_device_status(mip_interface *device_interface, u16 model_number,
  *short_ptr      = model_number;
  command_data[2] = status_selector;
 
+ response_buffer = malloc(sizeof(gx4_25_basic_status_field));
+
  //Byteswap the model number, if enabled
  if(MIP_SDK_CONFIG_BYTESWAP)
  {
@@ -1548,6 +1550,8 @@ u16 mip_3dm_cmd_device_status(mip_interface *device_interface, u16 model_number,
 
  return_code = mip_interface_send_command_with_response(device_interface, MIP_3DM_COMMAND_SET, MIP_3DM_CMD_DEVICE_STATUS, command_data,
                                                         3, &response_data, &response_data_size, MIP_INTERFACE_DEFAULT_COMMAND_RESPONSE_TIMEOUT_MS);
+
+
  //Copy the data to the provided buffer on success if present
  if((return_code == MIP_INTERFACE_OK) && (response_data != NULL))
  {
@@ -1563,6 +1567,7 @@ u16 mip_3dm_cmd_device_status(mip_interface *device_interface, u16 model_number,
    *response_size = 0;
    return_code = MIP_INTERFACE_ERROR;
   }
+
  }
 
  return return_code;

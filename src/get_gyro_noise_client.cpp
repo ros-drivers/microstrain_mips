@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm_gx5/GetGyroNoise.h"
+#include "microstrain_3dm/GetGyroNoise.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "get_gyro_noise_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5::GetGyroNoise>("GetGyroNoise");
-  microstrain_3dm_gx5::GetGyroNoise srv;
+  ros::ServiceClient client = n.serviceClient<microstrain_3dm::GetGyroNoise>("GetGyroNoise");
+  microstrain_3dm::GetGyroNoise srv;
 
 
   if (client.call(srv))

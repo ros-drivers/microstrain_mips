@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm_gx5/GetAccelBias.h"
+#include "microstrain_3dm/GetAccelBias.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "get_accel_bias");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm_gx5::GetAccelBias>("GetAccelBias");
-  microstrain_3dm_gx5::GetAccelBias srv;
+  ros::ServiceClient client = n.serviceClient<microstrain_3dm::GetAccelBias>("GetAccelBias");
+  microstrain_3dm::GetAccelBias srv;
 
   if (client.call(srv))
   {
