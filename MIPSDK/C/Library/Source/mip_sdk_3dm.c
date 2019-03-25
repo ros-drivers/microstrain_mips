@@ -1532,12 +1532,13 @@ u16 mip_3dm_cmd_device_status(mip_interface *device_interface, u16 model_number,
  u16 *short_ptr;
  u16 user_buffer_size = *response_size;
 
+
  //Fill-in the command data
  short_ptr       = (u16*)&command_data[0];
  *short_ptr      = model_number;
  command_data[2] = status_selector;
 
- response_buffer = malloc(sizeof(gx4_25_basic_status_field));
+ //response_buffer = malloc(sizeof(gx4_25_basic_status_field));
 
  //Byteswap the model number, if enabled
  if(MIP_SDK_CONFIG_BYTESWAP)
@@ -1561,6 +1562,7 @@ u16 mip_3dm_cmd_device_status(mip_interface *device_interface, u16 model_number,
   {
    memcpy(response_buffer, response_data + sizeof(mip_field_header), field_header_ptr->size - sizeof(mip_field_header));
    *response_size = field_header_ptr->size - sizeof(mip_field_header);
+   //printf("Response size is: %d, field header size is %d, user buffer size is %d\n", response_data_size, field_header_ptr->size, user_buffer_size);
   }
   else
   {
@@ -1569,7 +1571,6 @@ u16 mip_3dm_cmd_device_status(mip_interface *device_interface, u16 model_number,
   }
 
  }
-
  return return_code;
 }
 

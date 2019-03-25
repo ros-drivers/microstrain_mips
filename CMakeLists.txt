@@ -49,6 +49,11 @@ add_service_files(
   SetMagDipAdaptiveVals.srv
 )
 
+add_message_files(
+  FILES
+  status_msg.msg
+)
+
 
 
 ## Find catkin macros and libraries
@@ -331,7 +336,6 @@ add_dependencies(set_mag_adaptive_vals_client microstrain_3dm_gencpp)
 add_dependencies(get_mag_adaptive_vals_client microstrain_3dm_gencpp)
 
 add_dependencies(set_mag_dip_adaptive_vals_client microstrain_3dm_gencpp)
-
 
 
 # Linking

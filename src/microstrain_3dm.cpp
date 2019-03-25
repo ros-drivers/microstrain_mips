@@ -209,7 +209,7 @@ namespace Microstrain
       nav_status_pub_ = node.advertise<std_msgs::Int16MultiArray>("nav/status",100);
     }
 
-    device_status_ = node.advertise<std_msgs::String>("device/status", 100);
+    device_status_pub_ = node.advertise<microstrain_3dm::status_msg>("device/status", 100);
 
     ros::ServiceServer service = node.advertiseService("reset_kf", &Microstrain::reset_callback, this);
     ros::ServiceServer service3 = node.advertiseService("DeviceReport", &Microstrain::device_report, this);
@@ -281,6 +281,7 @@ namespace Microstrain
 	ROS_FATAL("Can't setup gpscallbacks!");
 	return;
       }
+
 
     ////////////////////////////////////////
     // Device setup
@@ -762,6 +763,7 @@ namespace Microstrain
     }
     ros::Duration(dT).sleep();
 
+
     // Loop
     // Determine loop rate as 2*(max update rate), but abs. max of 1kHz
     int max_rate = 1;
@@ -780,6 +782,7 @@ namespace Microstrain
     while (ros::ok()){
       //Update the parser (this function reads the port and parses the bytes
       mip_interface_update(&device_interface_);
+      device_status_callback();
 
       ros::spinOnce();  // take care of service requests.
       r.sleep();
@@ -1507,13 +1510,15 @@ namespace Microstrain
 
   bool Microstrain::get_basic_status(microstrain_3dm::GetBasicStatus::Request &req, microstrain_3dm::GetBasicStatus::Response &res)
   {
-    u8 response_buffer[sizeof(gx4_25_basic_status_field)];
-    while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_25_MODEL_NUMBER, GX4_25_BASIC_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){}
-    printf("Model Number: \t\t\t\t\t%04u\n", basic_field.device_model);
-    printf("Status Selector: \t\t\t\t%u\n", basic_field.status_selector);// == GX4_25_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
-    printf("Status Flags: \t\t\t\t\t%lu\n", basic_field.status_flags);
-    printf("System state: \t\t\t\t\t%04u\n", basic_field.system_state);
-    printf("System Microsecond Timer Count: \t\t%lu ms\n\n", basic_field.system_timer_ms);
+    if(GX5_25 == true){
+      u8 response_buffer[sizeof(gx4_25_basic_status_field)];
+      while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_25_MODEL_NUMBER, GX4_25_BASIC_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){}
+      printf("Model Number: \t\t\t\t\t%04u\n", basic_field.device_model);
+      printf("Status Selector: \t\t\t\t%d\n", basic_field.status_selector);// == GX4_25_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
+      printf("Status Flags: \t\t\t\t\t%lu\n", basic_field.status_flags);
+      printf("System state: \t\t\t\t\t%04u\n", basic_field.system_state);
+      printf("System Microsecond Timer Count: \t\t%lu ms\n\n", basic_field.system_timer_ms);
+    }
 
     res.success = true;
     return true;
@@ -1521,10 +1526,10 @@ namespace Microstrain
 
   bool Microstrain::get_diagnostic_report(microstrain_3dm::GetDiagnosticReport::Request &req, microstrain_3dm::GetDiagnosticReport::Response &res)
   {
-    u8* response_buffer;
+    u8 response_buffer[sizeof(gx4_25_diagnostic_device_status_field)];
     while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_25_MODEL_NUMBER, GX4_25_DIAGNOSTICS_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){}
     printf("Model Number: \t\t\t\t\t%04u\n", diagnostic_field.device_model);
-    /*printf("Status Selector: \t\t\t\t%u\n", diagnostic_field.status_selector);// == 114 ? "Basic Status Report" : "Diagnostic Status Report");
+    printf("Status Selector: \t\t\t\t%u\n", diagnostic_field.status_selector);// == 114 ? "Basic Status Report" : "Diagnostic Status Report");
     printf("Status Flags: \t\t\t\t\t%lu\n", diagnostic_field.status_flags);
     printf("System Millisecond Timer Count: \t\t%lu ms\n", diagnostic_field.system_timer_ms);
     printf("IMU Streaming Enabled: \t\t\t\t%s\n", diagnostic_field.imu_stream_enabled == 1 ? "TRUE" : "FALSE");
@@ -1537,7 +1542,7 @@ namespace Microstrain
     printf("Communications Port Read Overruns: \t\t%lu Bytes\n", diagnostic_field.com1_port_read_overruns);
     printf("IMU Parser Errors: \t\t\t\t%lu Errors\n", diagnostic_field.imu_parser_errors);
     printf("IMU Message Count: \t\t\t\t%lu Messages\n", diagnostic_field.imu_message_count);
-    printf("IMU Last Message Received: \t\t\t%lu ms\n", diagnostic_field.imu_last_message_ms);*/
+    printf("IMU Last Message Received: \t\t\t%lu ms\n", diagnostic_field.imu_last_message_ms);
 
     res.success = true;
     return true;
@@ -2127,7 +2132,6 @@ namespace Microstrain
   u16 Microstrain::mip_3dm_cmd_hw_specific_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer)
   {
    gx4_25_basic_status_field *basic_ptr;
-   printf("Initial basic ptr size: %d %d \n", sizeof(basic_ptr),sizeof(gx4_25_basic_status_field));
    gx4_25_diagnostic_device_status_field *diagnostic_ptr;
    u16 response_size = MIP_FIELD_HEADER_SIZE;
 
@@ -2144,15 +2148,22 @@ namespace Microstrain
      return MIP_INTERFACE_ERROR;
    }
     else if(MIP_SDK_CONFIG_BYTESWAP){
-     printf("Response_size = %d, basic_ptr size = %d, sizeof status field = %d \n", response_size, sizeof(basic_ptr), sizeof(gx4_25_basic_status_field));
-     basic_ptr = (gx4_25_basic_status_field *)response_buffer;
 
-     byteswap_inplace(&basic_ptr->device_model, sizeof(basic_ptr->device_model));
-     byteswap_inplace(&basic_ptr->status_flags, sizeof(basic_ptr->status_flags));
-     byteswap_inplace(&basic_ptr->status_selector, sizeof(basic_ptr->status_selector));
-     byteswap_inplace(&basic_ptr->system_state, sizeof(basic_ptr->system_state));
-     byteswap_inplace(&basic_ptr->system_timer_ms, sizeof(basic_ptr->system_timer_ms));
-     printf("Byteswap config true. Size of basic_ptr = %d \n", sizeof(basic_ptr));
+     byteswap_inplace(&response_buffer[0], sizeof(basic_field.device_model));
+     byteswap_inplace(&response_buffer[2], sizeof(basic_field.status_selector));
+     byteswap_inplace(&response_buffer[3], sizeof(basic_field.status_flags));
+     byteswap_inplace(&response_buffer[7], sizeof(basic_field.system_state));
+     byteswap_inplace(&response_buffer[9], sizeof(basic_field.system_timer_ms));
+
+     void * struct_pointer;
+     struct_pointer = &basic_field;
+
+     memcpy(struct_pointer, response_buffer, sizeof(basic_field.device_model));
+     memcpy((struct_pointer+2), &(response_buffer[2]), sizeof(basic_field.status_selector));
+     memcpy((struct_pointer+3), &(response_buffer[3]), sizeof(basic_field.status_flags));
+     memcpy((struct_pointer+7), &(response_buffer[7]), sizeof(basic_field.system_state));
+     memcpy((struct_pointer+9), &(response_buffer[9]), sizeof(basic_field.system_timer_ms));
+
     }
 
    }
@@ -2164,20 +2175,61 @@ namespace Microstrain
    }
     else if(MIP_SDK_CONFIG_BYTESWAP){
 
-     diagnostic_ptr = (gx4_25_diagnostic_device_status_field *)response_buffer;
+     int total_size = 0;
+     byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.device_model));
+     total_size += sizeof(diagnostic_field.device_model);
+     byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.status_flags));
+     total_size += sizeof(diagnostic_field.status_flags);
+     byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.system_timer_ms));
+     total_size += sizeof(diagnostic_field.system_timer_ms);
+     byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.imu_dropped_packets));
+     total_size += sizeof(diagnostic_field.imu_dropped_packets);
+     byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.filter_dropped_packets));
+     total_size += sizeof(diagnostic_field.filter_dropped_packets);
+     byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.com1_port_bytes_written));
+     total_size += sizeof(diagnostic_field.com1_port_bytes_written);
+     byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.com1_port_bytes_read));
+     total_size += sizeof(diagnostic_field.com1_port_bytes_read);
+     byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.com1_port_write_overruns));
+     total_size += sizeof(diagnostic_field.com1_port_write_overruns);
+     byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.com1_port_read_overruns));
+     total_size += sizeof(diagnostic_field.com1_port_read_overruns);
+     byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.imu_parser_errors));
+     total_size += sizeof(diagnostic_field.imu_parser_errors);
+     byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.imu_message_count));
+     total_size += sizeof(diagnostic_field.imu_message_count);
+     byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.imu_last_message_ms));
 
-     byteswap_inplace(&diagnostic_ptr->device_model, sizeof(diagnostic_ptr->device_model));
-     byteswap_inplace(&diagnostic_ptr->status_flags, sizeof(diagnostic_ptr->status_flags));
-     byteswap_inplace(&diagnostic_ptr->system_timer_ms, sizeof(diagnostic_ptr->system_timer_ms));
-     byteswap_inplace(&diagnostic_ptr->imu_dropped_packets, sizeof(diagnostic_ptr->imu_dropped_packets));
-     byteswap_inplace(&diagnostic_ptr->filter_dropped_packets, sizeof(diagnostic_ptr->filter_dropped_packets));
-     byteswap_inplace(&diagnostic_ptr->com1_port_bytes_written, sizeof(diagnostic_ptr->com1_port_bytes_written));
-     byteswap_inplace(&diagnostic_ptr->com1_port_bytes_read, sizeof(diagnostic_ptr->com1_port_bytes_read));
-     byteswap_inplace(&diagnostic_ptr->com1_port_write_overruns, sizeof(diagnostic_ptr->com1_port_write_overruns));
-     byteswap_inplace(&diagnostic_ptr->com1_port_read_overruns, sizeof(diagnostic_ptr->com1_port_read_overruns));
-     byteswap_inplace(&diagnostic_ptr->imu_parser_errors, sizeof(diagnostic_ptr->imu_parser_errors));
-     byteswap_inplace(&diagnostic_ptr->imu_message_count, sizeof(diagnostic_ptr->imu_message_count));
-     byteswap_inplace(&diagnostic_ptr->imu_last_message_ms, sizeof(diagnostic_ptr->imu_last_message_ms));
+     void * struct_pointer;
+     struct_pointer = &diagnostic_field;
+
+
+     memcpy(struct_pointer, response_buffer, sizeof(diagnostic_field.device_model));
+     total_size += sizeof(diagnostic_field.device_model);
+     memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.status_selector));
+     total_size += sizeof(diagnostic_field.status_selector);
+     memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.status_flags));
+     total_size += sizeof(diagnostic_field.status_flags);
+     memcpy((struct_pointer +total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.system_timer_ms));
+     total_size += sizeof(diagnostic_field.system_timer_ms);
+     memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.imu_dropped_packets));
+     total_size += sizeof(diagnostic_field.imu_dropped_packets);
+     memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.filter_dropped_packets));
+     total_size += sizeof(diagnostic_field.filter_dropped_packets);
+     memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.com1_port_bytes_written));
+     total_size += sizeof(diagnostic_field.com1_port_bytes_written);
+     memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.com1_port_bytes_read));
+     total_size += sizeof(diagnostic_field.com1_port_bytes_read);
+     memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.com1_port_write_overruns));
+     total_size += sizeof(diagnostic_field.com1_port_write_overruns);
+     memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.com1_port_read_overruns));
+     total_size += sizeof(diagnostic_field.com1_port_read_overruns);
+     memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.imu_parser_errors));
+     total_size += sizeof(diagnostic_field.imu_parser_errors);
+     memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.imu_message_count));
+     total_size += sizeof(diagnostic_field.imu_message_count);
+     memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.imu_last_message_ms));
+     total_size += sizeof(diagnostic_field.imu_last_message_ms);
     }
    }
    else
@@ -2498,6 +2550,18 @@ namespace Microstrain
     print_packet_stats();
   } // filter_packet_callback
 
+void Microstrain::device_status_callback()
+{
+  u8 response_buffer[sizeof(gx4_25_basic_status_field)];
+  mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_25_MODEL_NUMBER, GX4_25_BASIC_STATUS_SEL, response_buffer);
+  device_status_msg_.model_num = basic_field.device_model;
+  device_status_msg_.selector =  basic_field.status_selector;
+  device_status_msg_.flags = basic_field.status_flags;
+  device_status_msg_.sys_state = basic_field.system_state;
+  device_status_msg_.sys_timer = basic_field.system_timer_ms;
+
+  device_status_pub_.publish(device_status_msg_);
+}
 
   ////////////////////////////////////////////////////////////////////////////////
   //

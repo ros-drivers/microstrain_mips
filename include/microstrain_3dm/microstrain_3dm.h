@@ -54,6 +54,7 @@ extern "C" {
 #include "std_msgs/MultiArrayLayout.h"
 #include "std_srvs/Empty.h"
 #include "std_msgs/String.h"
+#include "microstrain_3dm/status_msg.h"
 
 #include "microstrain_3dm/SetAccelBias.h"
 #include "microstrain_3dm/GetAccelBias.h"
@@ -146,6 +147,8 @@ namespace Microstrain
     void ahrs_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
     //! @brief GPS callback
     void gps_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
+
+    void device_status_callback();
 
     bool set_accel_bias(microstrain_3dm::SetAccelBias::Request &req, microstrain_3dm::SetAccelBias::Response &res);
 
@@ -294,7 +297,7 @@ namespace Microstrain
   ros::Publisher nav_pub_;
   ros::Publisher nav_status_pub_;
   ros::Publisher bias_pub_;
-  ros::Publisher device_status_;
+  ros::Publisher device_status_pub_;
   sensor_msgs::NavSatFix gps_msg_;
   sensor_msgs::Imu imu_msg_;
   nav_msgs::Odometry nav_msg_;
@@ -304,7 +307,7 @@ namespace Microstrain
   std::string imu_frame_id_;
   std::string odom_frame_id_;
   std::string odom_child_frame_id_;
-  std::string device_status_msg_;
+  microstrain_3dm::status_msg device_status_msg_;
   bool publish_gps_;
   bool publish_imu_;
   bool publish_odom_;
