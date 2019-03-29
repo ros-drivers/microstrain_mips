@@ -39,6 +39,7 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 #include "microstrain_3dm/SetSensorVehicleFrameTrans.h"
 #include "microstrain_3dm/SetSensorVehicleFrameOffset.h"
 #include "microstrain_3dm/GetSensorVehicleFrameTrans.h"
+#include "microstrain_3dm/GetSensorVehicleFrameOffset.h"
 #include "microstrain_3dm/GetComplementaryFilter.h"
 #include "microstrain_3dm/SetReferencePosition.h"
 #include "microstrain_3dm/GetReferencePosition.h"
@@ -47,6 +48,7 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 #include "microstrain_3dm/SetEstimationControlFlags.h"
 #include "microstrain_3dm/GetEstimationControlFlags.h"
 #include "microstrain_3dm/SetDynamicsMode.h"
+#include "microstrain_3dm/GetDynamicsMode.h"
 #include "microstrain_3dm/GetBasicStatus.h"
 #include "microstrain_3dm/GetDiagnosticReport.h"
 #include "microstrain_3dm/SetZeroAngleUpdateThreshold.h"
@@ -64,11 +66,15 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 #include "microstrain_3dm/SetMagAdaptiveVals.h"
 #include "microstrain_3dm/GetMagAdaptiveVals.h"
 #include "microstrain_3dm/SetMagDipAdaptiveVals.h"
+#include "microstrain_3dm/GetAccelBiasModel.h"
+#include "microstrain_3dm/GetMagDipAdaptiveVals.h"
 
 #include <tf2/LinearMath/Transform.h>
 #include <string>
 #include <algorithm>
 #include <time.h>
+
+#include "diagnostic_updater/diagnostic_updater.h"
 
 
 namespace Microstrain
@@ -186,6 +192,7 @@ namespace Microstrain
       declination_source = 2;
     }
     declination_source_u8 = (u8)declination_source;
+
     //declination_source_command=(u8)declination_source;
     private_nh.param("declination",declination,0.23);
     private_nh.param("gps_frame_id",gps_frame_id_, std::string("wgs84"));
@@ -193,7 +200,7 @@ namespace Microstrain
     private_nh.param("odom_frame_id",odom_frame_id_, std::string("wgs84"));
     private_nh.param("odom_child_frame_id",odom_child_frame_id_,
 		     std::string("base_link"));
-    private_nh.param("publish_gps",publish_gps_, true);
+    private_nh.param("publish_gps",publish_gps_, false);
     private_nh.param("publish_imu",publish_imu_, true);
     private_nh.param("publish_odom",publish_odom_, true);
     private_nh.param("publish_bias",publish_bias_, true);
@@ -255,7 +262,10 @@ namespace Microstrain
     ros::ServiceServer service43 = node.advertiseService("SetMagAdaptiveVals", &Microstrain::set_mag_adaptive_vals, this);
     ros::ServiceServer service44 = node.advertiseService("GetMagAdaptiveVals", &Microstrain::get_mag_adaptive_vals, this);
     ros::ServiceServer service45 = node.advertiseService("SetMagDipAdaptiveVals", &Microstrain::set_mag_dip_adaptive_vals, this);
-
+    ros::ServiceServer service46 = node.advertiseService("GetAccelBiasModel", &Microstrain::get_accel_bias_model, this);
+    ros::ServiceServer service47 = node.advertiseService("GetMagDipAdaptiveVals", &Microstrain::get_mag_dip_adaptive_vals, this);
+    ros::ServiceServer service48 = node.advertiseService("GetSensorVehicleFrameOffset", &Microstrain::get_sensor_vehicle_frame_offset, this);
+    ros::ServiceServer service49 = node.advertiseService("GetDynamicsMode", &Microstrain::get_dynamics_mode, this);
 
     //Initialize the serial interface to the device
     ROS_INFO("Attempting to open serial port <%s> at <%d> \n",
@@ -368,6 +378,19 @@ namespace Microstrain
       }
       ros::Duration(dT).sleep();
 
+    /*if(GX5_45 == true){
+        gps_source = 1;
+
+        start = clock();
+        while(mip_filter_gps_source(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &gps_source) != MIP_INTERFACE_OK){
+          if (clock() - start > 5000){
+            ROS_INFO("mip_3dm_cmd_get_ahrs_base_rate function timed out.");
+            break;
+          }
+        }
+        ROS_INFO("Set gps source");
+      }*/
+
       // AHRS Setup
       // Get base rate
       if (publish_imu_){
@@ -475,7 +498,7 @@ namespace Microstrain
   start = clock();
 	while(mip_3dm_cmd_get_gps_base_rate(&device_interface_, &base_rate) != MIP_INTERFACE_OK){
     if (clock() - start > 5000){
-      ROS_INFO("mip_filter_declination_source function timed out.");
+      ROS_INFO("mip_3dm_cmd_get_gps_base_rate function timed out.");
       break;
     }
   }
@@ -1512,7 +1535,13 @@ namespace Microstrain
   {
     if(GX5_25 == true){
       u8 response_buffer[sizeof(gx4_25_basic_status_field)];
-      while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_25_MODEL_NUMBER, GX4_25_BASIC_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){}
+      start = clock();
+      while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_25_MODEL_NUMBER, GX4_25_BASIC_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){
+        if (clock() - start > 5000){
+          ROS_INFO("mip_3dm_cmd_hw_specific_device_status function timed out.");
+          break;
+        }
+      }
       printf("Model Number: \t\t\t\t\t%04u\n", basic_field.device_model);
       printf("Status Selector: \t\t\t\t%d\n", basic_field.status_selector);// == GX4_25_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
       printf("Status Flags: \t\t\t\t\t%lu\n", basic_field.status_flags);
@@ -1526,24 +1555,34 @@ namespace Microstrain
 
   bool Microstrain::get_diagnostic_report(microstrain_3dm::GetDiagnosticReport::Request &req, microstrain_3dm::GetDiagnosticReport::Response &res)
   {
-    u8 response_buffer[sizeof(gx4_25_diagnostic_device_status_field)];
-    while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_25_MODEL_NUMBER, GX4_25_DIAGNOSTICS_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){}
-    printf("Model Number: \t\t\t\t\t%04u\n", diagnostic_field.device_model);
-    printf("Status Selector: \t\t\t\t%u\n", diagnostic_field.status_selector);// == 114 ? "Basic Status Report" : "Diagnostic Status Report");
-    printf("Status Flags: \t\t\t\t\t%lu\n", diagnostic_field.status_flags);
-    printf("System Millisecond Timer Count: \t\t%lu ms\n", diagnostic_field.system_timer_ms);
-    printf("IMU Streaming Enabled: \t\t\t\t%s\n", diagnostic_field.imu_stream_enabled == 1 ? "TRUE" : "FALSE");
-    printf("FILTER Streaming Enabled: \t\t\t%s\n", diagnostic_field.filter_stream_enabled == 1 ? "TRUE" : "FALSE");
-    printf("Number of Dropped IMU Packets: \t\t\t%lu packets\n", diagnostic_field.imu_dropped_packets);
-    printf("Number of Dropped FILTER Packets: \t\t%lu packets\n", diagnostic_field.filter_dropped_packets);
-    printf("Communications Port Bytes Written: \t\t%lu Bytes\n", diagnostic_field.com1_port_bytes_written);
-    printf("Communications Port Bytes Read: \t\t%lu Bytes\n", diagnostic_field.com1_port_bytes_read);
-    printf("Communications Port Write Overruns: \t\t%lu Bytes\n", diagnostic_field.com1_port_write_overruns);
-    printf("Communications Port Read Overruns: \t\t%lu Bytes\n", diagnostic_field.com1_port_read_overruns);
-    printf("IMU Parser Errors: \t\t\t\t%lu Errors\n", diagnostic_field.imu_parser_errors);
-    printf("IMU Message Count: \t\t\t\t%lu Messages\n", diagnostic_field.imu_message_count);
-    printf("IMU Last Message Received: \t\t\t%lu ms\n", diagnostic_field.imu_last_message_ms);
+    if(GX5_25 == true){
+      u8 response_buffer[sizeof(gx4_25_diagnostic_device_status_field)];
+      start = clock();
+      while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_25_MODEL_NUMBER, GX4_25_DIAGNOSTICS_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){
+        if (clock() - start > 5000){
+          ROS_INFO("mip_3dm_cmd_hw_specific_device_status function timed out.");
+          break;
+        }
+      }
 
+
+      printf("Model Number: \t\t\t\t\t%04u\n", diagnostic_field.device_model);
+      printf("Status Selector: \t\t\t\t%d\n", diagnostic_field.status_selector);// == 114 ? "Basic Status Report" : "Diagnostic Status Report");
+      printf("Status Flags: \t\t\t\t\t%lu\n", diagnostic_field.status_flags);
+      printf("System Millisecond Timer Count: \t\t%lu ms\n", diagnostic_field.system_timer_ms);
+      printf("IMU Streaming Enabled: \t\t\t\t%s\n", diagnostic_field.imu_stream_enabled == 1 ? "TRUE" : "FALSE");
+      printf("FILTER Streaming Enabled: \t\t\t%s\n", diagnostic_field.filter_stream_enabled == 1 ? "TRUE" : "FALSE");
+      printf("Number of Dropped IMU Packets: \t\t\t%lu packets\n", diagnostic_field.imu_dropped_packets);
+      printf("Number of Dropped FILTER Packets: \t\t%lu packets\n", diagnostic_field.filter_dropped_packets);
+      printf("Communications Port Bytes Written: \t\t%lu Bytes\n", diagnostic_field.com1_port_bytes_written);
+      printf("Communications Port Bytes Read: \t\t%lu Bytes\n", diagnostic_field.com1_port_bytes_read);
+      printf("Communications Port Write Overruns: \t\t%lu Bytes\n", diagnostic_field.com1_port_write_overruns);
+      printf("Communications Port Read Overruns: \t\t%lu Bytes\n", diagnostic_field.com1_port_read_overruns);
+      printf("IMU Parser Errors: \t\t\t\t%lu Errors\n", diagnostic_field.imu_parser_errors);
+      printf("IMU Message Count: \t\t\t\t%lu Messages\n", diagnostic_field.imu_message_count);
+      printf("IMU Last Message Received: \t\t\t%lu ms\n", diagnostic_field.imu_last_message_ms);
+
+    }
     res.success = true;
     return true;
   }
@@ -1556,10 +1595,22 @@ namespace Microstrain
     zero_update_control.enable = req.enable; //enable zero-angular-rate update
 
     //Set ZUPT parameters
-    while(mip_filter_zero_angular_rate_update_control(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &zero_update_control) != MIP_INTERFACE_OK){}
+    start = clock();
+    while(mip_filter_zero_angular_rate_update_control(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &zero_update_control) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_zero_angular_rate_update_control function timed out.");
+        break;
+      }
+    }
 
     //Read back parameter settings
-    while(mip_filter_zero_angular_rate_update_control(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &zero_update_readback) != MIP_INTERFACE_OK){}
+    start = clock();
+    while(mip_filter_zero_angular_rate_update_control(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &zero_update_readback) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_zero_angular_rate_update_control function timed out.");
+        break;
+      }
+    }
 
     if(zero_update_control.enable != zero_update_readback.enable || zero_update_control.threshold != zero_update_readback.threshold)
      ROS_INFO("ERROR configuring Zero Angular Rate Update.\n");
@@ -1579,7 +1630,14 @@ namespace Microstrain
 
     angles[0] = angles[1] = angles[2] = 0;
     int i = req.axis;
-    while(mip_filter_set_init_attitude(&device_interface_, angles) != MIP_INTERFACE_OK){}
+
+    start = clock();
+    while(mip_filter_set_init_attitude(&device_interface_, angles) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_set_init_attitude function timed out.");
+        break;
+      }
+    }
 
       //Wait for Filter to re-establish running state
     Sleep(5000);
@@ -1623,7 +1681,14 @@ namespace Microstrain
   {
     ROS_INFO("Setting Zero Angular-Rate-Update threshold\n");
     //Read back parameter settings
-    while(mip_filter_zero_angular_rate_update_control(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &zero_update_readback) != MIP_INTERFACE_OK){}
+
+    start = clock();
+    while(mip_filter_zero_angular_rate_update_control(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &zero_update_readback) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_zero_angular_rate_update_control function timed out.");
+        break;
+      }
+    }
     ROS_INFO("Enable value set to: %d, Threshold is: %f rad/s", zero_update_readback.enable, zero_update_readback.threshold);
 
     res.success = true;
@@ -1641,7 +1706,7 @@ namespace Microstrain
     start = clock();
     while(mip_filter_accel_noise(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, noise) != MIP_INTERFACE_OK){
       if (clock() - start > 5000){
-        ROS_INFO("mip_filter_estimation_control function timed out.");
+        ROS_INFO("mip_filter_accel_noise function timed out.");
         break;
       }
     }
@@ -1650,7 +1715,7 @@ namespace Microstrain
     start = clock();
     while(mip_filter_accel_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){
       if (clock() - start > 5000){
-        ROS_INFO("mip_filter_estimation_control function timed out.");
+        ROS_INFO("mip_filter_accel_noise function timed out.");
         break;
       }
     }
@@ -1677,7 +1742,7 @@ namespace Microstrain
     start = clock();
     while(mip_filter_accel_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){
       if (clock() - start > 5000){
-        ROS_INFO("mip_filter_estimation_control function timed out.");
+        ROS_INFO("mip_filter_accel_noise function timed out.");
         break;
       }
     }
@@ -1698,7 +1763,7 @@ namespace Microstrain
     start = clock();
     while(mip_filter_gyro_noise(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, noise) != MIP_INTERFACE_OK){
       if (clock() - start > 5000){
-        ROS_INFO("mip_filter_estimation_control function timed out.");
+        ROS_INFO("mip_filter_gyro_noise function timed out.");
         break;
       }
     }
@@ -1707,7 +1772,7 @@ namespace Microstrain
     start = clock();
     while(mip_filter_gyro_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){
       if (clock() - start > 5000){
-        ROS_INFO("mip_filter_estimation_control function timed out.");
+        ROS_INFO("mip_filter_gyro_noise function timed out.");
         break;
       }
     }
@@ -1758,10 +1823,22 @@ namespace Microstrain
     noise[1] = req.noise.y;
     noise[2] = req.noise.z;
 
-    while(mip_filter_mag_noise(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, noise) != MIP_INTERFACE_OK){}
+    start = clock();
+    while(mip_filter_mag_noise(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, noise) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_mag_noise function timed out.");
+        break;
+      }
+    }
 
     //Read back the mag white noise values
-    while(mip_filter_mag_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){}
+    start = clock();
+    while(mip_filter_mag_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_mag_noise function timed out.");
+        break;
+      }
+    }
 
     if((abs(readback_noise[0] - noise[0]) < 0.001) &&
        (abs(readback_noise[1] - noise[1]) < 0.001) &&
@@ -1788,7 +1865,13 @@ namespace Microstrain
       return true;
     }
 
-    while(mip_filter_mag_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){}
+    start = clock();
+    while(mip_filter_mag_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_mag_noise function timed out.");
+        break;
+      }
+    }
     ROS_INFO("Returned values: %f X %f Y %f Z\n", readback_noise[0], readback_noise[1], readback_noise[2]);
 
     res.success = true;
@@ -1861,6 +1944,33 @@ namespace Microstrain
     return true;
   }
 
+  bool Microstrain::get_accel_bias_model(microstrain_3dm::GetAccelBiasModel::Request &req, microstrain_3dm::GetAccelBiasModel::Response &res)
+  {
+    if(GX5_15 == true || GX5_25 == true){
+      ROS_INFO("Device does not support this feature");
+      res.success = false;
+      return true;
+    }
+
+    memset(readback_noise, 0, 3*sizeof(float));
+    memset(readback_beta, 0, 3*sizeof(float));
+
+    start = clock();
+    while(mip_filter_accel_bias_model(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_beta, readback_noise) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_accel_bias_model function timed out.");
+        break;
+      }
+    }
+
+    printf("Returned values:  Beta: %f X %f Y %f Z, White Noise: %f X %f Y %f Z\n", readback_beta[0], readback_beta[1], readback_beta[2],
+ 										   readback_noise[0], readback_noise[1], readback_noise[2]);
+
+    res.success = true;
+    return true;
+  }
+
+
   bool Microstrain::set_accel_bias_model(microstrain_3dm::SetAccelBiasModel::Request &req, microstrain_3dm::SetAccelBiasModel::Response &res)
   {
     if(GX5_15 == true || GX5_25 == true){
@@ -1886,7 +1996,7 @@ namespace Microstrain
     start = clock();
     while(mip_filter_accel_bias_model(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, beta, noise) != MIP_INTERFACE_OK){
       if (clock() - start > 5000){
-        ROS_INFO("mip_filter_sensor2vehicle_offset function timed out.");
+        ROS_INFO("mip_filter_accel_bias_model function timed out.");
         break;
       }
     }
@@ -1895,7 +2005,7 @@ namespace Microstrain
     start = clock();
     while(mip_filter_accel_bias_model(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_beta, readback_noise) != MIP_INTERFACE_OK){
       if (clock() - start > 5000){
-        ROS_INFO("mip_filter_sensor2vehicle_offset function timed out.");
+        ROS_INFO("mip_filter_accel_bias_model function timed out.");
         break;
       }
     }
@@ -2066,6 +2176,31 @@ namespace Microstrain
 
   }
 
+  bool Microstrain::get_mag_dip_adaptive_vals(microstrain_3dm::GetMagDipAdaptiveVals::Request &req, microstrain_3dm::GetMagDipAdaptiveVals::Response &res )
+  {
+    if(GX5_15 == true || GX5_25 == true){
+      ROS_INFO("Device does not support this feature");
+      res.success = false;
+      return true;
+    }
+
+    start = clock();
+    while(mip_filter_mag_dip_angle_error_adaptive_measurement(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &mag_dip_angle_error_readback) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_filter_mag_magnitude_error_adaptive_measurement function timed out.");
+        break;
+      }
+    }
+
+    ROS_INFO("Returned values: Enable: %i, Parameters: %f %f %f %f\n", mag_dip_angle_error_readback.enable,
+                                                                     mag_dip_angle_error_readback.low_pass_cutoff,
+                                     mag_dip_angle_error_readback.min_1sigma,
+                                     mag_dip_angle_error_readback.high_limit,
+                                     mag_dip_angle_error_readback.high_limit_1sigma);
+
+   res.success = true;
+   return true;
+  }
 
   bool Microstrain::set_mag_dip_adaptive_vals(microstrain_3dm::SetMagDipAdaptiveVals::Request &req, microstrain_3dm::SetMagDipAdaptiveVals::Response &res )
   {
@@ -2178,10 +2313,18 @@ namespace Microstrain
      int total_size = 0;
      byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.device_model));
      total_size += sizeof(diagnostic_field.device_model);
+     byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.status_selector));
+     total_size += sizeof(diagnostic_field.status_selector);
      byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.status_flags));
      total_size += sizeof(diagnostic_field.status_flags);
+     byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.system_state));
+     total_size += sizeof(diagnostic_field.system_state);
      byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.system_timer_ms));
      total_size += sizeof(diagnostic_field.system_timer_ms);
+     byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.imu_stream_enabled));
+     total_size += sizeof(diagnostic_field.imu_stream_enabled);
+     byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.filter_stream_enabled));
+     total_size += sizeof(diagnostic_field.filter_stream_enabled);
      byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.imu_dropped_packets));
      total_size += sizeof(diagnostic_field.imu_dropped_packets);
      byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.filter_dropped_packets));
@@ -2202,7 +2345,7 @@ namespace Microstrain
 
      void * struct_pointer;
      struct_pointer = &diagnostic_field;
-
+     total_size = 0;
 
      memcpy(struct_pointer, response_buffer, sizeof(diagnostic_field.device_model));
      total_size += sizeof(diagnostic_field.device_model);
@@ -2210,8 +2353,14 @@ namespace Microstrain
      total_size += sizeof(diagnostic_field.status_selector);
      memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.status_flags));
      total_size += sizeof(diagnostic_field.status_flags);
-     memcpy((struct_pointer +total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.system_timer_ms));
+     memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.system_state));
+     total_size += sizeof(diagnostic_field.system_state);
+     memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.system_timer_ms));
      total_size += sizeof(diagnostic_field.system_timer_ms);
+     memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.imu_stream_enabled));
+     total_size += sizeof(diagnostic_field.imu_stream_enabled);
+     memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.filter_stream_enabled));
+     total_size += sizeof(diagnostic_field.filter_stream_enabled);
      memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.imu_dropped_packets));
      total_size += sizeof(diagnostic_field.imu_dropped_packets);
      memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.filter_dropped_packets));
@@ -2238,6 +2387,25 @@ namespace Microstrain
    return MIP_INTERFACE_OK;
 
   }
+
+
+  bool Microstrain::get_dynamics_mode(microstrain_3dm::GetDynamicsMode::Request &req, microstrain_3dm::GetDynamicsMode::Response &res)
+  {
+    if(GX5_15 == true || GX5_25 == true){
+      ROS_INFO("Device does not support this feature");
+      res.success = false;
+      return true;
+    }
+
+    readback_dynamics_mode = 0;
+    while(mip_filter_vehicle_dynamics_mode(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &readback_dynamics_mode) != MIP_INTERFACE_OK){}
+
+    printf("Vehicle dynamics mode is: %d\n", dynamics_mode);
+
+    res.success = true;
+    return true;
+  }
+
 
   //Only in 45
   bool Microstrain::set_dynamics_mode(microstrain_3dm::SetDynamicsMode::Request &req, microstrain_3dm::SetDynamicsMode::Response &res)
@@ -2326,8 +2494,34 @@ namespace Microstrain
      ROS_INFO("Sent offset:     %f X %f Y %f Z\n", offset[0], offset[1], offset[2]);
      ROS_INFO("Returned offset: %f X %f Y %f Z\n", readback_offset[0], readback_offset[1], readback_offset[2]);
     }
+
+    res.success = true;
+    return true;
   }
 
+  bool Microstrain::get_sensor_vehicle_frame_offset(microstrain_3dm::GetSensorVehicleFrameOffset::Request &req, microstrain_3dm::GetSensorVehicleFrameOffset::Response &res)
+  {
+    if(GX5_15 == true || GX5_25 == true){
+       ROS_INFO("Device does not support this feature");
+       res.success = false;
+       return true;
+     }
+
+     memset(readback_offset, 0, 3*sizeof(float));
+
+     start = clock();
+     while(mip_filter_sensor2vehicle_offset(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_offset) != MIP_INTERFACE_OK){
+       if (clock() - start > 5000){
+         ROS_INFO("mip_filter_sensor2vehicle_offset function timed out.");
+         break;
+       }
+     }
+
+     ROS_INFO("Returned offset: %f X %f Y %f Z\n", readback_offset[0], readback_offset[1], readback_offset[2]);
+
+     res.success = true;
+     return true;
+  }
 
   void Microstrain::filter_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type)
   {

@@ -73,6 +73,7 @@ extern "C" {
 #include "microstrain_3dm/SetAccelAdaptiveVals.h"
 #include "microstrain_3dm/SetSensorVehicleFrameTrans.h"
 #include "microstrain_3dm/SetSensorVehicleFrameOffset.h"
+#include "microstrain_3dm/GetSensorVehicleFrameOffset.h"
 #include "microstrain_3dm/GetSensorVehicleFrameTrans.h"
 #include "microstrain_3dm/GetComplementaryFilter.h"
 #include "microstrain_3dm/SetReferencePosition.h"
@@ -82,6 +83,7 @@ extern "C" {
 #include "microstrain_3dm/SetEstimationControlFlags.h"
 #include "microstrain_3dm/GetEstimationControlFlags.h"
 #include "microstrain_3dm/SetDynamicsMode.h"
+#include "microstrain_3dm/GetDynamicsMode.h"
 #include "microstrain_3dm/GetBasicStatus.h"
 #include "microstrain_3dm/GetDiagnosticReport.h"
 #include "microstrain_3dm/SetZeroAngleUpdateThreshold.h"
@@ -99,6 +101,8 @@ extern "C" {
 #include "microstrain_3dm/SetMagAdaptiveVals.h"
 #include "microstrain_3dm/GetMagAdaptiveVals.h"
 #include "microstrain_3dm/SetMagDipAdaptiveVals.h"
+#include "microstrain_3dm/GetMagDipAdaptiveVals.h"
+#include "microstrain_3dm/GetAccelBiasModel.h"
 
 
 #define MIP_SDK_GX4_45_IMU_STANDARD_MODE	0x01
@@ -188,6 +192,8 @@ namespace Microstrain
 
     bool set_sensor_vehicle_frame_offset(microstrain_3dm::SetSensorVehicleFrameOffset::Request &req, microstrain_3dm::SetSensorVehicleFrameOffset::Response &res);
 
+    bool get_sensor_vehicle_frame_offset(microstrain_3dm::GetSensorVehicleFrameOffset::Request &req, microstrain_3dm::GetSensorVehicleFrameOffset::Response &res);
+
     bool set_reference_position(microstrain_3dm::SetReferencePosition::Request &req, microstrain_3dm::SetReferencePosition::Response &res);
 
     bool get_reference_position(microstrain_3dm::GetReferencePosition::Request &req, microstrain_3dm::GetReferencePosition::Response &res);
@@ -201,6 +207,8 @@ namespace Microstrain
     bool get_estimation_control_flags(microstrain_3dm::GetEstimationControlFlags::Request &req, microstrain_3dm::GetEstimationControlFlags::Response &res);
 
     bool set_dynamics_mode(microstrain_3dm::SetDynamicsMode::Request &req, microstrain_3dm::SetDynamicsMode::Response &res);
+
+    bool get_dynamics_mode(microstrain_3dm::GetDynamicsMode::Request &req, microstrain_3dm::GetDynamicsMode::Response &res);
 
     bool get_basic_status(microstrain_3dm::GetBasicStatus::Request &req, microstrain_3dm::GetBasicStatus::Response &res);
 
@@ -237,6 +245,10 @@ namespace Microstrain
     bool get_mag_adaptive_vals(microstrain_3dm::GetMagAdaptiveVals::Request &req, microstrain_3dm::GetMagAdaptiveVals::Response &res );
 
     bool set_mag_dip_adaptive_vals(microstrain_3dm::SetMagDipAdaptiveVals::Request &req, microstrain_3dm::SetMagDipAdaptiveVals::Response &res );
+
+    bool get_mag_dip_adaptive_vals(microstrain_3dm::GetMagDipAdaptiveVals::Request &req, microstrain_3dm::GetMagDipAdaptiveVals::Response &res );
+
+    bool get_accel_bias_model(microstrain_3dm::GetAccelBiasModel::Request &req, microstrain_3dm::GetAccelBiasModel::Response &res);
 
 
 

@@ -15,13 +15,14 @@ add_service_files(
   SetAccelBiasModel.srv
   SetAccelAdaptiveVals.srv
   SetSensorVehicleFrameTrans.srv
+  GetSensorVehicleFrameTrans.srv
   SetSensorVehicleFrameOffset.srv
+  GetSensorVehicleFrameOffset.srv
   GetAccelBias.srv
   GetGyroBias.srv
   GetHardIronValues.srv
   GetSoftIronMatrix.srv
   GetComplementaryFilter.srv
-  GetSensorVehicleFrameTrans.srv
   SetReferencePosition.srv
   GetReferencePosition.srv
   SetConingScullingComp.srv
@@ -29,6 +30,7 @@ add_service_files(
   SetEstimationControlFlags.srv
   GetEstimationControlFlags.srv
   SetDynamicsMode.srv
+  GetDynamicsMode.srv
   GetBasicStatus.srv
   GetDiagnosticReport.srv
   SetZeroAngleUpdateThreshold.srv
@@ -47,6 +49,8 @@ add_service_files(
   SetMagAdaptiveVals.srv
   GetMagAdaptiveVals.srv
   SetMagDipAdaptiveVals.srv
+  GetMagDipAdaptiveVals.srv
+  GetAccelBiasModel.srv
 )
 
 add_message_files(
@@ -205,6 +209,8 @@ add_executable(get_sensor_vehicle_frame_trans_client src/get_sensor_vehicle_fram
 
 add_executable(set_sensor_vehicle_frame_offset_client src/set_sensor_vehicle_frame_offset_client.cpp)
 
+add_executable(get_sensor_vehicle_frame_offset_client src/get_sensor_vehicle_frame_offset_client.cpp)
+
 add_executable(set_reference_position_client src/set_reference_position_client.cpp)
 
 add_executable(get_reference_position_client src/get_reference_position_client.cpp)
@@ -218,6 +224,8 @@ add_executable(set_estimation_control_flags_client src/set_estimation_control_fl
 add_executable(get_estimation_control_flags_client src/get_estimation_control_flags_client.cpp)
 
 add_executable(set_dynamics_mode_client src/set_dynamics_mode_client.cpp)
+
+add_executable(get_dynamics_mode_client src/get_dynamics_mode_client.cpp)
 
 add_executable(get_basic_status_client src/get_basic_status_client.cpp)
 
@@ -252,6 +260,10 @@ add_executable(set_mag_adaptive_vals_client src/set_mag_adaptive_vals_client.cpp
 add_executable(get_mag_adaptive_vals_client src/get_mag_adaptive_vals_client.cpp)
 
 add_executable(set_mag_dip_adaptive_vals_client src/set_mag_dip_adaptive_vals_client.cpp)
+
+add_executable(get_mag_dip_adaptive_vals_client src/get_mag_dip_adaptive_vals_client.cpp)
+
+add_executable(get_accel_bias_model_client src/get_accel_bias_model_client.cpp)
 
 add_dependencies(set_accel_bias_client microstrain_3dm_gencpp)
 
@@ -289,6 +301,8 @@ add_dependencies(get_sensor_vehicle_frame_trans_client microstrain_3dm_gencpp)
 
 add_dependencies(set_sensor_vehicle_frame_offset_client microstrain_3dm_gencpp)
 
+add_dependencies(get_sensor_vehicle_frame_offset_client microstrain_3dm_gencpp)
+
 add_dependencies(set_reference_position_client microstrain_3dm_gencpp)
 
 add_dependencies(get_reference_position_client microstrain_3dm_gencpp)
@@ -302,6 +316,8 @@ add_dependencies(set_estimation_control_flags_client microstrain_3dm_gencpp)
 add_dependencies(get_estimation_control_flags_client microstrain_3dm_gencpp)
 
 add_dependencies(set_dynamics_mode_client microstrain_3dm_gencpp)
+
+add_dependencies(get_dynamics_mode_client microstrain_3dm_gencpp)
 
 add_dependencies(get_basic_status_client microstrain_3dm_gencpp)
 
@@ -336,6 +352,10 @@ add_dependencies(set_mag_adaptive_vals_client microstrain_3dm_gencpp)
 add_dependencies(get_mag_adaptive_vals_client microstrain_3dm_gencpp)
 
 add_dependencies(set_mag_dip_adaptive_vals_client microstrain_3dm_gencpp)
+
+add_dependencies(get_mag_dip_adaptive_vals_client microstrain_3dm_gencpp)
+
+add_dependencies(get_accel_bias_model_client microstrain_3dm_gencpp)
 
 
 # Linking
@@ -387,6 +407,8 @@ target_link_libraries(get_sensor_vehicle_frame_trans_client ${catkin_LIBRARIES})
 
 target_link_libraries(set_sensor_vehicle_frame_offset_client ${catkin_LIBRARIES})
 
+target_link_libraries(get_sensor_vehicle_frame_offset_client ${catkin_LIBRARIES})
+
 target_link_libraries(set_reference_position_client ${catkin_LIBRARIES})
 
 target_link_libraries(get_reference_position_client ${catkin_LIBRARIES})
@@ -400,6 +422,8 @@ target_link_libraries(set_estimation_control_flags_client ${catkin_LIBRARIES})
 target_link_libraries(get_estimation_control_flags_client ${catkin_LIBRARIES})
 
 target_link_libraries(set_dynamics_mode_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_dynamics_mode_client ${catkin_LIBRARIES})
 
 target_link_libraries(get_basic_status_client ${catkin_LIBRARIES})
 
@@ -434,6 +458,10 @@ target_link_libraries(set_mag_adaptive_vals_client ${catkin_LIBRARIES})
 target_link_libraries(get_mag_adaptive_vals_client ${catkin_LIBRARIES})
 
 target_link_libraries(set_mag_dip_adaptive_vals_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_mag_dip_adaptive_vals_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_accel_bias_model_client ${catkin_LIBRARIES})
 
 
 
