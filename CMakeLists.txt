@@ -64,15 +64,16 @@ add_message_files(
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  diagnostic_updater
+  geometry_msgs
+  message_generation
+  nav_msgs
   roscpp
-  tf2
-  tf2_ros
+  sensor_msgs
   std_msgs
   std_srvs
-  geometry_msgs
-  sensor_msgs
-  nav_msgs
-  message_generation
+  tf2
+  tf2_ros
 )
 
 set(CMAKE_C_FLAGS "-Wno-implicit-function-declaration -Wno-incompatible-pointer-types -Wno-format -fno-builtin-memcpy")
@@ -161,16 +162,19 @@ add_library(microstrain_3dm
   ${MIPSRC}
 )
 
+add_library(microstrain_diagnostic_updater src/microstrain_diagnostic_updater.cpp)
+
 # Executables
 add_executable(GX4-45_Test
   src/GX4-45_Test.c
   src/mip_sdk_user_functions.c
   ${MIPSRC}
 )
+
 add_executable(microstrain_3dm_node
   src/microstrain_3dm_node.cpp
+  src/microstrain_diagnostic_updater.cpp
 )
-
 add_executable(set_accel_bias_client src/set_accel_bias_client.cpp)
 
 add_executable(get_accel_bias_client src/get_accel_bias_client.cpp)
@@ -264,6 +268,8 @@ add_executable(set_mag_dip_adaptive_vals_client src/set_mag_dip_adaptive_vals_cl
 add_executable(get_mag_dip_adaptive_vals_client src/get_mag_dip_adaptive_vals_client.cpp)
 
 add_executable(get_accel_bias_model_client src/get_accel_bias_model_client.cpp)
+
+add_dependencies(set_accel_bias_client microstrain_3dm_gencpp)
 
 add_dependencies(set_accel_bias_client microstrain_3dm_gencpp)
 
@@ -368,6 +374,7 @@ target_link_libraries(microstrain_3dm_node
   microstrain_3dm
   ${catkin_LIBRARIES}
 )
+
 
 target_link_libraries(set_accel_bias_client ${catkin_LIBRARIES})
 

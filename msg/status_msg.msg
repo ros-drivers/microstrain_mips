@@ -1,5 +1,22 @@
-uint16 model_num
-uint8 selector
-uint32 flags
-uint16 sys_state
-uint32 sys_timer 
+uint16 device_model
+uint8  status_selector
+
+uint32 status_flags
+
+uint16 system_state
+uint32 system_timer_ms
+
+uint8 imu_stream_enabled
+uint8 filter_stream_enabled
+
+uint32 imu_dropped_packets
+uint32 filter_dropped_packets
+
+uint32 com1_port_bytes_written
+uint32 com1_port_bytes_read
+uint32 com1_port_write_overruns
+uint32 com1_port_read_overruns
+
+uint32 imu_parser_errors
+uint32 imu_message_count
+uint32 imu_last_message_ms

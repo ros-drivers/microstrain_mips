@@ -1,0 +1,45 @@
+analyzers:
+  microstrain_3dm_node:
+    type: diagnostic_aggregator/AnalyzerGroup
+    path: microstrain_3dm_node
+    analyzers:
+      general:
+        type: diagnostic_aggregator/GenericAnalyzer
+        path: general
+        remove_prefix: 'microstrain_3dm_node'
+        timeout: 5.0
+        expected: [
+          'microstrain_3dm_node: Device Model',
+          'microstrain_3dm_node: Status Selector',
+          'microstrain_3dm_node: Status Flags',
+          'microstrain_3dm_node: System State',
+          'microstrain_3dm_node: System Timer ms',
+          'microstrain_3dm_node: IMU Stream Enabled',
+          'microstrain_3dm_node: Filter Stream Enabled']
+        packet:
+          type: diagnostic_aggregator/GenericAnalyzer
+          path: packet
+          remove_prefix: 'microstrain_3dm_node'
+          timeout: 5.0
+          expected: [
+          'microstrain_3dm_node: IMU Dropped Packets',
+          'microstrain_3dm_node: Filter Dropped Packets']
+        port:
+          type: diagnostic_aggregator/GenericAnalyzer
+          path: port
+          remove_prefix: 'microstrain_3dm_node'
+          timeout: 5.0
+          expected: [
+           'microstrain_3dm_node: COM1 Port Bytes Written',
+           'microstrain_3dm_node: COM1 Port Bytes Read',
+           'microstrain_3dm_node: COM1 Port Write Overruns',
+           'microstrain_3dm_node: COM1 Port Read Overruns']
+        imu:
+          type: diagnostic_aggregator/GenericAnalyzer
+          path: microstrain_3dm_node
+          remove_prefix: 'microstrain_3dm_node'
+          timeout: 5.0
+          expected: [
+            'microstrain_3dm_node: IMU Parser Errors',
+            'microstrain_3dm_node: IMU Message Count',
+            'microstrain_3dm_node: IMU Last Message ms']
