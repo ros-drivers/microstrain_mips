@@ -987,24 +987,27 @@ u16 mip_interface_send_preformatted_command_with_response(mip_interface *device_
  //Null-check inputs
  if((device_interface == NULL) ||(command == NULL) || (command_size == 0))
  {
+  printf("null or command = 0 \n");
   return MIP_INTERFACE_ERROR;
  }
 
  //Send the packet
  if(mip_sdk_port_write(device_interface->port_handle, command, command_size, &bytes_written, timeout_ms) != MIP_INTERFACE_OK){
+  printf("write command failed \n");
   return MIP_INTERFACE_ERROR;
 }
 
  //Set the command set and descriptor information
  command_set        = header_ptr->descriptor_set;
 
+
  if(mip_get_first_field(command, &field_header_ptr, &field_data_ptr, &field_offset) != MIP_OK)
  {
+  printf("get first field failed \n");
   return MIP_INTERFACE_ERROR;
  }
 
  command_descriptor = field_header_ptr->descriptor;
-
 
  //Wait for the response from the device
  return_code = __mip_interface_wait_for_response(device_interface, command_set, command_descriptor,
@@ -1015,7 +1018,8 @@ u16 mip_interface_send_preformatted_command_with_response(mip_interface *device_
    printf("ERROR: Return code is: %d \n", return_code);
  }
    if (acknack_response != MIP_ACK_NACK_ERROR_NONE){
-   printf("ERROR: acknack response is %d \n", acknack_response);
+   //printf("ERROR: acknack response is %d \n", acknack_response);
+   return MIP_INTERFACE_ERROR;
  }
   return MIP_INTERFACE_ERROR;
 }

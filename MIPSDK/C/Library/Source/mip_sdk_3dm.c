@@ -1532,7 +1532,6 @@ u16 mip_3dm_cmd_device_status(mip_interface *device_interface, u16 model_number,
  u16 *short_ptr;
  u16 user_buffer_size = *response_size;
 
-
  //Fill-in the command data
  short_ptr       = (u16*)&command_data[0];
  *short_ptr      = model_number;
@@ -1547,22 +1546,20 @@ u16 mip_3dm_cmd_device_status(mip_interface *device_interface, u16 model_number,
  }
 
  //Intialize the response size
- *response_size = 0;
+ //*response_size = 0;
 
  return_code = mip_interface_send_command_with_response(device_interface, MIP_3DM_COMMAND_SET, MIP_3DM_CMD_DEVICE_STATUS, command_data,
                                                         3, &response_data, &response_data_size, MIP_INTERFACE_DEFAULT_COMMAND_RESPONSE_TIMEOUT_MS);
-
 
  //Copy the data to the provided buffer on success if present
  if((return_code == MIP_INTERFACE_OK) && (response_data != NULL))
  {
   field_header_ptr = (mip_field_header*)response_data;
-
   if((field_header_ptr->size - sizeof(mip_field_header)) <= user_buffer_size)
   {
    memcpy(response_buffer, response_data + sizeof(mip_field_header), field_header_ptr->size - sizeof(mip_field_header));
    *response_size = field_header_ptr->size - sizeof(mip_field_header);
-   //printf("Response size is: %d, field header size is %d, user buffer size is %d\n", response_data_size, field_header_ptr->size, user_buffer_size);
+
   }
   else
   {

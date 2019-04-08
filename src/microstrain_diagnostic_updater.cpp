@@ -9,7 +9,7 @@
 namespace microstrain_3dm
 {
 
-RosDiagnosticUpdater::RosDiagnosticUpdater()
+RosDiagnosticUpdater::RosDiagnosticUpdater(Microstrain::Microstrain *device)
 {
   setHardwareID("unknown");
   add("general", this, &RosDiagnosticUpdater::generalDiagnostics);
@@ -17,9 +17,10 @@ RosDiagnosticUpdater::RosDiagnosticUpdater()
   add("port", this, &RosDiagnosticUpdater::portDiagnostics);
   add("imu", this, &RosDiagnosticUpdater::imuDiagnostics);
 
-  if(Microstrain::Microstrain::GX5_45 == true){
+  /*if(device->get_model_gps()){
     add("gps", this, &RosDiagnosticUpdater::gpsDiagnostics);
-  }
+    GPS = true;
+  }*/
 
 
   status_sub_ = nh_.subscribe("device/status", 5, &RosDiagnosticUpdater::statusCallback, this);
@@ -36,9 +37,9 @@ void RosDiagnosticUpdater::generalDiagnostics(diagnostic_updater::DiagnosticStat
   stat.add("IMU Stream Enabled", last_status_->imu_stream_enabled);
   stat.add("Filter Stream Enabled", last_status_->filter_stream_enabled);
 
-  if(Microstrain::Microstrain::GX5_45 == true){
+  /*if(GPS){
     stat.add("GPS Stream Enabled", last_status_->gps_stream_enabled);
-  }
+  }*/
 
   if (last_status_->status_flags > 0)
   {
@@ -56,13 +57,13 @@ void RosDiagnosticUpdater::packetDiagnostics(diagnostic_updater::DiagnosticStatu
   stat.add("IMU Dropped Packets", last_status_->imu_dropped_packets);
   stat.add("Filter Dropped Packets", last_status_->filter_dropped_packets);
 
-  if(Microstrain::Microstrain::GX5_45){
+  /*if(GPS){
     stat.add("GPS Dropped Packets", last_status_->gps_dropped_packets);
 
     if(last_status_->gps_dropped_packets > 0){
       stat.summary(diagnostic_msgs::DiagnosticStatus::WARN, "Packets dropped");
     }
-  }
+  }*/
 
   if (last_status_->imu_dropped_packets > 0 || last_status_->filter_dropped_packets > 0)
   {
@@ -107,7 +108,7 @@ void RosDiagnosticUpdater::imuDiagnostics(diagnostic_updater::DiagnosticStatusWr
   }
 }
 
-void RosDiagnosticUpdater::gpsDiagnostics(diagnostic_updater::DiagnosticStatusWrapper &stat)
+/*void RosDiagnosticUpdater::gpsDiagnostics(diagnostic_updater::DiagnosticStatusWrapper &stat)
 {
   stat.add("GPS Power On", last_status_->gps_power_on);
   stat.add("GPS PPS Triggers", last_status_->num_gps_pps_triggers);
@@ -124,7 +125,7 @@ void RosDiagnosticUpdater::gpsDiagnostics(diagnostic_updater::DiagnosticStatusWr
   {
     stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "No GPS parser errors");
   }
-}
+}*/
 
 void RosDiagnosticUpdater::statusCallback(const microstrain_3dm::status_msg status)
 {

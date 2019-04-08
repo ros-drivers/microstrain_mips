@@ -252,7 +252,14 @@ namespace Microstrain
 
     bool get_accel_bias_model(microstrain_3dm::GetAccelBiasModel::Request &req, microstrain_3dm::GetAccelBiasModel::Response &res);
 
-    static bool GX5_45;
+    bool get_model_gps()
+    {
+      if (Microstrain::GX5_45 || Microstrain::GX5_35)
+        return true;
+      else
+        return false;
+    }
+
 
   private:
   //! @brief Reset KF service callback
@@ -331,7 +338,7 @@ namespace Microstrain
   bool GX5_15;
   bool GX5_25;
   bool GX5_35;
-
+  bool GX5_45;
   bool GQX_45;
   bool RQX_45;
   bool CXX_45;

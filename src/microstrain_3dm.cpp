@@ -377,19 +377,6 @@ namespace Microstrain
       }
       ros::Duration(dT).sleep();
 
-    /*if(GX5_45 == true){
-        gps_source = 1;
-
-        start = clock();
-        while(mip_filter_gps_source(&device_interface_, MIP_FUNCTION_SELECTOR_WRITE, &gps_source) != MIP_INTERFACE_OK){
-          if (clock() - start > 5000){
-            ROS_INFO("mip_3dm_cmd_get_ahrs_base_rate function timed out.");
-            break;
-          }
-        }
-        ROS_INFO("Set gps source");
-      }*/
-
       // AHRS Setup
       // Get base rate
       if (publish_imu_){
@@ -800,7 +787,7 @@ namespace Microstrain
     ROS_INFO("Setting spin rate to <%d>",spin_rate);
     ros::Rate r(spin_rate);  // Rate in Hz
 
-    microstrain_3dm::RosDiagnosticUpdater ros_diagnostic_updater;
+    microstrain_3dm::RosDiagnosticUpdater ros_diagnostic_updater(this);
 
     while (ros::ok()){
       //Update the parser (this function reads the port and parses the bytes
@@ -2620,18 +2607,17 @@ namespace Microstrain
 
        return MIP_INTERFACE_OK;
    }
-   else if(GX5_45)
+   /*else if(GX5_45)
    {
      gx4_45_basic_status_field *basic_ptr;
      gx4_45_diagnostic_device_status_field *diagnostic_ptr;
      u16 response_size = MIP_FIELD_HEADER_SIZE;
-
      //Set response size based on device model and whether basic or diagnostic status is chosen
      if(status_selector == GX4_45_BASIC_STATUS_SEL)
       response_size += sizeof(gx4_45_basic_status_field);
-     else if(status_selector == GX4_45_DIAGNOSTICS_STATUS_SEL)
+     else if(status_selector == GX4_45_DIAGNOSTICS_STATUS_SEL){
       response_size += sizeof(gx4_45_diagnostic_device_status_field);
-
+      }
      while(mip_3dm_cmd_device_status(device_interface, model_number, status_selector, response_buffer, &response_size) != MIP_INTERFACE_OK){}
 
      if(status_selector == GX4_45_BASIC_STATUS_SEL)
@@ -2663,12 +2649,10 @@ namespace Microstrain
      }
      else if(status_selector == GX4_45_DIAGNOSTICS_STATUS_SEL)
      {
-
       if(response_size != sizeof(gx4_45_diagnostic_device_status_field)){
        return MIP_INTERFACE_ERROR;
      }
       else if(MIP_SDK_CONFIG_BYTESWAP){
-
        //byteswap and copy response to diagnostic status struct
        total_size = 0;
        byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.device_model));
@@ -2775,7 +2759,7 @@ namespace Microstrain
       return MIP_INTERFACE_ERROR;
 
      return MIP_INTERFACE_OK;
-   }
+   }*/
 
  }
 
@@ -3052,7 +3036,7 @@ void Microstrain::device_status_callback()
         break;
       }
     }
-
+  ROS_INFO("9");
   device_status_msg_.device_model = diagnostic_field_45.device_model;
   device_status_msg_.status_selector =  diagnostic_field_45.status_selector;
   device_status_msg_.status_flags = diagnostic_field_45.status_flags;
@@ -3077,6 +3061,7 @@ void Microstrain::device_status_callback()
   device_status_msg_.gps_parser_errors =  diagnostic_field_45.gps_parser_errors;
   device_status_msg_.gps_message_count = diagnostic_field_45.gps_message_count;
   device_status_msg_.gps_last_message_ms = diagnostic_field_45.gps_last_message_ms;
+  ROS_INFO("10");
 }
 
   device_status_pub_.publish(device_status_msg_);
