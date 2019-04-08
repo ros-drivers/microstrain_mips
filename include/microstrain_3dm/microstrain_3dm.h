@@ -120,6 +120,8 @@ extern "C" {
 #define GX5_25_DEVICE "3DM-GX5-25"
 #define GX5_15_DEVICE "3DM-GX5-15"
 
+
+
 /**
  * \brief Contains functions for micostrain driver
  */
@@ -250,7 +252,7 @@ namespace Microstrain
 
     bool get_accel_bias_model(microstrain_3dm::GetAccelBiasModel::Request &req, microstrain_3dm::GetAccelBiasModel::Response &res);
 
-
+    static bool GX5_45;
 
   private:
   //! @brief Reset KF service callback
@@ -329,7 +331,7 @@ namespace Microstrain
   bool GX5_15;
   bool GX5_25;
   bool GX5_35;
-  bool GX5_45;
+
   bool GQX_45;
   bool RQX_45;
   bool CXX_45;
@@ -373,6 +375,8 @@ namespace Microstrain
   gx4_25_basic_status_field basic_field;
   gx4_imu_diagnostic_device_status_field imu_diagnostic_field;
   gx4_25_diagnostic_device_status_field diagnostic_field;
+  gx4_45_basic_status_field basic_field_45;
+  gx4_45_diagnostic_device_status_field diagnostic_field_45;
   mip_complementary_filter_settings comp_filter_command, comp_filter_readback;
   mip_filter_accel_magnitude_error_adaptive_measurement_command accel_magnitude_error_command, accel_magnitude_error_readback;
   mip_filter_magnetometer_magnitude_error_adaptive_measurement_command mag_magnitude_error_command, mag_magnitude_error_readback;

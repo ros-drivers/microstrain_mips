@@ -355,19 +355,15 @@ namespace Microstrain
       model_name = model_name.c_str();
       if(model_name == GX5_45_DEVICE){
         GX5_45 = true;
-        ROS_INFO("45");
       }
       if(model_name == GX5_35_DEVICE){
         GX5_35 = true;
-        ROS_INFO("35");
       }
       if(model_name == GX5_25_DEVICE){
         GX5_25 = true;
-        ROS_INFO("25");
       }
       if(model_name == GX5_15_DEVICE){
         GX5_15 = true;
-        ROS_INFO("15");
       }
 
       // Put into idle mode
@@ -1561,7 +1557,7 @@ namespace Microstrain
     {
 
       //Use the basic status struct for the GX-25
-      if(GX5_25 == true){
+      if(GX5_25){
         u8 response_buffer[sizeof(gx4_25_basic_status_field)];
         start = clock();
         while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_25_MODEL_NUMBER, GX4_25_BASIC_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){
@@ -1570,12 +1566,23 @@ namespace Microstrain
             break;
           }
         }
+      }
+      else if(GX5_45){
+        u8 response_buffer[sizeof(gx4_45_basic_status_field)];
+        start = clock();
+        while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_45_MODEL_NUMBER, GX4_45_BASIC_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){
+          if (clock() - start > 5000){
+            ROS_INFO("mip_3dm_cmd_hw_specific_device_status function timed out.");
+            break;
+          }
+        }
+      }
         printf("Model Number: \t\t\t\t\t%04u\n", basic_field.device_model);
         printf("Status Selector: \t\t\t\t%d\n", basic_field.status_selector);// == GX4_25_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
         printf("Status Flags: \t\t\t\t\t%lu\n", basic_field.status_flags);
         printf("System state: \t\t\t\t\t%04u\n", basic_field.system_state);
         printf("System Microsecond Timer Count: \t\t%lu ms\n\n", basic_field.system_timer_ms);
-      }
+
 
       res.success = true;
       return true;
@@ -1595,7 +1602,6 @@ namespace Microstrain
           }
         }
 
-
         printf("Model Number: \t\t\t\t\t%04u\n", diagnostic_field.device_model);
         printf("Status Selector: \t\t\t\t%d\n", diagnostic_field.status_selector);// == 114 ? "Basic Status Report" : "Diagnostic Status Report");
         printf("Status Flags: \t\t\t\t\t%lu\n", diagnostic_field.status_flags);
@@ -1612,6 +1618,40 @@ namespace Microstrain
         printf("IMU Message Count: \t\t\t\t%lu Messages\n", diagnostic_field.imu_message_count);
         printf("IMU Last Message Received: \t\t\t%lu ms\n", diagnostic_field.imu_last_message_ms);
 
+      }
+
+      else if(GX5_45){
+        u8 response_buffer[sizeof(gx4_45_diagnostic_device_status_field)];
+        start = clock();
+        while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_45_MODEL_NUMBER, GX4_45_DIAGNOSTICS_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){
+          if (clock() - start > 5000){
+            ROS_INFO("mip_3dm_cmd_hw_specific_device_status function timed out.");
+            break;
+          }
+        }
+        printf("Model Number: \t\t\t\t\t%04u\n", diagnostic_field_45.device_model);
+        printf("Status Selector: \t\t\t\t%s\n", diagnostic_field_45.status_selector == GX4_45_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
+        printf("Status Flags: \t\t\t\t\t0x%08x\n", diagnostic_field_45.status_flags);
+        printf("System Millisecond Timer Count: \t\t%llu ms\n", diagnostic_field_45.system_timer_ms);
+        printf("GPS Power On: \t\t%llu ms\n", diagnostic_field_45.gps_power_on);
+        printf("Number Received GPS Pulse-Per-Second Pulses: \t%u Pulses\n", diagnostic_field_45.num_gps_pps_triggers);
+        printf("Time of Last GPS Pulse-Per-Second Pulse: \t%u ms\n", diagnostic_field_45.last_gps_pps_trigger_ms);
+        printf("IMU Streaming Enabled: \t\t\t\t%s\n", diagnostic_field_45.imu_stream_enabled == 1 ? "TRUE" : "FALSE");
+        printf("GPS Streaming Enabled: \t\t\t\t%s\n", diagnostic_field_45.gps_stream_enabled == 1 ? "TRUE" : "FALSE");
+        printf("FILTER Streaming Enabled: \t\t\t\t%s\n", diagnostic_field_45.filter_stream_enabled == 1 ? "TRUE" : "FALSE");
+        printf("Number of Dropped IMU Packets: \t\t\t%u packets\n", diagnostic_field_45.imu_dropped_packets);
+        printf("Number of Dropped GPS Packets: \t\t\t%u packets\n", diagnostic_field_45.gps_dropped_packets);
+        printf("Number of Dropped FILTER Packets: \t\t\t%u packets\n", diagnostic_field_45.filter_dropped_packets);
+        printf("Communications Port Bytes Written: \t\t%u Bytes\n", diagnostic_field_45.com1_port_bytes_written);
+        printf("Communications Port Bytes Read: \t\t%u Bytes\n", diagnostic_field_45.com1_port_bytes_read);
+        printf("Communications Port Write Overruns: \t\t%u Bytes\n", diagnostic_field_45.com1_port_write_overruns);
+        printf("Communications Port Read Overruns: \t\t%u Bytes\n", diagnostic_field_45.com1_port_read_overruns);
+        printf("IMU Parser Errors: \t\t\t\t%u Errors\n", diagnostic_field_45.imu_parser_errors);
+        printf("IMU Message Count: \t\t\t\t%u Messages\n", diagnostic_field_45.imu_message_count);
+        printf("IMU Last Message Received: \t\t\t%u ms\n", diagnostic_field_45.imu_last_message_ms);
+        printf("GPS Parser Errors: \t\t\t\t%u Errors\n", diagnostic_field_45.gps_parser_errors);
+        printf("GPS Message Count: \t\t\t\t%u Messages\n", diagnostic_field_45.gps_message_count);
+        printf("GPS Last Message Received: \t\t\t%u ms\n", diagnostic_field_45.gps_last_message_ms);
       }
       res.success = true;
       return true;
@@ -2454,131 +2494,290 @@ namespace Microstrain
     //Get basic or diagnostic status of device. calle by basic and diagnostic services.
     u16 Microstrain::mip_3dm_cmd_hw_specific_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer)
     {
-     gx4_25_basic_status_field *basic_ptr;
-     gx4_25_diagnostic_device_status_field *diagnostic_ptr;
+     int total_size = 0;
+     if(GX5_25)
+     {
+       gx4_25_basic_status_field *basic_ptr;
+       gx4_25_diagnostic_device_status_field *diagnostic_ptr;
+       u16 response_size = MIP_FIELD_HEADER_SIZE;
+
+       //Set response size based on device model and whether basic or diagnostic status is chosen
+       if(status_selector == GX4_25_BASIC_STATUS_SEL)
+        response_size += sizeof(gx4_25_basic_status_field);
+       else if(status_selector == GX4_25_DIAGNOSTICS_STATUS_SEL)
+        response_size += sizeof(gx4_25_diagnostic_device_status_field);
+
+       while(mip_3dm_cmd_device_status(device_interface, model_number, status_selector, response_buffer, &response_size) != MIP_INTERFACE_OK){}
+
+       if(status_selector == GX4_25_BASIC_STATUS_SEL)
+       {
+        if(response_size != sizeof(gx4_25_basic_status_field)){
+         return MIP_INTERFACE_ERROR;
+        }
+        else if(MIP_SDK_CONFIG_BYTESWAP){
+
+         //Perform byteswapping
+         byteswap_inplace(&response_buffer[0], sizeof(basic_field.device_model));
+         byteswap_inplace(&response_buffer[2], sizeof(basic_field.status_selector));
+         byteswap_inplace(&response_buffer[3], sizeof(basic_field.status_flags));
+         byteswap_inplace(&response_buffer[7], sizeof(basic_field.system_state));
+         byteswap_inplace(&response_buffer[9], sizeof(basic_field.system_timer_ms));
+        }
+         void * struct_pointer;
+         struct_pointer = &basic_field;
+
+         //Copy response from response buffer to basic status struct
+         memcpy(struct_pointer, response_buffer, sizeof(basic_field.device_model));
+         memcpy((struct_pointer+2), &(response_buffer[2]), sizeof(basic_field.status_selector));
+         memcpy((struct_pointer+3), &(response_buffer[3]), sizeof(basic_field.status_flags));
+         memcpy((struct_pointer+7), &(response_buffer[7]), sizeof(basic_field.system_state));
+         memcpy((struct_pointer+9), &(response_buffer[9]), sizeof(basic_field.system_timer_ms));
+
+
+
+       }
+       else if(status_selector == GX4_25_DIAGNOSTICS_STATUS_SEL)
+       {
+
+        if(response_size != sizeof(gx4_25_diagnostic_device_status_field)){
+         return MIP_INTERFACE_ERROR;
+       }
+        else if(MIP_SDK_CONFIG_BYTESWAP){
+
+         //byteswap and copy response to diagnostic status struct
+         byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.device_model));
+         total_size += sizeof(diagnostic_field.device_model);
+         byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.status_selector));
+         total_size += sizeof(diagnostic_field.status_selector);
+         byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.status_flags));
+         total_size += sizeof(diagnostic_field.status_flags);
+         byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.system_state));
+         total_size += sizeof(diagnostic_field.system_state);
+         byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.system_timer_ms));
+         total_size += sizeof(diagnostic_field.system_timer_ms);
+         byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.imu_stream_enabled));
+         total_size += sizeof(diagnostic_field.imu_stream_enabled);
+         byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.filter_stream_enabled));
+         total_size += sizeof(diagnostic_field.filter_stream_enabled);
+         byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.imu_dropped_packets));
+         total_size += sizeof(diagnostic_field.imu_dropped_packets);
+         byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.filter_dropped_packets));
+         total_size += sizeof(diagnostic_field.filter_dropped_packets);
+         byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.com1_port_bytes_written));
+         total_size += sizeof(diagnostic_field.com1_port_bytes_written);
+         byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.com1_port_bytes_read));
+         total_size += sizeof(diagnostic_field.com1_port_bytes_read);
+         byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.com1_port_write_overruns));
+         total_size += sizeof(diagnostic_field.com1_port_write_overruns);
+         byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.com1_port_read_overruns));
+         total_size += sizeof(diagnostic_field.com1_port_read_overruns);
+         byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.imu_parser_errors));
+         total_size += sizeof(diagnostic_field.imu_parser_errors);
+         byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.imu_message_count));
+         total_size += sizeof(diagnostic_field.imu_message_count);
+         byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.imu_last_message_ms));
+        }
+         void * struct_pointer;
+         struct_pointer = &diagnostic_field;
+         total_size = 0;
+
+         memcpy(struct_pointer, response_buffer, sizeof(diagnostic_field.device_model));
+         total_size += sizeof(diagnostic_field.device_model);
+         memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.status_selector));
+         total_size += sizeof(diagnostic_field.status_selector);
+         memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.status_flags));
+         total_size += sizeof(diagnostic_field.status_flags);
+         memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.system_state));
+         total_size += sizeof(diagnostic_field.system_state);
+         memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.system_timer_ms));
+         total_size += sizeof(diagnostic_field.system_timer_ms);
+         memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.imu_stream_enabled));
+         total_size += sizeof(diagnostic_field.imu_stream_enabled);
+         memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.filter_stream_enabled));
+         total_size += sizeof(diagnostic_field.filter_stream_enabled);
+         memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.imu_dropped_packets));
+         total_size += sizeof(diagnostic_field.imu_dropped_packets);
+         memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.filter_dropped_packets));
+         total_size += sizeof(diagnostic_field.filter_dropped_packets);
+         memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.com1_port_bytes_written));
+         total_size += sizeof(diagnostic_field.com1_port_bytes_written);
+         memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.com1_port_bytes_read));
+         total_size += sizeof(diagnostic_field.com1_port_bytes_read);
+         memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.com1_port_write_overruns));
+         total_size += sizeof(diagnostic_field.com1_port_write_overruns);
+         memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.com1_port_read_overruns));
+         total_size += sizeof(diagnostic_field.com1_port_read_overruns);
+         memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.imu_parser_errors));
+         total_size += sizeof(diagnostic_field.imu_parser_errors);
+         memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.imu_message_count));
+         total_size += sizeof(diagnostic_field.imu_message_count);
+         memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.imu_last_message_ms));
+         total_size += sizeof(diagnostic_field.imu_last_message_ms);
+
+       }
+       else
+        return MIP_INTERFACE_ERROR;
+
+       return MIP_INTERFACE_OK;
+   }
+   else if(GX5_45)
+   {
+     gx4_45_basic_status_field *basic_ptr;
+     gx4_45_diagnostic_device_status_field *diagnostic_ptr;
      u16 response_size = MIP_FIELD_HEADER_SIZE;
 
      //Set response size based on device model and whether basic or diagnostic status is chosen
-     if(status_selector == GX4_25_BASIC_STATUS_SEL)
-      response_size += sizeof(gx4_25_basic_status_field);
-     else if(status_selector == GX4_25_DIAGNOSTICS_STATUS_SEL)
-      response_size += sizeof(gx4_25_diagnostic_device_status_field);
+     if(status_selector == GX4_45_BASIC_STATUS_SEL)
+      response_size += sizeof(gx4_45_basic_status_field);
+     else if(status_selector == GX4_45_DIAGNOSTICS_STATUS_SEL)
+      response_size += sizeof(gx4_45_diagnostic_device_status_field);
 
      while(mip_3dm_cmd_device_status(device_interface, model_number, status_selector, response_buffer, &response_size) != MIP_INTERFACE_OK){}
 
-     if(status_selector == GX4_25_BASIC_STATUS_SEL)
+     if(status_selector == GX4_45_BASIC_STATUS_SEL)
      {
-      if(response_size != sizeof(gx4_25_basic_status_field)){
+      if(response_size != sizeof(gx4_45_basic_status_field)){
        return MIP_INTERFACE_ERROR;
-     }
+      }
       else if(MIP_SDK_CONFIG_BYTESWAP){
 
        //Perform byteswapping
-       byteswap_inplace(&response_buffer[0], sizeof(basic_field.device_model));
-       byteswap_inplace(&response_buffer[2], sizeof(basic_field.status_selector));
-       byteswap_inplace(&response_buffer[3], sizeof(basic_field.status_flags));
-       byteswap_inplace(&response_buffer[7], sizeof(basic_field.system_state));
-       byteswap_inplace(&response_buffer[9], sizeof(basic_field.system_timer_ms));
-
+       byteswap_inplace(&response_buffer[0], sizeof(basic_field_45.device_model));
+       byteswap_inplace(&response_buffer[2], sizeof(basic_field_45.status_selector));
+       byteswap_inplace(&response_buffer[3], sizeof(basic_field_45.status_flags));
+       byteswap_inplace(&response_buffer[7], sizeof(basic_field_45.system_state));
+       byteswap_inplace(&response_buffer[9], sizeof(basic_field_45.system_timer_ms));
+      }
        void * struct_pointer;
-       struct_pointer = &basic_field;
+       struct_pointer = &basic_field_45;
 
        //Copy response from response buffer to basic status struct
-       memcpy(struct_pointer, response_buffer, sizeof(basic_field.device_model));
-       memcpy((struct_pointer+2), &(response_buffer[2]), sizeof(basic_field.status_selector));
-       memcpy((struct_pointer+3), &(response_buffer[3]), sizeof(basic_field.status_flags));
-       memcpy((struct_pointer+7), &(response_buffer[7]), sizeof(basic_field.system_state));
-       memcpy((struct_pointer+9), &(response_buffer[9]), sizeof(basic_field.system_timer_ms));
+       memcpy(struct_pointer, response_buffer, sizeof(basic_field_45.device_model));
+       memcpy((struct_pointer+2), &(response_buffer[2]), sizeof(basic_field_45.status_selector));
+       memcpy((struct_pointer+3), &(response_buffer[3]), sizeof(basic_field_45.status_flags));
+       memcpy((struct_pointer+7), &(response_buffer[7]), sizeof(basic_field_45.system_state));
+       memcpy((struct_pointer+9), &(response_buffer[9]), sizeof(basic_field_45.system_timer_ms));
 
-      }
+
 
      }
-     else if(status_selector == GX4_25_DIAGNOSTICS_STATUS_SEL)
+     else if(status_selector == GX4_45_DIAGNOSTICS_STATUS_SEL)
      {
 
-      if(response_size != sizeof(gx4_25_diagnostic_device_status_field)){
+      if(response_size != sizeof(gx4_45_diagnostic_device_status_field)){
        return MIP_INTERFACE_ERROR;
      }
       else if(MIP_SDK_CONFIG_BYTESWAP){
 
        //byteswap and copy response to diagnostic status struct
-       int total_size = 0;
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.device_model));
-       total_size += sizeof(diagnostic_field.device_model);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.status_selector));
-       total_size += sizeof(diagnostic_field.status_selector);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.status_flags));
-       total_size += sizeof(diagnostic_field.status_flags);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.system_state));
-       total_size += sizeof(diagnostic_field.system_state);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.system_timer_ms));
-       total_size += sizeof(diagnostic_field.system_timer_ms);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.imu_stream_enabled));
-       total_size += sizeof(diagnostic_field.imu_stream_enabled);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.filter_stream_enabled));
-       total_size += sizeof(diagnostic_field.filter_stream_enabled);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.imu_dropped_packets));
-       total_size += sizeof(diagnostic_field.imu_dropped_packets);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.filter_dropped_packets));
-       total_size += sizeof(diagnostic_field.filter_dropped_packets);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.com1_port_bytes_written));
-       total_size += sizeof(diagnostic_field.com1_port_bytes_written);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.com1_port_bytes_read));
-       total_size += sizeof(diagnostic_field.com1_port_bytes_read);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.com1_port_write_overruns));
-       total_size += sizeof(diagnostic_field.com1_port_write_overruns);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.com1_port_read_overruns));
-       total_size += sizeof(diagnostic_field.com1_port_read_overruns);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.imu_parser_errors));
-       total_size += sizeof(diagnostic_field.imu_parser_errors);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.imu_message_count));
-       total_size += sizeof(diagnostic_field.imu_message_count);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field.imu_last_message_ms));
-
+       total_size = 0;
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.device_model));
+       total_size += sizeof(diagnostic_field_45.device_model);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.status_selector));
+       total_size += sizeof(diagnostic_field_45.status_selector);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.status_flags));
+       total_size += sizeof(diagnostic_field_45.status_flags);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.system_state));
+       total_size += sizeof(diagnostic_field_45.system_state);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.system_timer_ms));
+       total_size += sizeof(diagnostic_field_45.system_timer_ms);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.gps_power_on));
+       total_size += sizeof(diagnostic_field_45.gps_power_on);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.num_gps_pps_triggers));
+       total_size += sizeof(diagnostic_field_45.num_gps_pps_triggers);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.last_gps_pps_trigger_ms));
+       total_size += sizeof(diagnostic_field_45.last_gps_pps_trigger_ms);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.imu_stream_enabled));
+       total_size += sizeof(diagnostic_field_45.imu_stream_enabled);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.gps_stream_enabled));
+       total_size += sizeof(diagnostic_field_45.gps_stream_enabled);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.filter_stream_enabled));
+       total_size += sizeof(diagnostic_field_45.filter_stream_enabled);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.imu_dropped_packets));
+       total_size += sizeof(diagnostic_field_45.imu_dropped_packets);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.gps_dropped_packets));
+       total_size += sizeof(diagnostic_field_45.gps_dropped_packets);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.filter_dropped_packets));
+       total_size += sizeof(diagnostic_field_45.filter_dropped_packets);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.com1_port_bytes_written));
+       total_size += sizeof(diagnostic_field_45.com1_port_bytes_written);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.com1_port_bytes_read));
+       total_size += sizeof(diagnostic_field_45.com1_port_bytes_read);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.com1_port_write_overruns));
+       total_size += sizeof(diagnostic_field_45.com1_port_write_overruns);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.com1_port_read_overruns));
+       total_size += sizeof(diagnostic_field_45.com1_port_read_overruns);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.imu_parser_errors));
+       total_size += sizeof(diagnostic_field_45.imu_parser_errors);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.imu_message_count));
+       total_size += sizeof(diagnostic_field_45.imu_message_count);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.imu_last_message_ms));
+       total_size += sizeof(diagnostic_field_45.imu_last_message_ms);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.gps_parser_errors));
+       total_size += sizeof(diagnostic_field_45.gps_parser_errors);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.gps_message_count));
+       total_size += sizeof(diagnostic_field_45.gps_message_count);
+       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.gps_last_message_ms));
+      }
        void * struct_pointer;
-       struct_pointer = &diagnostic_field;
+       struct_pointer = &diagnostic_field_45;
        total_size = 0;
 
-       memcpy(struct_pointer, response_buffer, sizeof(diagnostic_field.device_model));
-       total_size += sizeof(diagnostic_field.device_model);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.status_selector));
-       total_size += sizeof(diagnostic_field.status_selector);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.status_flags));
-       total_size += sizeof(diagnostic_field.status_flags);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.system_state));
-       total_size += sizeof(diagnostic_field.system_state);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.system_timer_ms));
-       total_size += sizeof(diagnostic_field.system_timer_ms);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.imu_stream_enabled));
-       total_size += sizeof(diagnostic_field.imu_stream_enabled);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.filter_stream_enabled));
-       total_size += sizeof(diagnostic_field.filter_stream_enabled);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.imu_dropped_packets));
-       total_size += sizeof(diagnostic_field.imu_dropped_packets);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.filter_dropped_packets));
-       total_size += sizeof(diagnostic_field.filter_dropped_packets);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.com1_port_bytes_written));
-       total_size += sizeof(diagnostic_field.com1_port_bytes_written);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.com1_port_bytes_read));
-       total_size += sizeof(diagnostic_field.com1_port_bytes_read);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.com1_port_write_overruns));
-       total_size += sizeof(diagnostic_field.com1_port_write_overruns);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.com1_port_read_overruns));
-       total_size += sizeof(diagnostic_field.com1_port_read_overruns);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.imu_parser_errors));
-       total_size += sizeof(diagnostic_field.imu_parser_errors);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.imu_message_count));
-       total_size += sizeof(diagnostic_field.imu_message_count);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field.imu_last_message_ms));
-       total_size += sizeof(diagnostic_field.imu_last_message_ms);
-      }
+       memcpy(struct_pointer, response_buffer, sizeof(diagnostic_field_45.device_model));
+       total_size += sizeof(diagnostic_field_45.device_model);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.status_selector));
+       total_size += sizeof(diagnostic_field_45.status_selector);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.status_flags));
+       total_size += sizeof(diagnostic_field_45.status_flags);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.system_state));
+       total_size += sizeof(diagnostic_field_45.system_state);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.system_timer_ms));
+       total_size += sizeof(diagnostic_field_45.system_timer_ms);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.gps_power_on));
+       total_size += sizeof(diagnostic_field_45.gps_power_on);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.num_gps_pps_triggers));
+       total_size += sizeof(diagnostic_field_45.num_gps_pps_triggers);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.last_gps_pps_trigger_ms));
+       total_size += sizeof(diagnostic_field_45.last_gps_pps_trigger_ms);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.imu_stream_enabled));
+       total_size += sizeof(diagnostic_field_45.imu_stream_enabled);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.gps_stream_enabled));
+       total_size += sizeof(diagnostic_field_45.gps_stream_enabled);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.filter_stream_enabled));
+       total_size += sizeof(diagnostic_field_45.filter_stream_enabled);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.imu_dropped_packets));
+       total_size += sizeof(diagnostic_field_45.imu_dropped_packets);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.gps_dropped_packets));
+       total_size += sizeof(diagnostic_field_45.gps_dropped_packets);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.filter_dropped_packets));
+       total_size += sizeof(diagnostic_field_45.filter_dropped_packets);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.com1_port_bytes_written));
+       total_size += sizeof(diagnostic_field_45.com1_port_bytes_written);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.com1_port_bytes_read));
+       total_size += sizeof(diagnostic_field_45.com1_port_bytes_read);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.com1_port_write_overruns));
+       total_size += sizeof(diagnostic_field_45.com1_port_write_overruns);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.com1_port_read_overruns));
+       total_size += sizeof(diagnostic_field_45.com1_port_read_overruns);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.imu_parser_errors));
+       total_size += sizeof(diagnostic_field_45.imu_parser_errors);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.imu_message_count));
+       total_size += sizeof(diagnostic_field_45.imu_message_count);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.imu_last_message_ms));
+       total_size += sizeof(diagnostic_field_45.imu_last_message_ms);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.gps_parser_errors));
+       total_size += sizeof(diagnostic_field_45.gps_parser_errors);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.gps_message_count));
+       total_size += sizeof(diagnostic_field_45.gps_message_count);
+       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.gps_last_message_ms));
      }
      else
       return MIP_INTERFACE_ERROR;
 
      return MIP_INTERFACE_OK;
+   }
 
-    }
+ }
 
 
   //Start callbacks for data packets
@@ -2815,7 +3014,7 @@ namespace Microstrain
 //Send diagnostic information to device status topic and diagnostic aggregator
 void Microstrain::device_status_callback()
 {
-  if(GX5_25 == true){
+  if(GX5_25){
     u8 response_buffer[sizeof(gx4_25_diagnostic_device_status_field)];
     start = clock();
     while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_25_MODEL_NUMBER, GX4_25_DIAGNOSTICS_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){
@@ -2826,26 +3025,61 @@ void Microstrain::device_status_callback()
     }
 
   //ROS_INFO("Adding device diagnostics to status msg");
-  device_status_msg_.device_model = diagnostic_field.device_model;
-  device_status_msg_.status_selector =  diagnostic_field.status_selector;
-  device_status_msg_.status_flags = diagnostic_field.status_flags;
-  device_status_msg_.system_state = diagnostic_field.system_state;
-  device_status_msg_.system_timer_ms = diagnostic_field.system_timer_ms;
-  device_status_msg_.imu_stream_enabled = diagnostic_field.imu_stream_enabled;
-  device_status_msg_.filter_stream_enabled =  diagnostic_field.filter_stream_enabled;
-  device_status_msg_.imu_dropped_packets = diagnostic_field.imu_dropped_packets;
-  device_status_msg_.filter_dropped_packets = diagnostic_field.filter_dropped_packets;
-  device_status_msg_.com1_port_bytes_written = diagnostic_field.com1_port_bytes_written;
-  device_status_msg_.com1_port_bytes_read = diagnostic_field.com1_port_bytes_read;
-  device_status_msg_.com1_port_write_overruns = diagnostic_field.com1_port_write_overruns;
-  device_status_msg_.com1_port_read_overruns = diagnostic_field.com1_port_read_overruns;
-  device_status_msg_.imu_parser_errors =  diagnostic_field.imu_parser_errors;
-  device_status_msg_.imu_message_count = diagnostic_field.imu_message_count;
-  device_status_msg_.imu_last_message_ms = diagnostic_field.imu_last_message_ms;
+    device_status_msg_.device_model = diagnostic_field.device_model;
+    device_status_msg_.status_selector =  diagnostic_field.status_selector;
+    device_status_msg_.status_flags = diagnostic_field.status_flags;
+    device_status_msg_.system_state = diagnostic_field.system_state;
+    device_status_msg_.system_timer_ms = diagnostic_field.system_timer_ms;
+    device_status_msg_.imu_stream_enabled = diagnostic_field.imu_stream_enabled;
+    device_status_msg_.filter_stream_enabled =  diagnostic_field.filter_stream_enabled;
+    device_status_msg_.imu_dropped_packets = diagnostic_field.imu_dropped_packets;
+    device_status_msg_.filter_dropped_packets = diagnostic_field.filter_dropped_packets;
+    device_status_msg_.com1_port_bytes_written = diagnostic_field.com1_port_bytes_written;
+    device_status_msg_.com1_port_bytes_read = diagnostic_field.com1_port_bytes_read;
+    device_status_msg_.com1_port_write_overruns = diagnostic_field.com1_port_write_overruns;
+    device_status_msg_.com1_port_read_overruns = diagnostic_field.com1_port_read_overruns;
+    device_status_msg_.imu_parser_errors =  diagnostic_field.imu_parser_errors;
+    device_status_msg_.imu_message_count = diagnostic_field.imu_message_count;
+    device_status_msg_.imu_last_message_ms = diagnostic_field.imu_last_message_ms;
+  }
+  else if(GX5_45){
+    ROS_INFO("Publishing 45 msg");
+    u8 response_buffer[sizeof(gx4_45_diagnostic_device_status_field)];
+    start = clock();
+    while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_45_MODEL_NUMBER, GX4_45_DIAGNOSTICS_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){
+      if (clock() - start > 5000){
+        ROS_INFO("mip_3dm_cmd_hw_specific_device_status function timed out.");
+        break;
+      }
+    }
+
+  device_status_msg_.device_model = diagnostic_field_45.device_model;
+  device_status_msg_.status_selector =  diagnostic_field_45.status_selector;
+  device_status_msg_.status_flags = diagnostic_field_45.status_flags;
+  device_status_msg_.system_state = diagnostic_field_45.system_state;
+  device_status_msg_.system_timer_ms = diagnostic_field_45.system_timer_ms;
+  device_status_msg_.gps_power_on = diagnostic_field_45.gps_power_on;
+  device_status_msg_.num_gps_pps_triggers = diagnostic_field_45.num_gps_pps_triggers;
+  device_status_msg_.last_gps_pps_trigger_ms = diagnostic_field_45.last_gps_pps_trigger_ms;
+  device_status_msg_.imu_stream_enabled = diagnostic_field_45.imu_stream_enabled;
+  device_status_msg_.gps_stream_enabled = diagnostic_field_45.gps_stream_enabled;
+  device_status_msg_.filter_stream_enabled =  diagnostic_field_45.filter_stream_enabled;
+  device_status_msg_.imu_dropped_packets = diagnostic_field_45.imu_dropped_packets;
+  device_status_msg_.gps_dropped_packets = diagnostic_field_45.gps_dropped_packets;
+  device_status_msg_.filter_dropped_packets = diagnostic_field_45.filter_dropped_packets;
+  device_status_msg_.com1_port_bytes_written = diagnostic_field_45.com1_port_bytes_written;
+  device_status_msg_.com1_port_bytes_read = diagnostic_field_45.com1_port_bytes_read;
+  device_status_msg_.com1_port_write_overruns = diagnostic_field_45.com1_port_write_overruns;
+  device_status_msg_.com1_port_read_overruns = diagnostic_field_45.com1_port_read_overruns;
+  device_status_msg_.imu_parser_errors =  diagnostic_field_45.imu_parser_errors;
+  device_status_msg_.imu_message_count = diagnostic_field_45.imu_message_count;
+  device_status_msg_.imu_last_message_ms = diagnostic_field_45.imu_last_message_ms;
+  device_status_msg_.gps_parser_errors =  diagnostic_field_45.gps_parser_errors;
+  device_status_msg_.gps_message_count = diagnostic_field_45.gps_message_count;
+  device_status_msg_.gps_last_message_ms = diagnostic_field_45.gps_last_message_ms;
+}
 
   device_status_pub_.publish(device_status_msg_);
-
-  }
 }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -3031,7 +3265,6 @@ void Microstrain::device_status_callback()
 
 		case MIP_GPS_DATA_LLH_POS:
 		  {
-        ROS_INFO("Getting position information: %f", curr_llh_pos_.latitude);
 		    memcpy(&curr_llh_pos_, field_data, sizeof(mip_gps_llh_pos));
 
 		    //For little-endian targets, byteswap the data field

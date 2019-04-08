@@ -1,9 +1,10 @@
 #include "diagnostic_updater/diagnostic_updater.h"
 #include "diagnostic_updater/update_functions.h"
 #include "microstrain_diagnostic_updater.h"
+#include "microstrain_3dm.h"
 #include <string>
 
-//Use a better name for this file
+
 
 namespace microstrain_3dm
 {
@@ -16,6 +17,9 @@ RosDiagnosticUpdater::RosDiagnosticUpdater()
   add("port", this, &RosDiagnosticUpdater::portDiagnostics);
   add("imu", this, &RosDiagnosticUpdater::imuDiagnostics);
 
+  if(Microstrain::Microstrain::GX5_45 == true){
+    add("gps", this, &RosDiagnosticUpdater::gpsDiagnostics);
+  }
 
 
   status_sub_ = nh_.subscribe("device/status", 5, &RosDiagnosticUpdater::statusCallback, this);
@@ -32,6 +36,9 @@ void RosDiagnosticUpdater::generalDiagnostics(diagnostic_updater::DiagnosticStat
   stat.add("IMU Stream Enabled", last_status_->imu_stream_enabled);
   stat.add("Filter Stream Enabled", last_status_->filter_stream_enabled);
 
+  if(Microstrain::Microstrain::GX5_45 == true){
+    stat.add("GPS Stream Enabled", last_status_->gps_stream_enabled);
+  }
 
   if (last_status_->status_flags > 0)
   {
@@ -48,6 +55,14 @@ void RosDiagnosticUpdater::packetDiagnostics(diagnostic_updater::DiagnosticStatu
 {
   stat.add("IMU Dropped Packets", last_status_->imu_dropped_packets);
   stat.add("Filter Dropped Packets", last_status_->filter_dropped_packets);
+
+  if(Microstrain::Microstrain::GX5_45){
+    stat.add("GPS Dropped Packets", last_status_->gps_dropped_packets);
+
+    if(last_status_->gps_dropped_packets > 0){
+      stat.summary(diagnostic_msgs::DiagnosticStatus::WARN, "Packets dropped");
+    }
+  }
 
   if (last_status_->imu_dropped_packets > 0 || last_status_->filter_dropped_packets > 0)
   {
@@ -89,6 +104,25 @@ void RosDiagnosticUpdater::imuDiagnostics(diagnostic_updater::DiagnosticStatusWr
   else
   {
     stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "No IMU parser errors");
+  }
+}
+
+void RosDiagnosticUpdater::gpsDiagnostics(diagnostic_updater::DiagnosticStatusWrapper &stat)
+{
+  stat.add("GPS Power On", last_status_->gps_power_on);
+  stat.add("GPS PPS Triggers", last_status_->num_gps_pps_triggers);
+  stat.add("Last GPS PPS Trigger ms", last_status_->last_gps_pps_trigger_ms);
+  stat.add("GPS Parser Errors", last_status_->gps_parser_errors);
+  stat.add("GPS Message Count", last_status_->gps_message_count);
+  stat.add("GPS Last Message ms", last_status_->gps_last_message_ms);
+
+  if (last_status_->gps_parser_errors > 0)
+  {
+    stat.summary(diagnostic_msgs::DiagnosticStatus::WARN, "GPS Parser Errors");
+  }
+  else
+  {
+    stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "No GPS parser errors");
   }
 }
 
