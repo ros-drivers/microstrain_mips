@@ -274,7 +274,6 @@ namespace Microstrain
   //The primary device interface structure
   mip_interface device_interface_;
   base_device_info_field device_info;
-  //gx4_45_basic_status_field basic_field;
   u8  temp_string[20];
 
   //Packet Counters (valid, timeout, and checksum errors)
@@ -380,7 +379,6 @@ namespace Microstrain
   u8 dynamics_mode;
   u8 readback_dynamics_mode;
   gx4_25_basic_status_field basic_field;
-  gx4_imu_diagnostic_device_status_field imu_diagnostic_field;
   gx4_25_diagnostic_device_status_field diagnostic_field;
   gx4_45_basic_status_field basic_field_45;
   gx4_45_diagnostic_device_status_field diagnostic_field_45;

@@ -17,10 +17,6 @@ RosDiagnosticUpdater::RosDiagnosticUpdater(Microstrain::Microstrain *device)
   add("port", this, &RosDiagnosticUpdater::portDiagnostics);
   add("imu", this, &RosDiagnosticUpdater::imuDiagnostics);
 
-  /*if(device->get_model_gps()){
-    add("gps", this, &RosDiagnosticUpdater::gpsDiagnostics);
-    GPS = true;
-  }*/
 
 
   status_sub_ = nh_.subscribe("device/status", 5, &RosDiagnosticUpdater::statusCallback, this);
@@ -37,9 +33,6 @@ void RosDiagnosticUpdater::generalDiagnostics(diagnostic_updater::DiagnosticStat
   stat.add("IMU Stream Enabled", last_status_->imu_stream_enabled);
   stat.add("Filter Stream Enabled", last_status_->filter_stream_enabled);
 
-  /*if(GPS){
-    stat.add("GPS Stream Enabled", last_status_->gps_stream_enabled);
-  }*/
 
   if (last_status_->status_flags > 0)
   {
@@ -57,13 +50,6 @@ void RosDiagnosticUpdater::packetDiagnostics(diagnostic_updater::DiagnosticStatu
   stat.add("IMU Dropped Packets", last_status_->imu_dropped_packets);
   stat.add("Filter Dropped Packets", last_status_->filter_dropped_packets);
 
-  /*if(GPS){
-    stat.add("GPS Dropped Packets", last_status_->gps_dropped_packets);
-
-    if(last_status_->gps_dropped_packets > 0){
-      stat.summary(diagnostic_msgs::DiagnosticStatus::WARN, "Packets dropped");
-    }
-  }*/
 
   if (last_status_->imu_dropped_packets > 0 || last_status_->filter_dropped_packets > 0)
   {
@@ -108,33 +94,12 @@ void RosDiagnosticUpdater::imuDiagnostics(diagnostic_updater::DiagnosticStatusWr
   }
 }
 
-/*void RosDiagnosticUpdater::gpsDiagnostics(diagnostic_updater::DiagnosticStatusWrapper &stat)
-{
-  stat.add("GPS Power On", last_status_->gps_power_on);
-  stat.add("GPS PPS Triggers", last_status_->num_gps_pps_triggers);
-  stat.add("Last GPS PPS Trigger ms", last_status_->last_gps_pps_trigger_ms);
-  stat.add("GPS Parser Errors", last_status_->gps_parser_errors);
-  stat.add("GPS Message Count", last_status_->gps_message_count);
-  stat.add("GPS Last Message ms", last_status_->gps_last_message_ms);
-
-  if (last_status_->gps_parser_errors > 0)
-  {
-    stat.summary(diagnostic_msgs::DiagnosticStatus::WARN, "GPS Parser Errors");
-  }
-  else
-  {
-    stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "No GPS parser errors");
-  }
-}*/
 
 void RosDiagnosticUpdater::statusCallback(const microstrain_3dm::status_msg status)
 {
   *last_status_ = status;
   update();
 }
-
-
-
 
 
 }

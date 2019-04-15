@@ -123,9 +123,7 @@ namespace Microstrain
     double declination;
 
     // Variables
-    tf2::Quaternion quat;
     base_device_info_field device_info;
-    u32 bit_result;
     u8  enable = 1;
     u8  data_stream_format_descriptors[10];
     u16 data_stream_format_decimation[10];
@@ -136,19 +134,9 @@ namespace Microstrain
     u16 base_rate = 0;
     u16 device_descriptors[128]  = {0};
     u16 device_descriptors_size  = 128*2;
-    s16 i;
-    u16 j;
-    u8  readback_com_mode = 0;
-    float hard_iron[3]          = {0};
-    float hard_iron_readback[3] = {0};
     u8  gps_source     = 0;
     u8  heading_source = 0x1;
-    float noise[3]          = {0};
-    float readback_noise[3] = {0};
-    float beta[3]                 = {0};
-    float readback_beta[3]        = {0};
     mip_low_pass_filter_settings filter_settings;
-    float bias_vector[3]		   = {0};
     u16 duration = 0;
     mip_filter_external_gps_update_command external_gps_update;
     mip_filter_external_heading_update_command external_heading_update;
