@@ -1,8 +1,11 @@
-# microstrain_3dm_gx5_45
-
 ## Description
 
-Interface software, including ROS node, for Microstrain 3DM-GX5-45.
+Interface software, including ROS node, for Microstrain IMUs.
 
-
-See http://wiki.ros.org/microstrain_3dm_gx5_45
+| Function  | GX5-45 | GX5-25  |
+| ------------- | ------------- |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
