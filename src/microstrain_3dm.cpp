@@ -191,21 +191,15 @@ namespace Microstrain
     private_nh.param("odom_frame_id",odom_frame_id_, std::string("wgs84"));
     private_nh.param("odom_child_frame_id",odom_child_frame_id_,
 		     std::string("base_link"));
-    private_nh.param("publish_gps",publish_gps_, false);
+
     private_nh.param("publish_imu",publish_imu_, true);
-    private_nh.param("publish_odom",publish_odom_, true);
+
     private_nh.param("publish_bias",publish_bias_, true);
 
     // ROS publishers and subscribers
-    if (publish_gps_)
-      gps_pub_ = node.advertise<sensor_msgs::NavSatFix>("gps/fix",100);
     if (publish_imu_)
       imu_pub_ = node.advertise<sensor_msgs::Imu>("imu/data",100);
-    if (publish_odom_)
-    {
-      nav_pub_ = node.advertise<nav_msgs::Odometry>("nav/odom",100);
-      nav_status_pub_ = node.advertise<std_msgs::Int16MultiArray>("nav/status",100);
-    }
+
 
     //Publishes device status
     device_status_pub_ = node.advertise<microstrain_3dm::status_msg>("device/status", 100);
@@ -269,23 +263,6 @@ namespace Microstrain
     }
 
 
-    // Setup device callbacks
-    if(mip_interface_add_descriptor_set_callback(&device_interface_, MIP_FILTER_DATA_SET, this, &filter_packet_callback_wrapper) != MIP_INTERFACE_OK)
-      {
-	ROS_FATAL("Can't setup filter callback!");
-	return;
-      }
-    if(mip_interface_add_descriptor_set_callback(&device_interface_, MIP_AHRS_DATA_SET, this, &ahrs_packet_callback_wrapper) != MIP_INTERFACE_OK)
-      {
-	ROS_FATAL("Can't setup ahrs callbacks!");
-	return;
-      }
-    if(mip_interface_add_descriptor_set_callback(&device_interface_, MIP_GPS_DATA_SET, this, &gps_packet_callback_wrapper) != MIP_INTERFACE_OK)
-      {
-	ROS_FATAL("Can't setup gpscallbacks!");
-	return;
-      }
-
 
     ////////////////////////////////////////
     // Device setup
@@ -317,7 +294,7 @@ namespace Microstrain
       ROS_INFO("Right mode?");
       if(com_mode != MIP_SDK_GX4_45_IMU_STANDARD_MODE)
       {
-	ROS_ERROR("Appears we didn't get into standard mode!");
+	       ROS_ERROR("Appears we didn't get into standard mode!");
       }
 
       //Get device info
@@ -353,6 +330,45 @@ namespace Microstrain
       if(model_name == GX5_15_DEVICE){
         GX5_15 = true;
       }
+
+
+     //Set GPS publishing to true if IMU model has GPS
+     if(GX5_45 || GX5_35){
+       private_nh.param("publish_gps",publish_gps_, true);
+       private_nh.param("publish_odom",publish_odom_, true);
+     }
+     else{
+       private_nh.param("publish_gps",publish_gps_, false);
+       private_nh.param("publish_odom",publish_odom_, false);
+     }
+
+     if (publish_gps_)
+       gps_pub_ = node.advertise<sensor_msgs::NavSatFix>("gps/fix",100);
+
+     if (publish_odom_)
+     {
+       nav_pub_ = node.advertise<nav_msgs::Odometry>("nav/odom",100);
+       nav_status_pub_ = node.advertise<std_msgs::Int16MultiArray>("nav/status",100);
+     }
+
+     // Setup device callbacks
+     if(mip_interface_add_descriptor_set_callback(&device_interface_, MIP_FILTER_DATA_SET, this, &filter_packet_callback_wrapper) != MIP_INTERFACE_OK)
+       {
+ 	       ROS_FATAL("Can't setup filter callback!");
+ 	       return;
+       }
+     if(mip_interface_add_descriptor_set_callback(&device_interface_, MIP_AHRS_DATA_SET, this, &ahrs_packet_callback_wrapper) != MIP_INTERFACE_OK)
+       {
+ 	       ROS_FATAL("Can't setup ahrs callbacks!");
+ 	       return;
+       }
+
+     if(mip_interface_add_descriptor_set_callback(&device_interface_, MIP_GPS_DATA_SET, this, &gps_packet_callback_wrapper) != MIP_INTERFACE_OK)
+     {
+       ROS_FATAL("Can't setup gpscallbacks!");
+       return;
+     }
+
 
       // Put into idle mode
       ROS_INFO("Idling Device: Stopping data streams and/or waking from sleep");
@@ -1533,7 +1549,6 @@ namespace Microstrain
     //Get device basic status. Variables in basic status struct change based on device model
     bool Microstrain::get_basic_status(microstrain_3dm::GetBasicStatus::Request &req, microstrain_3dm::GetBasicStatus::Response &res)
     {
-
       //Use the basic status struct for the GX-25
       if(GX5_25){
         u8 response_buffer[sizeof(gx4_25_basic_status_field)];
@@ -1570,7 +1585,7 @@ namespace Microstrain
     bool Microstrain::get_diagnostic_report(microstrain_3dm::GetDiagnosticReport::Request &req, microstrain_3dm::GetDiagnosticReport::Response &res)
     {
       //Use GX5-25 device diagnostic struct
-      if(GX5_25 == true){
+      if(GX5_25){
         u8 response_buffer[sizeof(gx4_25_diagnostic_device_status_field)];
         start = clock();
         while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_25_MODEL_NUMBER, GX4_25_DIAGNOSTICS_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){

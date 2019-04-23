@@ -41,10 +41,8 @@
     <!-- GPS Settings  -45 and -35 Only -->
     <param name="gps_rate" value="4" type="int" />
     <param name="gps_frame_id" value="navsat_link" type="str" />
-    <param name="publish_gps" value="false" type="bool" />
 
     <!-- Filter Settings - GXx-45 Only -->
-    <param name="publish_odom" value="false" type="bool" />
     <param name="nav_rate" value="10" type="int" />
     <param name="dynamics_mode" value="1" type="int" />
     <param name="odom_frame_id" value="wgs84_odom_link" type="str" />
