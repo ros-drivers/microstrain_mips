@@ -1559,8 +1559,17 @@ namespace Microstrain
             break;
           }
         }
+
+        printf("Model Number: \t\t\t\t\t%04u\n", basic_field.device_model);
+        printf("Status Selector: \t\t\t\t%d\n", basic_field.status_selector);// == GX4_25_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
+        printf("Status Flags: \t\t\t\t\t%lu\n", basic_field.status_flags);
+        printf("System state: \t\t\t\t\t%04u\n", basic_field.system_state);
+        printf("System Microsecond Timer Count: \t\t%lu ms\n\n", basic_field.system_timer_ms);
       }
-      else if(GX5_45){
+      else {
+        ROS_INFO("Command not supported on this model");
+      }
+      /*else if(GX5_45){
         u8 response_buffer[sizeof(gx4_45_basic_status_field)];
         start = clock();
         while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_45_MODEL_NUMBER, GX4_45_BASIC_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){
@@ -1569,13 +1578,7 @@ namespace Microstrain
             break;
           }
         }
-      }
-        printf("Model Number: \t\t\t\t\t%04u\n", basic_field.device_model);
-        printf("Status Selector: \t\t\t\t%d\n", basic_field.status_selector);// == GX4_25_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
-        printf("Status Flags: \t\t\t\t\t%lu\n", basic_field.status_flags);
-        printf("System state: \t\t\t\t\t%04u\n", basic_field.system_state);
-        printf("System Microsecond Timer Count: \t\t%lu ms\n\n", basic_field.system_timer_ms);
-
+      }*/
 
       res.success = true;
       return true;
@@ -1613,7 +1616,12 @@ namespace Microstrain
 
       }
 
-      else if(GX5_45){
+      //Unable to get this function working for the GX5-45
+      else {
+        ROS_INFO("Command not supported on this model");
+      }
+
+      /*else if(GX5_45){
         u8 response_buffer[sizeof(gx4_45_diagnostic_device_status_field)];
         start = clock();
         while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_45_MODEL_NUMBER, GX4_45_DIAGNOSTICS_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){
@@ -1645,7 +1653,7 @@ namespace Microstrain
         printf("GPS Parser Errors: \t\t\t\t%u Errors\n", diagnostic_field_45.gps_parser_errors);
         printf("GPS Message Count: \t\t\t\t%u Messages\n", diagnostic_field_45.gps_message_count);
         printf("GPS Last Message Received: \t\t\t%u ms\n", diagnostic_field_45.gps_last_message_ms);
-      }
+      }*/
       res.success = true;
       return true;
     }
