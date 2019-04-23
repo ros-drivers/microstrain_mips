@@ -780,7 +780,10 @@ namespace Microstrain
     while (ros::ok()){
       //Update the parser (this function reads the port and parses the bytes
       mip_interface_update(&device_interface_);
-      device_status_callback();
+
+      if(GX5_25){
+        device_status_callback();
+      }
 
       ros::spinOnce();  // take care of service requests.
       r.sleep();
@@ -3013,9 +3016,12 @@ void Microstrain::device_status_callback()
     device_status_msg_.imu_parser_errors =  diagnostic_field.imu_parser_errors;
     device_status_msg_.imu_message_count = diagnostic_field.imu_message_count;
     device_status_msg_.imu_last_message_ms = diagnostic_field.imu_last_message_ms;
+
+    device_status_pub_.publish(device_status_msg_);
   }
-  else if(GX5_45){
-    ROS_INFO("Publishing 45 msg");
+  else{
+    ROS_INFO("Device status messages not configured for this model");
+    /*ROS_INFO("Publishing 45 msg");
     u8 response_buffer[sizeof(gx4_45_diagnostic_device_status_field)];
     start = clock();
     while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_45_MODEL_NUMBER, GX4_45_DIAGNOSTICS_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){
@@ -3024,7 +3030,6 @@ void Microstrain::device_status_callback()
         break;
       }
     }
-  ROS_INFO("9");
   device_status_msg_.device_model = diagnostic_field_45.device_model;
   device_status_msg_.status_selector =  diagnostic_field_45.status_selector;
   device_status_msg_.status_flags = diagnostic_field_45.status_flags;
@@ -3048,11 +3053,10 @@ void Microstrain::device_status_callback()
   device_status_msg_.imu_last_message_ms = diagnostic_field_45.imu_last_message_ms;
   device_status_msg_.gps_parser_errors =  diagnostic_field_45.gps_parser_errors;
   device_status_msg_.gps_message_count = diagnostic_field_45.gps_message_count;
-  device_status_msg_.gps_last_message_ms = diagnostic_field_45.gps_last_message_ms;
-  ROS_INFO("10");
+  device_status_msg_.gps_last_message_ms = diagnostic_field_45.gps_last_message_ms;*/
 }
 
-  device_status_pub_.publish(device_status_msg_);
+
 }
 
   ////////////////////////////////////////////////////////////////////////////////
