@@ -175,6 +175,10 @@ add_executable(microstrain_3dm_node
   src/microstrain_3dm_node.cpp
   src/microstrain_diagnostic_updater.cpp
 )
+
+add_dependencies(microstrain_3dm_node
+  microstrain_3dm_gencpp
+)
 add_executable(set_accel_bias_client src/set_accel_bias_client.cpp)
 
 add_executable(get_accel_bias_client src/get_accel_bias_client.cpp)
