@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm/GetZeroAngleUpdateThreshold.h"
+#include "std_srvs/Trigger.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "get_zero_angle_update_threshold_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm::GetZeroAngleUpdateThreshold>("GetZeroAngleUpdateThreshold");
-  microstrain_3dm::GetZeroAngleUpdateThreshold srv;
+  ros::ServiceClient client = n.serviceClient<std_srvs::Trigger>("GetZeroAngleUpdateThreshold");
+  std_srvs::Trigger srv;
 
 
   if (client.call(srv))

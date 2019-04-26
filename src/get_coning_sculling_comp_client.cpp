@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm/GetConingScullingComp.h"
+#include "std_srvs/Trigger.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "get_coning_sculling_comp_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm::GetConingScullingComp>("GetConingScullingComp");
-  microstrain_3dm::GetConingScullingComp srv;
+  ros::ServiceClient client = n.serviceClient<std_srvs::Trigger>("GetConingScullingComp");
+  std_srvs::Trigger srv;
 
   if (client.call(srv))
   {

@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm/GetMagDipAdaptiveVals.h"
+#include "std_srvs/Trigger.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "get_mag_dip_adaptive_vals");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm::GetMagDipAdaptiveVals>("GetMagDipAdaptiveVals");
-  microstrain_3dm::GetMagDipAdaptiveVals srv;
+  ros::ServiceClient client = n.serviceClient<std_srvs::Trigger>("GetMagDipAdaptiveVals");
+  std_srvs::Trigger srv;
 
   if (client.call(srv))
   {

@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm/GyroBiasCapture.h"
+#include "std_srvs/Trigger.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "gyro_bias_capture_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm::GyroBiasCapture>("GyroBiasCapture");
-  microstrain_3dm::GyroBiasCapture srv;
+  ros::ServiceClient client = n.serviceClient<std_srvs::Trigger>("GyroBiasCapture");
+  std_srvs::Trigger srv;
 
 
   if (client.call(srv))

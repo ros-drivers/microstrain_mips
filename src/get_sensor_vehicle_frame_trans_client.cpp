@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm/GetSensorVehicleFrameTrans.h"
+#include "std_srvs/Trigger.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "get_sensor_vehicle_frame_trans");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm::GetSensorVehicleFrameTrans>("GetSensorVehicleFrameTrans");
-  microstrain_3dm::GetSensorVehicleFrameTrans srv;
+  ros::ServiceClient client = n.serviceClient<std_srvs::Trigger>("GetSensorVehicleFrameTrans");
+  std_srvs::Trigger srv;
 
 
   if (client.call(srv))

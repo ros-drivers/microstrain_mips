@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_3dm/DeviceReport.h"
+#include "std_srvs/Trigger.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "device_report_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_3dm::DeviceReport>("DeviceReport");
-  microstrain_3dm::DeviceReport srv;
+  ros::ServiceClient client = n.serviceClient<std_srvs::Trigger>("DeviceReport");
+  std_srvs::Trigger srv;
 
 
   if (client.call(srv))

@@ -36,7 +36,7 @@ analyzers:
            'microstrain_3dm_node: COM1 Port Read Overruns']
         imu:
           type: diagnostic_aggregator/GenericAnalyzer
-          path: microstrain_3dm_node
+          path: imu
           remove_prefix: 'microstrain_3dm_node'
           timeout: 5.0
           expected: [

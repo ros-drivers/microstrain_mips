@@ -1,13 +1,16 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(microstrain_3dm)
 
+add_message_files(
+  FILES
+  status_msg.msg
+)
+
 add_service_files(
   FILES
   SetAccelBias.srv
   SetGyroBias.srv
   SetHardIronValues.srv
-  DeviceReport.srv
-  GyroBiasCapture.srv
   SetSoftIronMatrix.srv
   SetComplementaryFilter.srv
   SetFilterEuler.srv
@@ -15,50 +18,20 @@ add_service_files(
   SetAccelBiasModel.srv
   SetAccelAdaptiveVals.srv
   SetSensorVehicleFrameTrans.srv
-  GetSensorVehicleFrameTrans.srv
-  SetSensorVehicleFrameOffset.srv
-  GetSensorVehicleFrameOffset.srv
-  GetAccelBias.srv
-  GetGyroBias.srv
-  GetHardIronValues.srv
-  GetSoftIronMatrix.srv
-  GetComplementaryFilter.srv
   SetReferencePosition.srv
-  GetReferencePosition.srv
   SetConingScullingComp.srv
-  GetConingScullingComp.srv
   SetEstimationControlFlags.srv
-  GetEstimationControlFlags.srv
   SetDynamicsMode.srv
-  GetDynamicsMode.srv
-  GetBasicStatus.srv
-  GetDiagnosticReport.srv
   SetZeroAngleUpdateThreshold.srv
-  GetZeroAngleUpdateThreshold.srv
   SetTareOrientation.srv
   SetAccelNoise.srv
-  GetAccelNoise.srv
   SetGyroNoise.srv
-  GetGyroNoise.srv
   SetMagNoise.srv
-  GetMagNoise.srv
   SetGyroBiasModel.srv
-  GetGyroBiasModel.srv
-  GetAccelAdaptiveVals.srv
   SetAccelAdaptiveVals.srv
   SetMagAdaptiveVals.srv
-  GetMagAdaptiveVals.srv
   SetMagDipAdaptiveVals.srv
-  GetMagDipAdaptiveVals.srv
-  GetAccelBiasModel.srv
 )
-
-add_message_files(
-  FILES
-  status_msg.msg
-)
-
-
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)

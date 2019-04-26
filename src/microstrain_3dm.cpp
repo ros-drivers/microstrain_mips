@@ -159,7 +159,7 @@ namespace Microstrain
     // Comms Parameters
     std::string port;
     int baud, pdyn_mode;
-    private_nh.param("port", port, std::string("/dev/ttyACM0"));
+    private_nh.param("port", port, std::string("/dev/ttyACM1"));
     private_nh.param("baudrate",baud,115200);
     baudrate = (u32)baud;
     // Configuration Parameters
@@ -206,54 +206,54 @@ namespace Microstrain
 
 
     //Services to set/get device functions
-    ros::ServiceServer service = node.advertiseService("reset_kf", &Microstrain::reset_callback, this);
-    ros::ServiceServer service3 = node.advertiseService("DeviceReport", &Microstrain::device_report, this);
-    ros::ServiceServer service4 = node.advertiseService("GyroBiasCapture", &Microstrain::gyro_bias_capture, this);
-    ros::ServiceServer service5 = node.advertiseService("SetSoftIronMatrix", &Microstrain::set_soft_iron_matrix, this);
-    ros::ServiceServer service6 = node.advertiseService("SetComplementaryFilter", &Microstrain::set_complementary_filter, this);
-    ros::ServiceServer service7 = node.advertiseService("SetFilterEuler", &Microstrain::set_filter_euler, this);
-    ros::ServiceServer service8 = node.advertiseService("SetFilterHeading", &Microstrain::set_filter_heading, this);
-    ros::ServiceServer service9 = node.advertiseService("SetAccelBiasModel", &Microstrain::set_accel_bias_model, this);
-    ros::ServiceServer service10 = node.advertiseService("SetAccelAdaptiveVals", &Microstrain::set_accel_adaptive_vals, this);
-    ros::ServiceServer service11 = node.advertiseService("SetSensorVehicleFrameTrans", &Microstrain::set_sensor_vehicle_frame_trans, this);
-    ros::ServiceServer service12 = node.advertiseService("SetSensorVehicleFrameOffset", &Microstrain::set_sensor_vehicle_frame_offset, this);
-    ros::ServiceServer service13 = node.advertiseService("SetAccelBias", &Microstrain::set_accel_bias, this);
-    ros::ServiceServer service14 = node.advertiseService("SetGyroBias", &Microstrain::set_gyro_bias, this);
-    ros::ServiceServer service15 = node.advertiseService("SetHardIronValues", &Microstrain::set_hard_iron_values, this);
-    ros::ServiceServer service16 = node.advertiseService("GetAccelBias", &Microstrain::get_accel_bias, this);
-    ros::ServiceServer service17 = node.advertiseService("GetGyroBias", &Microstrain::get_gyro_bias, this);
-    ros::ServiceServer service18 = node.advertiseService("GetHardIronValues", &Microstrain::get_hard_iron_values, this);
-    ros::ServiceServer service19 = node.advertiseService("GetSoftIronMatrix", &Microstrain::get_soft_iron_matrix, this);
-    ros::ServiceServer service20 = node.advertiseService("GetSensorVehicleFrameTrans", &Microstrain::get_sensor_vehicle_frame_trans, this);
-    ros::ServiceServer service21 = node.advertiseService("GetComplementaryFilter", &Microstrain::get_complementary_filter, this);
-    ros::ServiceServer service22 = node.advertiseService("SetReferencePosition", &Microstrain::set_reference_position, this);
-    ros::ServiceServer service23 = node.advertiseService("GetReferencePosition", &Microstrain::get_reference_position, this);
-    ros::ServiceServer service24 = node.advertiseService("SetConingScullingComp", &Microstrain::set_coning_sculling_comp, this);
-    ros::ServiceServer service25 = node.advertiseService("GetConingScullingComp", &Microstrain::get_coning_sculling_comp, this);
-    ros::ServiceServer service26 = node.advertiseService("SetEstimationControlFlags", &Microstrain::set_estimation_control_flags, this);
-    ros::ServiceServer service27 = node.advertiseService("GetEstimationControlFlags", &Microstrain::get_estimation_control_flags, this);
-    ros::ServiceServer service28 = node.advertiseService("SetDynamicsMode", &Microstrain::set_dynamics_mode, this);
-    ros::ServiceServer service29 = node.advertiseService("GetBasicStatus", &Microstrain::get_basic_status, this);
-    ros::ServiceServer service30 = node.advertiseService("GetDiagnosticReport", &Microstrain::get_diagnostic_report, this);
-    ros::ServiceServer service31 = node.advertiseService("SetZeroAngleUpdateThreshold", &Microstrain::set_zero_angle_update_threshold, this);
-    ros::ServiceServer service32 = node.advertiseService("GetZeroAngleUpdateThreshold", &Microstrain::get_zero_angle_update_threshold, this);
-    ros::ServiceServer service33 = node.advertiseService("SetTareOrientation", &Microstrain::set_tare_orientation, this);
-    ros::ServiceServer service34 = node.advertiseService("SetAccelNoise", &Microstrain::set_accel_noise, this);
-    ros::ServiceServer service35 = node.advertiseService("GetAccelNoise", &Microstrain::get_accel_noise, this);
-    ros::ServiceServer service36 = node.advertiseService("SetGyroNoise", &Microstrain::set_gyro_noise, this);
-    ros::ServiceServer service37 = node.advertiseService("GetGyroNoise", &Microstrain::get_gyro_noise, this);
-    ros::ServiceServer service38 = node.advertiseService("SetMagNoise", &Microstrain::set_mag_noise, this);
-    ros::ServiceServer service39 = node.advertiseService("GetMagNoise", &Microstrain::get_mag_noise, this);
-    ros::ServiceServer service40 = node.advertiseService("SetGyroBiasModel", &Microstrain::set_gyro_bias_model, this);
-    ros::ServiceServer service41 = node.advertiseService("GetGyroBiasModel", &Microstrain::get_gyro_bias_model, this);
-    ros::ServiceServer service42 = node.advertiseService("GetAccelAdaptiveVals", &Microstrain::get_accel_adaptive_vals, this);
-    ros::ServiceServer service43 = node.advertiseService("SetMagAdaptiveVals", &Microstrain::set_mag_adaptive_vals, this);
-    ros::ServiceServer service44 = node.advertiseService("GetMagAdaptiveVals", &Microstrain::get_mag_adaptive_vals, this);
-    ros::ServiceServer service45 = node.advertiseService("SetMagDipAdaptiveVals", &Microstrain::set_mag_dip_adaptive_vals, this);
-    ros::ServiceServer service46 = node.advertiseService("GetAccelBiasModel", &Microstrain::get_accel_bias_model, this);
-    ros::ServiceServer service47 = node.advertiseService("GetMagDipAdaptiveVals", &Microstrain::get_mag_dip_adaptive_vals, this);
-    ros::ServiceServer service48 = node.advertiseService("GetSensorVehicleFrameOffset", &Microstrain::get_sensor_vehicle_frame_offset, this);
-    ros::ServiceServer service49 = node.advertiseService("GetDynamicsMode", &Microstrain::get_dynamics_mode, this);
+    ros::ServiceServer resetCallback = node.advertiseService("reset_kf", &Microstrain::reset_callback, this);
+    ros::ServiceServer device_report_service = node.advertiseService("DeviceReport", &Microstrain::device_report, this);
+    ros::ServiceServer gyro_bias_capture_service = node.advertiseService("GyroBiasCapture", &Microstrain::gyro_bias_capture, this);
+    ros::ServiceServer set_soft_iron_matrix_service = node.advertiseService("SetSoftIronMatrix", &Microstrain::set_soft_iron_matrix, this);
+    ros::ServiceServer set_complementary_filter_service = node.advertiseService("SetComplementaryFilter", &Microstrain::set_complementary_filter, this);
+    ros::ServiceServer set_filter_euler_service = node.advertiseService("SetFilterEuler", &Microstrain::set_filter_euler, this);
+    ros::ServiceServer set_filter_heading_service = node.advertiseService("SetFilterHeading", &Microstrain::set_filter_heading, this);
+    ros::ServiceServer set_accel_bias_model_service = node.advertiseService("SetAccelBiasModel", &Microstrain::set_accel_bias_model, this);
+    ros::ServiceServer set_accel_adaptive_vals_service = node.advertiseService("SetAccelAdaptiveVals", &Microstrain::set_accel_adaptive_vals, this);
+    ros::ServiceServer set_sensor_vehicle_frame_trans_service = node.advertiseService("SetSensorVehicleFrameTrans", &Microstrain::set_sensor_vehicle_frame_trans, this);
+    ros::ServiceServer set_sensor_vehicle_frame_offset_service = node.advertiseService("SetSensorVehicleFrameOffset", &Microstrain::set_sensor_vehicle_frame_offset, this);
+    ros::ServiceServer set_accel_bias_service = node.advertiseService("SetAccelBias", &Microstrain::set_accel_bias, this);
+    ros::ServiceServer set_gyro_bias_service = node.advertiseService("SetGyroBias", &Microstrain::set_gyro_bias, this);
+    ros::ServiceServer set_hard_iron_values_service = node.advertiseService("SetHardIronValues", &Microstrain::set_hard_iron_values, this);
+    ros::ServiceServer get_accel_bias_service = node.advertiseService("GetAccelBias", &Microstrain::get_accel_bias, this);
+    ros::ServiceServer get_gyro_bias_service = node.advertiseService("GetGyroBias", &Microstrain::get_gyro_bias, this);
+    ros::ServiceServer get_hard_iron_values_service = node.advertiseService("GetHardIronValues", &Microstrain::get_hard_iron_values, this);
+    ros::ServiceServer get_soft_iron_matrix_service = node.advertiseService("GetSoftIronMatrix", &Microstrain::get_soft_iron_matrix, this);
+    ros::ServiceServer get_sensor_vehicle_frame_trans_service = node.advertiseService("GetSensorVehicleFrameTrans", &Microstrain::get_sensor_vehicle_frame_trans, this);
+    ros::ServiceServer get_complementary_filter_service = node.advertiseService("GetComplementaryFilter", &Microstrain::get_complementary_filter, this);
+    ros::ServiceServer set_reference_position_service = node.advertiseService("SetReferencePosition", &Microstrain::set_reference_position, this);
+    ros::ServiceServer get_reference_position_service = node.advertiseService("GetReferencePosition", &Microstrain::get_reference_position, this);
+    ros::ServiceServer set_coning_sculling_comp_service = node.advertiseService("SetConingScullingComp", &Microstrain::set_coning_sculling_comp, this);
+    ros::ServiceServer get_coning_sculling_comp_service = node.advertiseService("GetConingScullingComp", &Microstrain::get_coning_sculling_comp, this);
+    ros::ServiceServer set_estimation_control_flags_service = node.advertiseService("SetEstimationControlFlags", &Microstrain::set_estimation_control_flags, this);
+    ros::ServiceServer get_estimation_control_flags_service = node.advertiseService("GetEstimationControlFlags", &Microstrain::get_estimation_control_flags, this);
+    ros::ServiceServer set_dynamics_mode_service = node.advertiseService("SetDynamicsMode", &Microstrain::set_dynamics_mode, this);
+    ros::ServiceServer get_basic_status_service = node.advertiseService("GetBasicStatus", &Microstrain::get_basic_status, this);
+    ros::ServiceServer get_diagnostic_report_service = node.advertiseService("GetDiagnosticReport", &Microstrain::get_diagnostic_report, this);
+    ros::ServiceServer set_zero_angle_update_threshold_service = node.advertiseService("SetZeroAngleUpdateThreshold", &Microstrain::set_zero_angle_update_threshold, this);
+    ros::ServiceServer get_zero_angle_update_threshold_service = node.advertiseService("GetZeroAngleUpdateThreshold", &Microstrain::get_zero_angle_update_threshold, this);
+    ros::ServiceServer set_tare_orientation_service = node.advertiseService("SetTareOrientation", &Microstrain::set_tare_orientation, this);
+    ros::ServiceServer set_accel_noise_service = node.advertiseService("SetAccelNoise", &Microstrain::set_accel_noise, this);
+    ros::ServiceServer get_accel_noise_service = node.advertiseService("GetAccelNoise", &Microstrain::get_accel_noise, this);
+    ros::ServiceServer set_gyro_noise_service = node.advertiseService("SetGyroNoise", &Microstrain::set_gyro_noise, this);
+    ros::ServiceServer get_gyro_noise_service = node.advertiseService("GetGyroNoise", &Microstrain::get_gyro_noise, this);
+    ros::ServiceServer set_mag_noise_service = node.advertiseService("SetMagNoise", &Microstrain::set_mag_noise, this);
+    ros::ServiceServer get_mag_noise_service = node.advertiseService("GetMagNoise", &Microstrain::get_mag_noise, this);
+    ros::ServiceServer set_gyro_bias_model_service = node.advertiseService("SetGyroBiasModel", &Microstrain::set_gyro_bias_model, this);
+    ros::ServiceServer get_gyro_bias_model_service = node.advertiseService("GetGyroBiasModel", &Microstrain::get_gyro_bias_model, this);
+    ros::ServiceServer get_accel_adaptive_vals_service = node.advertiseService("GetAccelAdaptiveVals", &Microstrain::get_accel_adaptive_vals, this);
+    ros::ServiceServer set_mag_adaptive_vals_service = node.advertiseService("SetMagAdaptiveVals", &Microstrain::set_mag_adaptive_vals, this);
+    ros::ServiceServer get_mag_adaptive_vals_service = node.advertiseService("GetMagAdaptiveVals", &Microstrain::get_mag_adaptive_vals, this);
+    ros::ServiceServer set_mag_dip_adaptive_vals_service = node.advertiseService("SetMagDipAdaptiveVals", &Microstrain::set_mag_dip_adaptive_vals, this);
+    ros::ServiceServer get_accel_bias_model_service = node.advertiseService("GetAccelBiasModel", &Microstrain::get_accel_bias_model, this);
+    ros::ServiceServer get_mag_dip_adaptive_vals_service = node.advertiseService("GetMagDipAdaptiveVals", &Microstrain::get_mag_dip_adaptive_vals, this);
+    ros::ServiceServer get_sensor_vehicle_frame_offset_service = node.advertiseService("GetSensorVehicleFrameOffset", &Microstrain::get_sensor_vehicle_frame_offset, this);
+    ros::ServiceServer get_dynamics_mode_service = node.advertiseService("GetDynamicsMode", &Microstrain::get_dynamics_mode, this);
 
     //Initialize the serial interface to the device
     ROS_INFO("Attempting to open serial port <%s> at <%d> \n",
@@ -791,7 +791,7 @@ namespace Microstrain
     ROS_INFO("Setting spin rate to <%d>",spin_rate);
     ros::Rate r(spin_rate);  // Rate in Hz
 
-    microstrain_3dm::RosDiagnosticUpdater ros_diagnostic_updater(this);
+    //microstrain_3dm::RosDiagnosticUpdater ros_diagnostic_updater(this);
 
     while (ros::ok()){
       //Update the parser (this function reads the port and parses the bytes
@@ -803,7 +803,6 @@ namespace Microstrain
 
       ros::spinOnce();  // take care of service requests.
       r.sleep();
-      //ROS_INFO("Spinning");
 
     } // end loop
 
@@ -869,7 +868,7 @@ namespace Microstrain
    }
 
    //Get accel bias values
-   bool Microstrain::get_accel_bias(microstrain_3dm::GetAccelBias::Request &req, microstrain_3dm::GetAccelBias::Response &res)
+   bool Microstrain::get_accel_bias(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
     {
       ROS_INFO("Getting accel bias values");
       memset(field_data, 0, 3*sizeof(float));
@@ -929,7 +928,7 @@ namespace Microstrain
     }
 
     //Get gyro bias values
-    bool Microstrain::get_gyro_bias(microstrain_3dm::GetGyroBias::Request &req, microstrain_3dm::GetGyroBias::Response &res)
+    bool Microstrain::get_gyro_bias(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
      {
        ROS_INFO("Getting gyro bias values");
        memset(field_data, 0, 3*sizeof(float));
@@ -995,7 +994,7 @@ namespace Microstrain
      }
 
      //Get hard iron values
-     bool Microstrain::get_hard_iron_values(microstrain_3dm::GetHardIronValues::Request &req, microstrain_3dm::GetHardIronValues::Response &res)
+     bool Microstrain::get_hard_iron_values(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
       {
 
         if(GX5_15 == true){
@@ -1022,7 +1021,7 @@ namespace Microstrain
 
 
     //Get device report
-    bool Microstrain::device_report(microstrain_3dm::DeviceReport::Request &req, microstrain_3dm::DeviceReport::Response &res)
+    bool Microstrain::device_report(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
     {
       start = clock();
       while(mip_base_cmd_get_device_info(&device_interface_, &device_info) != MIP_INTERFACE_OK){
@@ -1057,7 +1056,7 @@ namespace Microstrain
     }
 
     //Capture gyro bias values
-    bool Microstrain::gyro_bias_capture(microstrain_3dm::GyroBiasCapture::Request &req, microstrain_3dm::GyroBiasCapture::Response &res)
+    bool Microstrain::gyro_bias_capture(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
     {
       memset(field_data, 0, 3*sizeof(float));
       ROS_INFO("Performing Gyro Bias capture.\nPlease keep device stationary during the 5 second gyro bias capture interval\n");
@@ -1143,7 +1142,7 @@ namespace Microstrain
     }
 
     //Get soft iron matrix values
-    bool Microstrain::get_soft_iron_matrix(microstrain_3dm::GetSoftIronMatrix::Request &req, microstrain_3dm::GetSoftIronMatrix::Response &res)
+    bool Microstrain::get_soft_iron_matrix(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
      {
        if(GX5_15 == true){
          ROS_INFO("Device does not support this feature");
@@ -1217,7 +1216,7 @@ namespace Microstrain
     }
 
     //Get complementary filter values
-    bool Microstrain::get_complementary_filter(microstrain_3dm::GetComplementaryFilter::Request &req, microstrain_3dm::GetComplementaryFilter::Response &res)
+    bool Microstrain::get_complementary_filter(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
     {
      //Read back the complementary filter values
      start = clock();
@@ -1346,7 +1345,7 @@ namespace Microstrain
   }
 
   //Get sensor to vehicle frame transformation
-  bool Microstrain::get_sensor_vehicle_frame_trans(microstrain_3dm::GetSensorVehicleFrameTrans::Request &req, microstrain_3dm::GetSensorVehicleFrameTrans::Response &res)
+  bool Microstrain::get_sensor_vehicle_frame_trans(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
   {
     if(GX5_15 == true){
       ROS_INFO("Device does not support this feature");
@@ -1417,7 +1416,7 @@ namespace Microstrain
     }
 
     //Get reference position
-    bool Microstrain::get_reference_position(microstrain_3dm::GetReferencePosition::Request &req, microstrain_3dm::GetReferencePosition::Response &res)
+    bool Microstrain::get_reference_position(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
     {
     ROS_INFO("Getting reference position");
     memset(reference_position_readback, 0, 3*sizeof(double));
@@ -1489,7 +1488,7 @@ namespace Microstrain
     }
 
     //Get coning and sculling compenastion enabled/disabled state
-    bool Microstrain::get_coning_sculling_comp(microstrain_3dm::GetConingScullingComp::Request &req, microstrain_3dm::GetConingScullingComp::Response &res)
+    bool Microstrain::get_coning_sculling_comp(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
     {
     start = clock();
     while(mip_3dm_cmd_coning_sculling_compensation(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &enable_flag) != MIP_INTERFACE_OK){
@@ -1530,7 +1529,7 @@ namespace Microstrain
 
 
     //Get estimatio control filter flags
-    bool Microstrain::get_estimation_control_flags(microstrain_3dm::GetEstimationControlFlags::Request &req, microstrain_3dm::GetEstimationControlFlags::Response &res)
+    bool Microstrain::get_estimation_control_flags(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
     {
     start = clock();
     while(mip_filter_estimation_control(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &estimation_control_readback) != MIP_INTERFACE_OK){
@@ -1547,7 +1546,7 @@ namespace Microstrain
 
 
     //Get device basic status. Variables in basic status struct change based on device model
-    bool Microstrain::get_basic_status(microstrain_3dm::GetBasicStatus::Request &req, microstrain_3dm::GetBasicStatus::Response &res)
+    bool Microstrain::get_basic_status(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
     {
       //Use the basic status struct for the GX-25
       if(GX5_25){
@@ -1560,32 +1559,22 @@ namespace Microstrain
           }
         }
 
-        printf("Model Number: \t\t\t\t\t%04u\n", basic_field.device_model);
-        printf("Status Selector: \t\t\t\t%d\n", basic_field.status_selector);// == GX4_25_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
-        printf("Status Flags: \t\t\t\t\t%lu\n", basic_field.status_flags);
-        printf("System state: \t\t\t\t\t%04u\n", basic_field.system_state);
-        printf("System Microsecond Timer Count: \t\t%lu ms\n\n", basic_field.system_timer_ms);
+        ROS_INFO("Model Number: \t\t\t\t\t%04u\n", basic_field.device_model);
+        ROS_INFO("Status Selector: \t\t\t\t%d\n", basic_field.status_selector);// == GX4_25_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
+        ROS_INFO("Status Flags: \t\t\t\t\t%lu\n", basic_field.status_flags);
+        ROS_INFO("System state: \t\t\t\t\t%04u\n", basic_field.system_state);
+        ROS_INFO("System Microsecond Timer Count: \t\t%lu ms\n\n", basic_field.system_timer_ms);
       }
       else {
         ROS_INFO("Command not supported on this model");
       }
-      /*else if(GX5_45){
-        u8 response_buffer[sizeof(gx4_45_basic_status_field)];
-        start = clock();
-        while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_45_MODEL_NUMBER, GX4_45_BASIC_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){
-          if (clock() - start > 5000){
-            ROS_INFO("mip_3dm_cmd_hw_specific_device_status function timed out.");
-            break;
-          }
-        }
-      }*/
 
       res.success = true;
       return true;
     }
 
     //Get diagnostic status of device. Changes based on device model.
-    bool Microstrain::get_diagnostic_report(microstrain_3dm::GetDiagnosticReport::Request &req, microstrain_3dm::GetDiagnosticReport::Response &res)
+    bool Microstrain::get_diagnostic_report(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
     {
       //Use GX5-25 device diagnostic struct
       if(GX5_25){
@@ -1598,21 +1587,21 @@ namespace Microstrain
           }
         }
 
-        printf("Model Number: \t\t\t\t\t%04u\n", diagnostic_field.device_model);
-        printf("Status Selector: \t\t\t\t%d\n", diagnostic_field.status_selector);// == 114 ? "Basic Status Report" : "Diagnostic Status Report");
-        printf("Status Flags: \t\t\t\t\t%lu\n", diagnostic_field.status_flags);
-        printf("System Millisecond Timer Count: \t\t%lu ms\n", diagnostic_field.system_timer_ms);
-        printf("IMU Streaming Enabled: \t\t\t\t%s\n", diagnostic_field.imu_stream_enabled == 1 ? "TRUE" : "FALSE");
-        printf("FILTER Streaming Enabled: \t\t\t%s\n", diagnostic_field.filter_stream_enabled == 1 ? "TRUE" : "FALSE");
-        printf("Number of Dropped IMU Packets: \t\t\t%lu packets\n", diagnostic_field.imu_dropped_packets);
-        printf("Number of Dropped FILTER Packets: \t\t%lu packets\n", diagnostic_field.filter_dropped_packets);
-        printf("Communications Port Bytes Written: \t\t%lu Bytes\n", diagnostic_field.com1_port_bytes_written);
-        printf("Communications Port Bytes Read: \t\t%lu Bytes\n", diagnostic_field.com1_port_bytes_read);
-        printf("Communications Port Write Overruns: \t\t%lu Bytes\n", diagnostic_field.com1_port_write_overruns);
-        printf("Communications Port Read Overruns: \t\t%lu Bytes\n", diagnostic_field.com1_port_read_overruns);
-        printf("IMU Parser Errors: \t\t\t\t%lu Errors\n", diagnostic_field.imu_parser_errors);
-        printf("IMU Message Count: \t\t\t\t%lu Messages\n", diagnostic_field.imu_message_count);
-        printf("IMU Last Message Received: \t\t\t%lu ms\n", diagnostic_field.imu_last_message_ms);
+        ROS_INFO("Model Number: \t\t\t\t\t%04u\n", diagnostic_field.device_model);
+        ROS_INFO("Status Selector: \t\t\t\t%d\n", diagnostic_field.status_selector);// == 114 ? "Basic Status Report" : "Diagnostic Status Report");
+        ROS_INFO("Status Flags: \t\t\t\t\t%lu\n", diagnostic_field.status_flags);
+        ROS_INFO("System Millisecond Timer Count: \t\t%lu ms\n", diagnostic_field.system_timer_ms);
+        ROS_INFO("IMU Streaming Enabled: \t\t\t\t%s\n", diagnostic_field.imu_stream_enabled == 1 ? "TRUE" : "FALSE");
+        ROS_INFO("FILTER Streaming Enabled: \t\t\t%s\n", diagnostic_field.filter_stream_enabled == 1 ? "TRUE" : "FALSE");
+        ROS_INFO("Number of Dropped IMU Packets: \t\t\t%lu packets\n", diagnostic_field.imu_dropped_packets);
+        ROS_INFO("Number of Dropped FILTER Packets: \t\t%lu packets\n", diagnostic_field.filter_dropped_packets);
+        ROS_INFO("Communications Port Bytes Written: \t\t%lu Bytes\n", diagnostic_field.com1_port_bytes_written);
+        ROS_INFO("Communications Port Bytes Read: \t\t%lu Bytes\n", diagnostic_field.com1_port_bytes_read);
+        ROS_INFO("Communications Port Write Overruns: \t\t%lu Bytes\n", diagnostic_field.com1_port_write_overruns);
+        ROS_INFO("Communications Port Read Overruns: \t\t%lu Bytes\n", diagnostic_field.com1_port_read_overruns);
+        ROS_INFO("IMU Parser Errors: \t\t\t\t%lu Errors\n", diagnostic_field.imu_parser_errors);
+        ROS_INFO("IMU Message Count: \t\t\t\t%lu Messages\n", diagnostic_field.imu_message_count);
+        ROS_INFO("IMU Last Message Received: \t\t\t%lu ms\n", diagnostic_field.imu_last_message_ms);
 
       }
 
@@ -1621,39 +1610,6 @@ namespace Microstrain
         ROS_INFO("Command not supported on this model");
       }
 
-      /*else if(GX5_45){
-        u8 response_buffer[sizeof(gx4_45_diagnostic_device_status_field)];
-        start = clock();
-        while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_45_MODEL_NUMBER, GX4_45_DIAGNOSTICS_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){
-          if (clock() - start > 5000){
-            ROS_INFO("mip_3dm_cmd_hw_specific_device_status function timed out.");
-            break;
-          }
-        }
-        printf("Model Number: \t\t\t\t\t%04u\n", diagnostic_field_45.device_model);
-        printf("Status Selector: \t\t\t\t%s\n", diagnostic_field_45.status_selector == GX4_45_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
-        printf("Status Flags: \t\t\t\t\t0x%08x\n", diagnostic_field_45.status_flags);
-        printf("System Millisecond Timer Count: \t\t%llu ms\n", diagnostic_field_45.system_timer_ms);
-        printf("GPS Power On: \t\t%llu ms\n", diagnostic_field_45.gps_power_on);
-        printf("Number Received GPS Pulse-Per-Second Pulses: \t%u Pulses\n", diagnostic_field_45.num_gps_pps_triggers);
-        printf("Time of Last GPS Pulse-Per-Second Pulse: \t%u ms\n", diagnostic_field_45.last_gps_pps_trigger_ms);
-        printf("IMU Streaming Enabled: \t\t\t\t%s\n", diagnostic_field_45.imu_stream_enabled == 1 ? "TRUE" : "FALSE");
-        printf("GPS Streaming Enabled: \t\t\t\t%s\n", diagnostic_field_45.gps_stream_enabled == 1 ? "TRUE" : "FALSE");
-        printf("FILTER Streaming Enabled: \t\t\t\t%s\n", diagnostic_field_45.filter_stream_enabled == 1 ? "TRUE" : "FALSE");
-        printf("Number of Dropped IMU Packets: \t\t\t%u packets\n", diagnostic_field_45.imu_dropped_packets);
-        printf("Number of Dropped GPS Packets: \t\t\t%u packets\n", diagnostic_field_45.gps_dropped_packets);
-        printf("Number of Dropped FILTER Packets: \t\t\t%u packets\n", diagnostic_field_45.filter_dropped_packets);
-        printf("Communications Port Bytes Written: \t\t%u Bytes\n", diagnostic_field_45.com1_port_bytes_written);
-        printf("Communications Port Bytes Read: \t\t%u Bytes\n", diagnostic_field_45.com1_port_bytes_read);
-        printf("Communications Port Write Overruns: \t\t%u Bytes\n", diagnostic_field_45.com1_port_write_overruns);
-        printf("Communications Port Read Overruns: \t\t%u Bytes\n", diagnostic_field_45.com1_port_read_overruns);
-        printf("IMU Parser Errors: \t\t\t\t%u Errors\n", diagnostic_field_45.imu_parser_errors);
-        printf("IMU Message Count: \t\t\t\t%u Messages\n", diagnostic_field_45.imu_message_count);
-        printf("IMU Last Message Received: \t\t\t%u ms\n", diagnostic_field_45.imu_last_message_ms);
-        printf("GPS Parser Errors: \t\t\t\t%u Errors\n", diagnostic_field_45.gps_parser_errors);
-        printf("GPS Message Count: \t\t\t\t%u Messages\n", diagnostic_field_45.gps_message_count);
-        printf("GPS Last Message Received: \t\t\t%u ms\n", diagnostic_field_45.gps_last_message_ms);
-      }*/
       res.success = true;
       return true;
     }
@@ -1695,7 +1651,7 @@ namespace Microstrain
 
 
     //Get zero angular rate update threshold value
-    bool Microstrain::get_zero_angle_update_threshold(microstrain_3dm::GetZeroAngleUpdateThreshold::Request &req, microstrain_3dm::GetZeroAngleUpdateThreshold::Response &res)
+    bool Microstrain::get_zero_angle_update_threshold(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
     {
       ROS_INFO("Setting Zero Angular-Rate-Update threshold\n");
       //Read back parameter settings
@@ -1814,7 +1770,7 @@ namespace Microstrain
     }
 
     //Get accel noise values
-    bool Microstrain::get_accel_noise(microstrain_3dm::GetAccelNoise::Request &req, microstrain_3dm::GetAccelNoise::Response &res)
+    bool Microstrain::get_accel_noise(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
     {
       start = clock();
       while(mip_filter_accel_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){
@@ -1873,7 +1829,7 @@ namespace Microstrain
     }
 
     //Get gyro noise values
-    bool Microstrain::get_gyro_noise(microstrain_3dm::GetGyroNoise::Request &req, microstrain_3dm::GetGyroNoise::Response &res)
+    bool Microstrain::get_gyro_noise(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
     {
       start = clock();
       while(mip_filter_gyro_noise(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_noise) != MIP_INTERFACE_OK){
@@ -1938,7 +1894,7 @@ namespace Microstrain
     }
 
     //Get magnetometer noise values
-    bool Microstrain::get_mag_noise(microstrain_3dm::GetMagNoise::Request &req, microstrain_3dm::GetMagNoise::Response &res)
+    bool Microstrain::get_mag_noise(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
     {
       if(GX5_15 == true){
         ROS_INFO("Device does not support this feature");
@@ -2012,7 +1968,7 @@ namespace Microstrain
     }
 
     //Get gyro bias model
-    bool Microstrain::get_gyro_bias_model(microstrain_3dm::GetGyroBiasModel::Request &req, microstrain_3dm::GetGyroBiasModel::Response &res)
+    bool Microstrain::get_gyro_bias_model(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
     {
       start = clock();
       while(mip_filter_gyro_bias_model(&device_interface_, MIP_FUNCTION_SELECTOR_READ, readback_beta, readback_noise) != MIP_INTERFACE_OK){
@@ -2028,7 +1984,7 @@ namespace Microstrain
     }
 
     //Get acces bias model
-    bool Microstrain::get_accel_bias_model(microstrain_3dm::GetAccelBiasModel::Request &req, microstrain_3dm::GetAccelBiasModel::Response &res)
+    bool Microstrain::get_accel_bias_model(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
     {
       if(GX5_15 == true || GX5_25 == true){
         ROS_INFO("Device does not support this feature");
@@ -2047,7 +2003,7 @@ namespace Microstrain
         }
       }
 
-      printf("Returned values:  Beta: %f X %f Y %f Z, White Noise: %f X %f Y %f Z\n", readback_beta[0], readback_beta[1], readback_beta[2],
+      ROS_INFO("Returned values:  Beta: %f X %f Y %f Z, White Noise: %f X %f Y %f Z\n", readback_beta[0], readback_beta[1], readback_beta[2],
    										   readback_noise[0], readback_noise[1], readback_noise[2]);
 
       res.success = true;
@@ -2102,7 +2058,7 @@ namespace Microstrain
         (abs(readback_beta[1]-beta[1]) < 0.001) &&
         (abs(readback_beta[2]-beta[2]) < 0.001))
       {
-        printf("Accel bias model values successfully set.\n");
+        ROS_INFO("Accel bias model values successfully set.\n");
       }
       else
       {
@@ -2170,7 +2126,7 @@ namespace Microstrain
     }
 
     //Get accep magnitude error adaptive measurement values
-    bool Microstrain::get_accel_adaptive_vals(microstrain_3dm::GetAccelAdaptiveVals::Request &req, microstrain_3dm::GetAccelAdaptiveVals::Response &res )
+    bool Microstrain::get_accel_adaptive_vals(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res )
     {
       start = clock();
       while(mip_filter_accel_magnitude_error_adaptive_measurement(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &accel_magnitude_error_readback) != MIP_INTERFACE_OK){
@@ -2243,7 +2199,7 @@ namespace Microstrain
     }
 
     //Get magnetometer magnitude error adaptive measurement values
-    bool Microstrain::get_mag_adaptive_vals(microstrain_3dm::GetMagAdaptiveVals::Request &req, microstrain_3dm::GetMagAdaptiveVals::Response &res )
+    bool Microstrain::get_mag_adaptive_vals(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res )
     {
       if(GX5_15 == true){
         ROS_INFO("Device does not support this feature");
@@ -2266,7 +2222,7 @@ namespace Microstrain
     }
 
     //Get magnetometer dip angle error adaptive measurement values
-    bool Microstrain::get_mag_dip_adaptive_vals(microstrain_3dm::GetMagDipAdaptiveVals::Request &req, microstrain_3dm::GetMagDipAdaptiveVals::Response &res )
+    bool Microstrain::get_mag_dip_adaptive_vals(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res )
     {
       if(GX5_15 == true || GX5_25 == true){
         ROS_INFO("Device does not support this feature");
@@ -2357,7 +2313,7 @@ namespace Microstrain
 
 
     //Get vehicle dynamics mode
-    bool Microstrain::get_dynamics_mode(microstrain_3dm::GetDynamicsMode::Request &req, microstrain_3dm::GetDynamicsMode::Response &res)
+    bool Microstrain::get_dynamics_mode(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
     {
       if(GX5_15 == true || GX5_25 == true){
         ROS_INFO("Device does not support this feature");
@@ -2368,7 +2324,7 @@ namespace Microstrain
       readback_dynamics_mode = 0;
       while(mip_filter_vehicle_dynamics_mode(&device_interface_, MIP_FUNCTION_SELECTOR_READ, &readback_dynamics_mode) != MIP_INTERFACE_OK){}
 
-      printf("Vehicle dynamics mode is: %d\n", dynamics_mode);
+      ROS_INFO("Vehicle dynamics mode is: %d\n", dynamics_mode);
 
       res.success = true;
       return true;
@@ -2404,12 +2360,12 @@ namespace Microstrain
 
         if(dynamics_mode == readback_dynamics_mode)
         {
-         printf("Vehicle dynamics mode successfully set to %d\n", dynamics_mode);
+         ROS_INFO("Vehicle dynamics mode successfully set to %d\n", dynamics_mode);
          res.success = true;
         }
         else
         {
-         printf("ERROR: Failed to set vehicle dynamics mode to %d!!!\n", dynamics_mode);
+         ROS_INFO("ERROR: Failed to set vehicle dynamics mode to %d!!!\n", dynamics_mode);
          res.success = false;
         }
       }
@@ -2468,7 +2424,7 @@ namespace Microstrain
     }
 
     //Get sensor to vehicle frame offset. Only in 45 model.
-    bool Microstrain::get_sensor_vehicle_frame_offset(microstrain_3dm::GetSensorVehicleFrameOffset::Request &req, microstrain_3dm::GetSensorVehicleFrameOffset::Response &res)
+    bool Microstrain::get_sensor_vehicle_frame_offset(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
     {
       if(GX5_15 == true || GX5_25 == true){
          ROS_INFO("Device does not support this feature");
@@ -2492,7 +2448,7 @@ namespace Microstrain
        return true;
     }
 
-    //Get basic or diagnostic status of device. calle by basic and diagnostic services.
+    //Get basic or diagnostic status of device. Called by basic and diagnostic services.
     u16 Microstrain::mip_3dm_cmd_hw_specific_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer)
     {
      int total_size = 0;
@@ -2621,161 +2577,8 @@ namespace Microstrain
 
        return MIP_INTERFACE_OK;
    }
-   /*else if(GX5_45)
-   {
-     gx4_45_basic_status_field *basic_ptr;
-     gx4_45_diagnostic_device_status_field *diagnostic_ptr;
-     u16 response_size = MIP_FIELD_HEADER_SIZE;
-     //Set response size based on device model and whether basic or diagnostic status is chosen
-     if(status_selector == GX4_45_BASIC_STATUS_SEL)
-      response_size += sizeof(gx4_45_basic_status_field);
-     else if(status_selector == GX4_45_DIAGNOSTICS_STATUS_SEL){
-      response_size += sizeof(gx4_45_diagnostic_device_status_field);
-      }
-     while(mip_3dm_cmd_device_status(device_interface, model_number, status_selector, response_buffer, &response_size) != MIP_INTERFACE_OK){}
-
-     if(status_selector == GX4_45_BASIC_STATUS_SEL)
-     {
-      if(response_size != sizeof(gx4_45_basic_status_field)){
-       return MIP_INTERFACE_ERROR;
-      }
-      else if(MIP_SDK_CONFIG_BYTESWAP){
-
-       //Perform byteswapping
-       byteswap_inplace(&response_buffer[0], sizeof(basic_field_45.device_model));
-       byteswap_inplace(&response_buffer[2], sizeof(basic_field_45.status_selector));
-       byteswap_inplace(&response_buffer[3], sizeof(basic_field_45.status_flags));
-       byteswap_inplace(&response_buffer[7], sizeof(basic_field_45.system_state));
-       byteswap_inplace(&response_buffer[9], sizeof(basic_field_45.system_timer_ms));
-      }
-       void * struct_pointer;
-       struct_pointer = &basic_field_45;
-
-       //Copy response from response buffer to basic status struct
-       memcpy(struct_pointer, response_buffer, sizeof(basic_field_45.device_model));
-       memcpy((struct_pointer+2), &(response_buffer[2]), sizeof(basic_field_45.status_selector));
-       memcpy((struct_pointer+3), &(response_buffer[3]), sizeof(basic_field_45.status_flags));
-       memcpy((struct_pointer+7), &(response_buffer[7]), sizeof(basic_field_45.system_state));
-       memcpy((struct_pointer+9), &(response_buffer[9]), sizeof(basic_field_45.system_timer_ms));
-
-
-
-     }
-     else if(status_selector == GX4_45_DIAGNOSTICS_STATUS_SEL)
-     {
-      if(response_size != sizeof(gx4_45_diagnostic_device_status_field)){
-       return MIP_INTERFACE_ERROR;
-     }
-      else if(MIP_SDK_CONFIG_BYTESWAP){
-       //byteswap and copy response to diagnostic status struct
-       total_size = 0;
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.device_model));
-       total_size += sizeof(diagnostic_field_45.device_model);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.status_selector));
-       total_size += sizeof(diagnostic_field_45.status_selector);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.status_flags));
-       total_size += sizeof(diagnostic_field_45.status_flags);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.system_state));
-       total_size += sizeof(diagnostic_field_45.system_state);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.system_timer_ms));
-       total_size += sizeof(diagnostic_field_45.system_timer_ms);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.gps_power_on));
-       total_size += sizeof(diagnostic_field_45.gps_power_on);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.num_gps_pps_triggers));
-       total_size += sizeof(diagnostic_field_45.num_gps_pps_triggers);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.last_gps_pps_trigger_ms));
-       total_size += sizeof(diagnostic_field_45.last_gps_pps_trigger_ms);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.imu_stream_enabled));
-       total_size += sizeof(diagnostic_field_45.imu_stream_enabled);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.gps_stream_enabled));
-       total_size += sizeof(diagnostic_field_45.gps_stream_enabled);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.filter_stream_enabled));
-       total_size += sizeof(diagnostic_field_45.filter_stream_enabled);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.imu_dropped_packets));
-       total_size += sizeof(diagnostic_field_45.imu_dropped_packets);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.gps_dropped_packets));
-       total_size += sizeof(diagnostic_field_45.gps_dropped_packets);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.filter_dropped_packets));
-       total_size += sizeof(diagnostic_field_45.filter_dropped_packets);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.com1_port_bytes_written));
-       total_size += sizeof(diagnostic_field_45.com1_port_bytes_written);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.com1_port_bytes_read));
-       total_size += sizeof(diagnostic_field_45.com1_port_bytes_read);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.com1_port_write_overruns));
-       total_size += sizeof(diagnostic_field_45.com1_port_write_overruns);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.com1_port_read_overruns));
-       total_size += sizeof(diagnostic_field_45.com1_port_read_overruns);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.imu_parser_errors));
-       total_size += sizeof(diagnostic_field_45.imu_parser_errors);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.imu_message_count));
-       total_size += sizeof(diagnostic_field_45.imu_message_count);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.imu_last_message_ms));
-       total_size += sizeof(diagnostic_field_45.imu_last_message_ms);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.gps_parser_errors));
-       total_size += sizeof(diagnostic_field_45.gps_parser_errors);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.gps_message_count));
-       total_size += sizeof(diagnostic_field_45.gps_message_count);
-       byteswap_inplace(&response_buffer[total_size], sizeof(diagnostic_field_45.gps_last_message_ms));
-      }
-       void * struct_pointer;
-       struct_pointer = &diagnostic_field_45;
-       total_size = 0;
-
-       memcpy(struct_pointer, response_buffer, sizeof(diagnostic_field_45.device_model));
-       total_size += sizeof(diagnostic_field_45.device_model);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.status_selector));
-       total_size += sizeof(diagnostic_field_45.status_selector);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.status_flags));
-       total_size += sizeof(diagnostic_field_45.status_flags);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.system_state));
-       total_size += sizeof(diagnostic_field_45.system_state);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.system_timer_ms));
-       total_size += sizeof(diagnostic_field_45.system_timer_ms);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.gps_power_on));
-       total_size += sizeof(diagnostic_field_45.gps_power_on);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.num_gps_pps_triggers));
-       total_size += sizeof(diagnostic_field_45.num_gps_pps_triggers);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.last_gps_pps_trigger_ms));
-       total_size += sizeof(diagnostic_field_45.last_gps_pps_trigger_ms);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.imu_stream_enabled));
-       total_size += sizeof(diagnostic_field_45.imu_stream_enabled);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.gps_stream_enabled));
-       total_size += sizeof(diagnostic_field_45.gps_stream_enabled);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.filter_stream_enabled));
-       total_size += sizeof(diagnostic_field_45.filter_stream_enabled);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.imu_dropped_packets));
-       total_size += sizeof(diagnostic_field_45.imu_dropped_packets);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.gps_dropped_packets));
-       total_size += sizeof(diagnostic_field_45.gps_dropped_packets);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.filter_dropped_packets));
-       total_size += sizeof(diagnostic_field_45.filter_dropped_packets);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.com1_port_bytes_written));
-       total_size += sizeof(diagnostic_field_45.com1_port_bytes_written);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.com1_port_bytes_read));
-       total_size += sizeof(diagnostic_field_45.com1_port_bytes_read);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.com1_port_write_overruns));
-       total_size += sizeof(diagnostic_field_45.com1_port_write_overruns);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.com1_port_read_overruns));
-       total_size += sizeof(diagnostic_field_45.com1_port_read_overruns);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.imu_parser_errors));
-       total_size += sizeof(diagnostic_field_45.imu_parser_errors);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.imu_message_count));
-       total_size += sizeof(diagnostic_field_45.imu_message_count);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.imu_last_message_ms));
-       total_size += sizeof(diagnostic_field_45.imu_last_message_ms);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.gps_parser_errors));
-       total_size += sizeof(diagnostic_field_45.gps_parser_errors);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.gps_message_count));
-       total_size += sizeof(diagnostic_field_45.gps_message_count);
-       memcpy((struct_pointer + total_size), &(response_buffer[total_size]), sizeof(diagnostic_field_45.gps_last_message_ms));
-     }
-     else
-      return MIP_INTERFACE_ERROR;
-
-     return MIP_INTERFACE_OK;
-   }*/
-
  }
+
 
 
   //Start callbacks for data packets
@@ -3023,6 +2826,7 @@ void Microstrain::device_status_callback()
     }
 
   //ROS_INFO("Adding device diagnostics to status msg");
+    //ROS_INFO("adding data to message");
     device_status_msg_.device_model = diagnostic_field.device_model;
     device_status_msg_.status_selector =  diagnostic_field.status_selector;
     device_status_msg_.status_flags = diagnostic_field.status_flags;
@@ -3041,45 +2845,11 @@ void Microstrain::device_status_callback()
     device_status_msg_.imu_last_message_ms = diagnostic_field.imu_last_message_ms;
 
     device_status_pub_.publish(device_status_msg_);
+    /*ROS_INFO("Published message");*/
   }
   else{
     ROS_INFO("Device status messages not configured for this model");
-    /*ROS_INFO("Publishing 45 msg");
-    u8 response_buffer[sizeof(gx4_45_diagnostic_device_status_field)];
-    start = clock();
-    while(mip_3dm_cmd_hw_specific_device_status(&device_interface_, GX4_45_MODEL_NUMBER, GX4_45_DIAGNOSTICS_STATUS_SEL, response_buffer) != MIP_INTERFACE_OK){
-      if (clock() - start > 5000){
-        ROS_INFO("mip_3dm_cmd_hw_specific_device_status function timed out.");
-        break;
-      }
-    }
-  device_status_msg_.device_model = diagnostic_field_45.device_model;
-  device_status_msg_.status_selector =  diagnostic_field_45.status_selector;
-  device_status_msg_.status_flags = diagnostic_field_45.status_flags;
-  device_status_msg_.system_state = diagnostic_field_45.system_state;
-  device_status_msg_.system_timer_ms = diagnostic_field_45.system_timer_ms;
-  device_status_msg_.gps_power_on = diagnostic_field_45.gps_power_on;
-  device_status_msg_.num_gps_pps_triggers = diagnostic_field_45.num_gps_pps_triggers;
-  device_status_msg_.last_gps_pps_trigger_ms = diagnostic_field_45.last_gps_pps_trigger_ms;
-  device_status_msg_.imu_stream_enabled = diagnostic_field_45.imu_stream_enabled;
-  device_status_msg_.gps_stream_enabled = diagnostic_field_45.gps_stream_enabled;
-  device_status_msg_.filter_stream_enabled =  diagnostic_field_45.filter_stream_enabled;
-  device_status_msg_.imu_dropped_packets = diagnostic_field_45.imu_dropped_packets;
-  device_status_msg_.gps_dropped_packets = diagnostic_field_45.gps_dropped_packets;
-  device_status_msg_.filter_dropped_packets = diagnostic_field_45.filter_dropped_packets;
-  device_status_msg_.com1_port_bytes_written = diagnostic_field_45.com1_port_bytes_written;
-  device_status_msg_.com1_port_bytes_read = diagnostic_field_45.com1_port_bytes_read;
-  device_status_msg_.com1_port_write_overruns = diagnostic_field_45.com1_port_write_overruns;
-  device_status_msg_.com1_port_read_overruns = diagnostic_field_45.com1_port_read_overruns;
-  device_status_msg_.imu_parser_errors =  diagnostic_field_45.imu_parser_errors;
-  device_status_msg_.imu_message_count = diagnostic_field_45.imu_message_count;
-  device_status_msg_.imu_last_message_ms = diagnostic_field_45.imu_last_message_ms;
-  device_status_msg_.gps_parser_errors =  diagnostic_field_45.gps_parser_errors;
-  device_status_msg_.gps_message_count = diagnostic_field_45.gps_message_count;
-  device_status_msg_.gps_last_message_ms = diagnostic_field_45.gps_last_message_ms;*/
-}
-
-
+  }
 }
 
   ////////////////////////////////////////////////////////////////////////////////

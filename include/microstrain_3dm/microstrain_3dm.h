@@ -53,6 +53,7 @@ extern "C" {
 #include "std_msgs/Int16MultiArray.h"
 #include "std_msgs/MultiArrayLayout.h"
 #include "std_srvs/Empty.h"
+#include "std_srvs/Trigger.h"
 #include "std_msgs/String.h"
 #include "microstrain_3dm/status_msg.h"
 
@@ -158,27 +159,27 @@ namespace Microstrain
 
     bool set_accel_bias(microstrain_3dm::SetAccelBias::Request &req, microstrain_3dm::SetAccelBias::Response &res);
 
-    bool get_accel_bias(microstrain_3dm::GetAccelBias::Request &req, microstrain_3dm::GetAccelBias::Response &res);
+    bool get_accel_bias(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_gyro_bias(microstrain_3dm::SetGyroBias::Request &req, microstrain_3dm::SetGyroBias::Response &res);
 
-    bool get_gyro_bias(microstrain_3dm::GetGyroBias::Request &req, microstrain_3dm::GetGyroBias::Response &res);
+    bool get_gyro_bias(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_hard_iron_values(microstrain_3dm::SetHardIronValues::Request &req, microstrain_3dm::SetHardIronValues::Response &res);
 
-    bool get_hard_iron_values(microstrain_3dm::GetHardIronValues::Request &req, microstrain_3dm::GetHardIronValues::Response &res);
+    bool get_hard_iron_values(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
-    bool device_report(microstrain_3dm::DeviceReport::Request &req, microstrain_3dm::DeviceReport::Response &res);
+    bool device_report(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
-    bool gyro_bias_capture(microstrain_3dm::GyroBiasCapture::Request &req, microstrain_3dm::GyroBiasCapture::Response &res);
+    bool gyro_bias_capture(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_soft_iron_matrix(microstrain_3dm::SetSoftIronMatrix::Request &req, microstrain_3dm::SetSoftIronMatrix::Response &res);
 
-    bool get_soft_iron_matrix(microstrain_3dm::GetSoftIronMatrix::Request &req, microstrain_3dm::GetSoftIronMatrix::Response &res);
+    bool get_soft_iron_matrix(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_complementary_filter(microstrain_3dm::SetComplementaryFilter::Request &req, microstrain_3dm::SetComplementaryFilter::Response &res);
 
-    bool get_complementary_filter(microstrain_3dm::GetComplementaryFilter::Request &req, microstrain_3dm::GetComplementaryFilter::Response &res);
+    bool get_complementary_filter(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_filter_euler(microstrain_3dm::SetFilterEuler::Request &req, microstrain_3dm::SetFilterEuler::Response &res);
 
@@ -190,67 +191,67 @@ namespace Microstrain
 
     bool set_sensor_vehicle_frame_trans(microstrain_3dm::SetSensorVehicleFrameTrans::Request &req, microstrain_3dm::SetSensorVehicleFrameTrans::Response &res);
 
-    bool get_sensor_vehicle_frame_trans(microstrain_3dm::GetSensorVehicleFrameTrans::Request &req, microstrain_3dm::GetSensorVehicleFrameTrans::Response &res);
+    bool get_sensor_vehicle_frame_trans(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_sensor_vehicle_frame_offset(microstrain_3dm::SetSensorVehicleFrameOffset::Request &req, microstrain_3dm::SetSensorVehicleFrameOffset::Response &res);
 
-    bool get_sensor_vehicle_frame_offset(microstrain_3dm::GetSensorVehicleFrameOffset::Request &req, microstrain_3dm::GetSensorVehicleFrameOffset::Response &res);
+    bool get_sensor_vehicle_frame_offset(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_reference_position(microstrain_3dm::SetReferencePosition::Request &req, microstrain_3dm::SetReferencePosition::Response &res);
 
-    bool get_reference_position(microstrain_3dm::GetReferencePosition::Request &req, microstrain_3dm::GetReferencePosition::Response &res);
+    bool get_reference_position(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_coning_sculling_comp(microstrain_3dm::SetConingScullingComp::Request &req, microstrain_3dm::SetConingScullingComp::Response &res);
 
-    bool get_coning_sculling_comp(microstrain_3dm::GetConingScullingComp::Request &req, microstrain_3dm::GetConingScullingComp::Response &res);
+    bool get_coning_sculling_comp(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_estimation_control_flags(microstrain_3dm::SetEstimationControlFlags::Request &req, microstrain_3dm::SetEstimationControlFlags::Response &res);
 
-    bool get_estimation_control_flags(microstrain_3dm::GetEstimationControlFlags::Request &req, microstrain_3dm::GetEstimationControlFlags::Response &res);
+    bool get_estimation_control_flags(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_dynamics_mode(microstrain_3dm::SetDynamicsMode::Request &req, microstrain_3dm::SetDynamicsMode::Response &res);
 
-    bool get_dynamics_mode(microstrain_3dm::GetDynamicsMode::Request &req, microstrain_3dm::GetDynamicsMode::Response &res);
+    bool get_dynamics_mode(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
-    bool get_basic_status(microstrain_3dm::GetBasicStatus::Request &req, microstrain_3dm::GetBasicStatus::Response &res);
+    bool get_basic_status(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     u16 mip_3dm_cmd_hw_specific_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer);
 
-    bool get_diagnostic_report(microstrain_3dm::GetDiagnosticReport::Request &req, microstrain_3dm::GetDiagnosticReport::Response &res);
+    bool get_diagnostic_report(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_zero_angle_update_threshold(microstrain_3dm::SetZeroAngleUpdateThreshold::Request &req, microstrain_3dm::SetZeroAngleUpdateThreshold::Response &res);
 
-    bool get_zero_angle_update_threshold(microstrain_3dm::GetZeroAngleUpdateThreshold::Request &req, microstrain_3dm::GetZeroAngleUpdateThreshold::Response &res);
+    bool get_zero_angle_update_threshold(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_tare_orientation(microstrain_3dm::SetTareOrientation::Request &req, microstrain_3dm::SetTareOrientation::Response &res);
 
     bool set_accel_noise(microstrain_3dm::SetAccelNoise::Request &req, microstrain_3dm::SetAccelNoise::Response &res);
 
-    bool get_accel_noise(microstrain_3dm::GetAccelNoise::Request &req, microstrain_3dm::GetAccelNoise::Response &res);
+    bool get_accel_noise(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_gyro_noise(microstrain_3dm::SetGyroNoise::Request &req, microstrain_3dm::SetGyroNoise::Response &res);
 
-    bool get_gyro_noise(microstrain_3dm::GetGyroNoise::Request &req, microstrain_3dm::GetGyroNoise::Response &res);
+    bool get_gyro_noise(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_mag_noise(microstrain_3dm::SetMagNoise::Request &req, microstrain_3dm::SetMagNoise::Response &res);
 
-    bool get_mag_noise(microstrain_3dm::GetMagNoise::Request &req, microstrain_3dm::GetMagNoise::Response &res);
+    bool get_mag_noise(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_gyro_bias_model(microstrain_3dm::SetGyroBiasModel::Request &req, microstrain_3dm::SetGyroBiasModel::Response &res);
 
-    bool get_gyro_bias_model(microstrain_3dm::GetGyroBiasModel::Request &req, microstrain_3dm::GetGyroBiasModel::Response &res);
+    bool get_gyro_bias_model(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
-    bool get_accel_adaptive_vals(microstrain_3dm::GetAccelAdaptiveVals::Request &req, microstrain_3dm::GetAccelAdaptiveVals::Response &res );
+    bool get_accel_adaptive_vals(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res );
 
     bool set_mag_adaptive_vals(microstrain_3dm::SetMagAdaptiveVals::Request &req, microstrain_3dm::SetMagAdaptiveVals::Response &res );
 
-    bool get_mag_adaptive_vals(microstrain_3dm::GetMagAdaptiveVals::Request &req, microstrain_3dm::GetMagAdaptiveVals::Response &res );
+    bool get_mag_adaptive_vals(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res );
 
     bool set_mag_dip_adaptive_vals(microstrain_3dm::SetMagDipAdaptiveVals::Request &req, microstrain_3dm::SetMagDipAdaptiveVals::Response &res );
 
-    bool get_mag_dip_adaptive_vals(microstrain_3dm::GetMagDipAdaptiveVals::Request &req, microstrain_3dm::GetMagDipAdaptiveVals::Response &res );
+    bool get_mag_dip_adaptive_vals(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res );
 
-    bool get_accel_bias_model(microstrain_3dm::GetAccelBiasModel::Request &req, microstrain_3dm::GetAccelBiasModel::Response &res);
+    bool get_accel_bias_model(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool get_model_gps()
     {
