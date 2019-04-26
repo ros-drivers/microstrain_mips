@@ -28,7 +28,7 @@ void RosDiagnosticUpdater::generalDiagnostics(diagnostic_updater::DiagnosticStat
   stat.add("Device Model", last_status_->device_model);
   stat.add("Status Selector", last_status_->status_selector);
   stat.add("Status Flags", last_status_->status_flags);
-  stat.add("System State", last_status_->system_state);
+  //stat.add("System State", last_status_->system_state);
   stat.add("System Timer ms", last_status_->system_timer_ms);
   stat.add("IMU Stream Enabled", last_status_->imu_stream_enabled);
   stat.add("Filter Stream Enabled", last_status_->filter_stream_enabled);

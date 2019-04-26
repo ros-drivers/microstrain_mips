@@ -791,7 +791,7 @@ namespace Microstrain
     ROS_INFO("Setting spin rate to <%d>",spin_rate);
     ros::Rate r(spin_rate);  // Rate in Hz
 
-    //microstrain_3dm::RosDiagnosticUpdater ros_diagnostic_updater(this);
+    microstrain_3dm::RosDiagnosticUpdater ros_diagnostic_updater(this);
 
     while (ros::ok()){
       //Update the parser (this function reads the port and parses the bytes
@@ -2845,7 +2845,6 @@ void Microstrain::device_status_callback()
     device_status_msg_.imu_last_message_ms = diagnostic_field.imu_last_message_ms;
 
     device_status_pub_.publish(device_status_msg_);
-    /*ROS_INFO("Published message");*/
   }
   else{
     ROS_INFO("Device status messages not configured for this model");

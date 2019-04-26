@@ -8,7 +8,7 @@
   <arg name="imu_rate" default="100" />
   <arg name="imu_frame_id" default="imu_link" />
   <arg name="debug" default="false" />
-  <arg name="diagnostics" default="false" />
+  <arg name="diagnostics" default="true" />
 
   <!-- For setting debug level to debug -->
   <group if="$(arg debug)">
@@ -51,14 +51,14 @@
 
   <!-- Diagnostics -->
   <group if="$(arg diagnostics)">
-    <node pkg="rqt_topic" type="rqt_topic" name="rqt_topic"/>
+    <!--<node pkg="rqt_topic" type="rqt_topic" name="rqt_topic"/>-->
     <!--<node pkg="rqt_plot" type="rqt_plot" name="pid_setpoints"
       args="/yaw_pid_debug/Setpoint /vel_pid_debug/Setpoint"/>-->
+    <!-- Diagnostic Aggregator for robot monitor usage -->
+    <node pkg="diagnostic_aggregator" type="aggregator_node" name="imu_diagnostic_aggregator">
+      <rosparam command="load" file="$(find microstrain_3dm)/config/diagnostic_analyzers.yaml" />
+    </node>
   </group>
 
-  <!-- Diagnostic Aggregator for robot monitor usage -->
-  <node pkg="diagnostic_aggregator" type="aggregator_node" name="diagnostic_aggregator">
-    <rosparam command="load" file="$(find microstrain_3dm)/config/diagnostic_analyzers.yaml" />
-  </node>
 
 </launch>
