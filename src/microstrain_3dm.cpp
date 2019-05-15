@@ -206,54 +206,54 @@ namespace Microstrain
 
 
     //Services to set/get device functions
-    ros::ServiceServer resetCallback = node.advertiseService("reset_kf", &Microstrain::reset_callback, this);
-    ros::ServiceServer device_report_service = node.advertiseService("DeviceReport", &Microstrain::device_report, this);
-    ros::ServiceServer gyro_bias_capture_service = node.advertiseService("GyroBiasCapture", &Microstrain::gyro_bias_capture, this);
-    ros::ServiceServer set_soft_iron_matrix_service = node.advertiseService("SetSoftIronMatrix", &Microstrain::set_soft_iron_matrix, this);
-    ros::ServiceServer set_complementary_filter_service = node.advertiseService("SetComplementaryFilter", &Microstrain::set_complementary_filter, this);
-    ros::ServiceServer set_filter_euler_service = node.advertiseService("SetFilterEuler", &Microstrain::set_filter_euler, this);
-    ros::ServiceServer set_filter_heading_service = node.advertiseService("SetFilterHeading", &Microstrain::set_filter_heading, this);
-    ros::ServiceServer set_accel_bias_model_service = node.advertiseService("SetAccelBiasModel", &Microstrain::set_accel_bias_model, this);
-    ros::ServiceServer set_accel_adaptive_vals_service = node.advertiseService("SetAccelAdaptiveVals", &Microstrain::set_accel_adaptive_vals, this);
-    ros::ServiceServer set_sensor_vehicle_frame_trans_service = node.advertiseService("SetSensorVehicleFrameTrans", &Microstrain::set_sensor_vehicle_frame_trans, this);
-    ros::ServiceServer set_sensor_vehicle_frame_offset_service = node.advertiseService("SetSensorVehicleFrameOffset", &Microstrain::set_sensor_vehicle_frame_offset, this);
-    ros::ServiceServer set_accel_bias_service = node.advertiseService("SetAccelBias", &Microstrain::set_accel_bias, this);
-    ros::ServiceServer set_gyro_bias_service = node.advertiseService("SetGyroBias", &Microstrain::set_gyro_bias, this);
-    ros::ServiceServer set_hard_iron_values_service = node.advertiseService("SetHardIronValues", &Microstrain::set_hard_iron_values, this);
-    ros::ServiceServer get_accel_bias_service = node.advertiseService("GetAccelBias", &Microstrain::get_accel_bias, this);
-    ros::ServiceServer get_gyro_bias_service = node.advertiseService("GetGyroBias", &Microstrain::get_gyro_bias, this);
-    ros::ServiceServer get_hard_iron_values_service = node.advertiseService("GetHardIronValues", &Microstrain::get_hard_iron_values, this);
-    ros::ServiceServer get_soft_iron_matrix_service = node.advertiseService("GetSoftIronMatrix", &Microstrain::get_soft_iron_matrix, this);
-    ros::ServiceServer get_sensor_vehicle_frame_trans_service = node.advertiseService("GetSensorVehicleFrameTrans", &Microstrain::get_sensor_vehicle_frame_trans, this);
-    ros::ServiceServer get_complementary_filter_service = node.advertiseService("GetComplementaryFilter", &Microstrain::get_complementary_filter, this);
-    ros::ServiceServer set_reference_position_service = node.advertiseService("SetReferencePosition", &Microstrain::set_reference_position, this);
-    ros::ServiceServer get_reference_position_service = node.advertiseService("GetReferencePosition", &Microstrain::get_reference_position, this);
-    ros::ServiceServer set_coning_sculling_comp_service = node.advertiseService("SetConingScullingComp", &Microstrain::set_coning_sculling_comp, this);
-    ros::ServiceServer get_coning_sculling_comp_service = node.advertiseService("GetConingScullingComp", &Microstrain::get_coning_sculling_comp, this);
-    ros::ServiceServer set_estimation_control_flags_service = node.advertiseService("SetEstimationControlFlags", &Microstrain::set_estimation_control_flags, this);
-    ros::ServiceServer get_estimation_control_flags_service = node.advertiseService("GetEstimationControlFlags", &Microstrain::get_estimation_control_flags, this);
-    ros::ServiceServer set_dynamics_mode_service = node.advertiseService("SetDynamicsMode", &Microstrain::set_dynamics_mode, this);
-    ros::ServiceServer get_basic_status_service = node.advertiseService("GetBasicStatus", &Microstrain::get_basic_status, this);
-    ros::ServiceServer get_diagnostic_report_service = node.advertiseService("GetDiagnosticReport", &Microstrain::get_diagnostic_report, this);
-    ros::ServiceServer set_zero_angle_update_threshold_service = node.advertiseService("SetZeroAngleUpdateThreshold", &Microstrain::set_zero_angle_update_threshold, this);
-    ros::ServiceServer get_zero_angle_update_threshold_service = node.advertiseService("GetZeroAngleUpdateThreshold", &Microstrain::get_zero_angle_update_threshold, this);
-    ros::ServiceServer set_tare_orientation_service = node.advertiseService("SetTareOrientation", &Microstrain::set_tare_orientation, this);
-    ros::ServiceServer set_accel_noise_service = node.advertiseService("SetAccelNoise", &Microstrain::set_accel_noise, this);
-    ros::ServiceServer get_accel_noise_service = node.advertiseService("GetAccelNoise", &Microstrain::get_accel_noise, this);
-    ros::ServiceServer set_gyro_noise_service = node.advertiseService("SetGyroNoise", &Microstrain::set_gyro_noise, this);
-    ros::ServiceServer get_gyro_noise_service = node.advertiseService("GetGyroNoise", &Microstrain::get_gyro_noise, this);
-    ros::ServiceServer set_mag_noise_service = node.advertiseService("SetMagNoise", &Microstrain::set_mag_noise, this);
-    ros::ServiceServer get_mag_noise_service = node.advertiseService("GetMagNoise", &Microstrain::get_mag_noise, this);
-    ros::ServiceServer set_gyro_bias_model_service = node.advertiseService("SetGyroBiasModel", &Microstrain::set_gyro_bias_model, this);
-    ros::ServiceServer get_gyro_bias_model_service = node.advertiseService("GetGyroBiasModel", &Microstrain::get_gyro_bias_model, this);
-    ros::ServiceServer get_accel_adaptive_vals_service = node.advertiseService("GetAccelAdaptiveVals", &Microstrain::get_accel_adaptive_vals, this);
-    ros::ServiceServer set_mag_adaptive_vals_service = node.advertiseService("SetMagAdaptiveVals", &Microstrain::set_mag_adaptive_vals, this);
-    ros::ServiceServer get_mag_adaptive_vals_service = node.advertiseService("GetMagAdaptiveVals", &Microstrain::get_mag_adaptive_vals, this);
-    ros::ServiceServer set_mag_dip_adaptive_vals_service = node.advertiseService("SetMagDipAdaptiveVals", &Microstrain::set_mag_dip_adaptive_vals, this);
-    ros::ServiceServer get_accel_bias_model_service = node.advertiseService("GetAccelBiasModel", &Microstrain::get_accel_bias_model, this);
-    ros::ServiceServer get_mag_dip_adaptive_vals_service = node.advertiseService("GetMagDipAdaptiveVals", &Microstrain::get_mag_dip_adaptive_vals, this);
-    ros::ServiceServer get_sensor_vehicle_frame_offset_service = node.advertiseService("GetSensorVehicleFrameOffset", &Microstrain::get_sensor_vehicle_frame_offset, this);
-    ros::ServiceServer get_dynamics_mode_service = node.advertiseService("GetDynamicsMode", &Microstrain::get_dynamics_mode, this);
+    ros::ServiceServer reset_filter = node.advertiseService("reset_kf", &Microstrain::reset_callback, this);
+    ros::ServiceServer device_report_service = node.advertiseService("device_report", &Microstrain::device_report, this);
+    ros::ServiceServer gyro_bias_capture_service = node.advertiseService("gyro_bias_capture", &Microstrain::gyro_bias_capture, this);
+    ros::ServiceServer set_soft_iron_matrix_service = node.advertiseService("set_soft_iron_matrix", &Microstrain::set_soft_iron_matrix, this);
+    ros::ServiceServer set_complementary_filter_service = node.advertiseService("set_complementary_filter", &Microstrain::set_complementary_filter, this);
+    ros::ServiceServer set_filter_euler_service = node.advertiseService("set_filter_euler", &Microstrain::set_filter_euler, this);
+    ros::ServiceServer set_filter_heading_service = node.advertiseService("set_filter_heading", &Microstrain::set_filter_heading, this);
+    ros::ServiceServer set_accel_bias_model_service = node.advertiseService("set_accel_bias_model", &Microstrain::set_accel_bias_model, this);
+    ros::ServiceServer set_accel_adaptive_vals_service = node.advertiseService("set_accel_adaptive_vals", &Microstrain::set_accel_adaptive_vals, this);
+    ros::ServiceServer set_sensor_vehicle_frame_trans_service = node.advertiseService("set_sensor_vehicle_frame_trans", &Microstrain::set_sensor_vehicle_frame_trans, this);
+    ros::ServiceServer set_sensor_vehicle_frame_offset_service = node.advertiseService("set_sensor_vehicle_frame_offset", &Microstrain::set_sensor_vehicle_frame_offset, this);
+    ros::ServiceServer set_accel_bias_service = node.advertiseService("set_accel_bias", &Microstrain::set_accel_bias, this);
+    ros::ServiceServer set_gyro_bias_service = node.advertiseService("set_gyro_bias", &Microstrain::set_gyro_bias, this);
+    ros::ServiceServer set_hard_iron_values_service = node.advertiseService("set_hard_iron_values", &Microstrain::set_hard_iron_values, this);
+    ros::ServiceServer get_accel_bias_service = node.advertiseService("get_accel_bias", &Microstrain::get_accel_bias, this);
+    ros::ServiceServer get_gyro_bias_service = node.advertiseService("get_gyro_bias", &Microstrain::get_gyro_bias, this);
+    ros::ServiceServer get_hard_iron_values_service = node.advertiseService("get_hard_iron_values", &Microstrain::get_hard_iron_values, this);
+    ros::ServiceServer get_soft_iron_matrix_service = node.advertiseService("get_soft_iron_matrix", &Microstrain::get_soft_iron_matrix, this);
+    ros::ServiceServer get_sensor_vehicle_frame_trans_service = node.advertiseService("get_sensor_vehicle_frame_trans", &Microstrain::get_sensor_vehicle_frame_trans, this);
+    ros::ServiceServer get_complementary_filter_service = node.advertiseService("get_complementary_filter", &Microstrain::get_complementary_filter, this);
+    ros::ServiceServer set_reference_position_service = node.advertiseService("set_reference_position", &Microstrain::set_reference_position, this);
+    ros::ServiceServer get_reference_position_service = node.advertiseService("get_reference_position", &Microstrain::get_reference_position, this);
+    ros::ServiceServer set_coning_sculling_comp_service = node.advertiseService("set_coning_sculling_comp", &Microstrain::set_coning_sculling_comp, this);
+    ros::ServiceServer get_coning_sculling_comp_service = node.advertiseService("get_coning_sculling_comp", &Microstrain::get_coning_sculling_comp, this);
+    ros::ServiceServer set_estimation_control_flags_service = node.advertiseService("set_estimation_control_flags", &Microstrain::set_estimation_control_flags, this);
+    ros::ServiceServer get_estimation_control_flags_service = node.advertiseService("get_estimation_control_flags", &Microstrain::get_estimation_control_flags, this);
+    ros::ServiceServer set_dynamics_mode_service = node.advertiseService("set_dynamics_mode", &Microstrain::set_dynamics_mode, this);
+    ros::ServiceServer get_basic_status_service = node.advertiseService("get_basic_status", &Microstrain::get_basic_status, this);
+    ros::ServiceServer get_diagnostic_report_service = node.advertiseService("get_diagnostic_report", &Microstrain::get_diagnostic_report, this);
+    ros::ServiceServer set_zero_angle_update_threshold_service = node.advertiseService("set_zero_angle_update_threshold", &Microstrain::set_zero_angle_update_threshold, this);
+    ros::ServiceServer get_zero_angle_update_threshold_service = node.advertiseService("get_zero_angle_update_threshold", &Microstrain::get_zero_angle_update_threshold, this);
+    ros::ServiceServer set_tare_orientation_service = node.advertiseService("set_tare_orientation", &Microstrain::set_tare_orientation, this);
+    ros::ServiceServer set_accel_noise_service = node.advertiseService("set_accel_noise", &Microstrain::set_accel_noise, this);
+    ros::ServiceServer get_accel_noise_service = node.advertiseService("get_accel_noise", &Microstrain::get_accel_noise, this);
+    ros::ServiceServer set_gyro_noise_service = node.advertiseService("set_gyro_noise", &Microstrain::set_gyro_noise, this);
+    ros::ServiceServer get_gyro_noise_service = node.advertiseService("get_gyro_noise", &Microstrain::get_gyro_noise, this);
+    ros::ServiceServer set_mag_noise_service = node.advertiseService("set_mag_noise", &Microstrain::set_mag_noise, this);
+    ros::ServiceServer get_mag_noise_service = node.advertiseService("get_mag_noise", &Microstrain::get_mag_noise, this);
+    ros::ServiceServer set_gyro_bias_model_service = node.advertiseService("set_gyro_bias_model", &Microstrain::set_gyro_bias_model, this);
+    ros::ServiceServer get_gyro_bias_model_service = node.advertiseService("get_gyro_bias_model", &Microstrain::get_gyro_bias_model, this);
+    ros::ServiceServer get_accel_adaptive_vals_service = node.advertiseService("get_accel_adaptive_vals", &Microstrain::get_accel_adaptive_vals, this);
+    ros::ServiceServer set_mag_adaptive_vals_service = node.advertiseService("set_mag_adaptive_vals", &Microstrain::set_mag_adaptive_vals, this);
+    ros::ServiceServer get_mag_adaptive_vals_service = node.advertiseService("get_mag_adaptive_vals", &Microstrain::get_mag_adaptive_vals, this);
+    ros::ServiceServer set_mag_dip_adaptive_vals_service = node.advertiseService("set_mag_dip_adaptive_vals", &Microstrain::set_mag_dip_adaptive_vals, this);
+    ros::ServiceServer get_accel_bias_model_service = node.advertiseService("get_accel_bias_model", &Microstrain::get_accel_bias_model, this);
+    ros::ServiceServer get_mag_dip_adaptive_vals_service = node.advertiseService("get_mag_dip_adaptive_vals", &Microstrain::get_mag_dip_adaptive_vals, this);
+    ros::ServiceServer get_sensor_vehicle_frame_offset_service = node.advertiseService("get_sensor_vehicle_frame_offset", &Microstrain::get_sensor_vehicle_frame_offset, this);
+    ros::ServiceServer get_dynamics_mode_service = node.advertiseService("get_dynamics_mode", &Microstrain::get_dynamics_mode, this);
 
     //Initialize the serial interface to the device
     ROS_INFO("Attempting to open serial port <%s> at <%d> \n",
@@ -1408,7 +1408,7 @@ namespace Microstrain
     }
     else
     {
-     printf("ERROR: Failed to set the reference position!!!\n");
+     ROS_ERROR("Failed to set the reference position!!!\n");
     }
 
     res.success = true;
