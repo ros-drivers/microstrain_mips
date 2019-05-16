@@ -24,6 +24,6 @@ namespace microstrain_3dm
     ros::NodeHandle nh_;
     ros::Subscriber status_sub_;
 
-    microstrain_3dm::status_msg* last_status_;
+    microstrain_3dm::status_msg last_status_;
   };
 }

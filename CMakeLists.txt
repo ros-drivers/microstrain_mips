@@ -1,6 +1,24 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(microstrain_3dm)
 
+## Find catkin macros and libraries
+## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
+## is used, also find other catkin packages
+find_package(catkin REQUIRED COMPONENTS
+  message_generation
+  geometry_msgs
+  nav_msgs
+  roscpp
+  sensor_msgs
+  std_msgs
+  std_srvs
+  tf2
+  tf2_ros
+  diagnostic_updater
+)
+
+set(CMAKE_C_FLAGS "-Wno-implicit-function-declaration -Wno-incompatible-pointer-types -Wno-format -fno-builtin-memcpy")
+
 add_message_files(
   FILES
   status_msg.msg
@@ -18,6 +36,7 @@ add_service_files(
   SetAccelBiasModel.srv
   SetAccelAdaptiveVals.srv
   SetSensorVehicleFrameTrans.srv
+  SetSensorVehicleFrameOffset.srv
   SetReferencePosition.srv
   SetConingScullingComp.srv
   SetEstimationControlFlags.srv
@@ -32,24 +51,6 @@ add_service_files(
   SetMagAdaptiveVals.srv
   SetMagDipAdaptiveVals.srv
 )
-
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  diagnostic_updater
-  geometry_msgs
-  message_generation
-  nav_msgs
-  roscpp
-  sensor_msgs
-  std_msgs
-  std_srvs
-  tf2
-  tf2_ros
-)
-
-set(CMAKE_C_FLAGS "-Wno-implicit-function-declaration -Wno-incompatible-pointer-types -Wno-format -fno-builtin-memcpy")
 
 ###################################
 ## catkin specific configuration ##

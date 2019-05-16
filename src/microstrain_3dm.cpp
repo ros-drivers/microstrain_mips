@@ -20,60 +20,13 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-#include "microstrain_3dm.h"
-#include "microstrain_3dm/SetAccelBias.h"
-#include "microstrain_3dm/GetAccelBias.h"
-#include "microstrain_3dm/GetGyroBias.h"
-#include "microstrain_3dm/GetHardIronValues.h"
-#include "microstrain_3dm/GetSoftIronMatrix.h"
-#include "microstrain_3dm/SetGyroBias.h"
-#include "microstrain_3dm/SetHardIronValues.h"
-#include "microstrain_3dm/DeviceReport.h"
-#include "microstrain_3dm/GyroBiasCapture.h"
-#include "microstrain_3dm/SetSoftIronMatrix.h"
-#include "microstrain_3dm/SetComplementaryFilter.h"
-#include "microstrain_3dm/SetFilterEuler.h"
-#include "microstrain_3dm/SetFilterHeading.h"
-#include "microstrain_3dm/SetAccelBiasModel.h"
-#include "microstrain_3dm/SetAccelAdaptiveVals.h"
-#include "microstrain_3dm/SetSensorVehicleFrameTrans.h"
-#include "microstrain_3dm/SetSensorVehicleFrameOffset.h"
-#include "microstrain_3dm/GetSensorVehicleFrameTrans.h"
-#include "microstrain_3dm/GetSensorVehicleFrameOffset.h"
-#include "microstrain_3dm/GetComplementaryFilter.h"
-#include "microstrain_3dm/SetReferencePosition.h"
-#include "microstrain_3dm/GetReferencePosition.h"
-#include "microstrain_3dm/SetConingScullingComp.h"
-#include "microstrain_3dm/GetConingScullingComp.h"
-#include "microstrain_3dm/SetEstimationControlFlags.h"
-#include "microstrain_3dm/GetEstimationControlFlags.h"
-#include "microstrain_3dm/SetDynamicsMode.h"
-#include "microstrain_3dm/GetDynamicsMode.h"
-#include "microstrain_3dm/GetBasicStatus.h"
-#include "microstrain_3dm/GetDiagnosticReport.h"
-#include "microstrain_3dm/SetZeroAngleUpdateThreshold.h"
-#include "microstrain_3dm/GetZeroAngleUpdateThreshold.h"
-#include "microstrain_3dm/SetTareOrientation.h"
-#include "microstrain_3dm/SetAccelNoise.h"
-#include "microstrain_3dm/GetAccelNoise.h"
-#include "microstrain_3dm/SetGyroNoise.h"
-#include "microstrain_3dm/GetGyroNoise.h"
-#include "microstrain_3dm/SetMagNoise.h"
-#include "microstrain_3dm/GetMagNoise.h"
-#include "microstrain_3dm/SetGyroBiasModel.h"
-#include "microstrain_3dm/GetGyroBiasModel.h"
-#include "microstrain_3dm/GetAccelAdaptiveVals.h"
-#include "microstrain_3dm/SetMagAdaptiveVals.h"
-#include "microstrain_3dm/GetMagAdaptiveVals.h"
-#include "microstrain_3dm/SetMagDipAdaptiveVals.h"
-#include "microstrain_3dm/GetAccelBiasModel.h"
-#include "microstrain_3dm/GetMagDipAdaptiveVals.h"
 
 #include <tf2/LinearMath/Transform.h>
 #include <string>
 #include <algorithm>
 #include <time.h>
 
+#include "microstrain_3dm/status_msg.h"
 #include "microstrain_diagnostic_updater.h"
 
 
