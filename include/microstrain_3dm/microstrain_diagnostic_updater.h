@@ -18,7 +18,7 @@ namespace microstrain_3dm
     void packetDiagnostics(diagnostic_updater::DiagnosticStatusWrapper &stat);
     void portDiagnostics(diagnostic_updater::DiagnosticStatusWrapper &stat);
     void imuDiagnostics(diagnostic_updater::DiagnosticStatusWrapper &stat);
-    void statusCallback(const microstrain_3dm::status_msg status);
+    void statusCallback(const microstrain_3dm::status_msg::ConstPtr& status);
 
   private:
     ros::NodeHandle nh_;

@@ -17,7 +17,7 @@ RosDiagnosticUpdater::RosDiagnosticUpdater(Microstrain::Microstrain *device)
   add("port", this, &RosDiagnosticUpdater::portDiagnostics);
   add("imu", this, &RosDiagnosticUpdater::imuDiagnostics);
 
-  
+
 
   status_sub_ = nh_.subscribe("device/status", 5, &RosDiagnosticUpdater::statusCallback, this);
 }
@@ -94,9 +94,9 @@ void RosDiagnosticUpdater::imuDiagnostics(diagnostic_updater::DiagnosticStatusWr
 }
 
 
-void RosDiagnosticUpdater::statusCallback(const microstrain_3dm::status_msg status)
+void RosDiagnosticUpdater::statusCallback(const microstrain_3dm::status_msg::ConstPtr& status)
 {
-  last_status_ = status;
+  last_status_ = *status;
   update();
 }
 
