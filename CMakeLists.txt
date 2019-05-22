@@ -135,8 +135,10 @@ add_library(microstrain_3dm
   #src/GX4-45_Test.cpp
   ${MIPSRC}
 )
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 add_library(microstrain_diagnostic_updater src/microstrain_diagnostic_updater.cpp)
+add_dependencies(microstrain_diagnostic_updater ${${PROJECT_NAME}_EXPORTED_TARGETS})
 
 # Executables
 add_executable(GX4-45_Test
@@ -152,6 +154,7 @@ add_executable(microstrain_3dm_node
 
 add_dependencies(microstrain_3dm_node
   microstrain_3dm_gencpp
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
 )
 add_executable(set_accel_bias_client src/set_accel_bias_client.cpp)
 
