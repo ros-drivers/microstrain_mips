@@ -6,7 +6,7 @@
   <arg name="port" default="/dev/microstrain" />
   <arg name="baudrate" default="115200" />
   <arg name="imu_rate" default="100" />
-  <arg name="imu_frame_id" default="imu_link" />
+  <arg name="imu_frame_id" default="gx5_link" />
   <arg name="debug" default="false" />
   <arg name="diagnostics" default="true" />
 
@@ -19,7 +19,7 @@
   <!-- Microstrain sensor node -->
   <node name="microstrain_3dm_node"
   pkg="microstrain_3dm"
-  type="microstrain_3dm_node" output="screen">
+  type="microstrain_3dm_node" output="screen" ns="gx5">
     <param name="port" value="$(arg port)" type="str" />
     <param name="baudrate" value="$(arg baudrate)" type="int" />
 
