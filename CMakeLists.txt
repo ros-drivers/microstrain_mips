@@ -124,7 +124,7 @@ install(TARGETS microstrain_3dm_gx5_45 microstrain_3dm_gx5_45_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(DIRECTORY launch config udev
+install(DIRECTORY launch config
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
