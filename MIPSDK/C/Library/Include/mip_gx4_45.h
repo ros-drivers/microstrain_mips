@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-//! @file    mip_gx4_45.h 
+//! @file    mip_gx4_45.h
 //! @author  Nathan Miller
 //! @version 1.1
 //
@@ -9,20 +9,20 @@
 // External dependencies:
 //
 //  mip_types.h
-// 
-//!@copyright 2014 Lord Microstrain Sensing Systems. 
+//
+//!@copyright 2014 Lord Microstrain Sensing Systems.
 //
 //!@section CHANGES
-//! 
+//!
 //
 //!@section LICENSE
 //!
-//! THE PRESENT SOFTWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING 
-//! CUSTOMERS WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER 
+//! THE PRESENT SOFTWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING
+//! CUSTOMERS WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER
 //! FOR THEM TO SAVE TIME. AS A RESULT, LORD MICROSTRAIN SENSING SYSTEMS
-//! SHALL NOT BE HELD LIABLE FOR ANY DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES 
-//! WITH RESPECT TO ANY CLAIMS ARISING FROM THE CONTENT OF SUCH SOFTWARE AND/OR 
-//! THE USE MADE BY CUSTOMERS OF THE CODING INFORMATION CONTAINED HEREIN IN CONNECTION 
+//! SHALL NOT BE HELD LIABLE FOR ANY DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES
+//! WITH RESPECT TO ANY CLAIMS ARISING FROM THE CONTENT OF SUCH SOFTWARE AND/OR
+//! THE USE MADE BY CUSTOMERS OF THE CODING INFORMATION CONTAINED HEREIN IN CONNECTION
 //! WITH THEIR PRODUCTS.
 //
 /////////////////////////////////////////////////////////////////////////////
@@ -79,9 +79,9 @@ typedef struct _gx4_45_basic_status_field
 {
  u16 device_model;		// always GX4_45_MODEL_NUMBER
  u8  status_selector;	// always GX4_45_BASIC_STATUS_SEL
- 
+
  u32 status_flags;
- 
+
  //System variables
  u16 system_state;
  u32 system_timer_ms;
@@ -97,20 +97,20 @@ typedef struct _gx4_45_diagnostic_status_field
 {
  u16 device_model;		// always GX4_45_MODEL_NUMBER
  u8  status_selector;	// always GX4_45_DIAGNOSTICS_STATUS_SEL
- 
+
  u32 status_flags;
- 
+
  //System variables
  u16 system_state;
  u32 system_timer_ms;
- 
+
  //Power control
  u8 gps_power_on;
-  
+
  //GPS PPS Stats
  u32 num_gps_pps_triggers;
  u32 last_gps_pps_trigger_ms;
- 
+
  //Enabled streams
  u8 imu_stream_enabled;
  u8 gps_stream_enabled;
@@ -120,11 +120,11 @@ typedef struct _gx4_45_diagnostic_status_field
  u32 imu_dropped_packets;
  u32 gps_dropped_packets;
  u32 filter_dropped_packets;
- 
+
  //Com port stats
  u32 com1_port_bytes_written,  com1_port_bytes_read;
  u32 com1_port_write_overruns, com1_port_read_overruns;
- 
+
  //IMU Interface stats
  u32 imu_parser_errors;
  u32 imu_message_count;
@@ -134,7 +134,7 @@ typedef struct _gx4_45_diagnostic_status_field
  u32 gps_parser_errors;
  u32 gps_message_count;
  u32 gps_last_message_ms;
-  
+
 }gx4_45_diagnostic_device_status_field;
 
 

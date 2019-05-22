@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>microstrain_3dm_gx5_45</name>
+  <name>microstrain_3dm</name>
   <version>0.0.1</version>
-  <description>The microstrain_3dm_gx5_45 package provides a driver for the LORD/Microstrain 3DM_GXx_45 GPS-aided IMU sensor.</description>
+  <description>The microstrain_3dm package provides a driver for the LORD/Microstrain 3DM_GX5_XX GPS-aided IMU sensor.</description>
   <author email="briansbingham@gmail.com">Brian Bingham</author> -->
   <maintainer email="briansbingham@gmail.com">Brian Bingham</maintainer>
   <license>GPL</license>
@@ -19,6 +19,11 @@
   <depend>geometry_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>nav_msgs</depend>
+
+  <build_depend>message_generation</build_depend> 
+  <exec_depend>message_runtime</exec_depend>
+  <exec_depend>diagnostic_updater</exec_depend>
+  <exec_depend>diagnostic_aggregator</exec_depend>
 
   <export>
     <rosdoc config="rosdoc.yaml" />

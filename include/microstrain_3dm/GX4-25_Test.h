@@ -1,11 +1,11 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// GX4-45_Test.h 
+// GX4-25_Test.h 
 //
-// Test program for the GX4-45
+// Test program for the GX4-25
 //
 // Notes:  This program runs through most of the sdk functions supported
-//         by the GX4-45.  It does not permanently alter any of the device
+//         by the GX4-25.  It does not permanently alter any of the device
 //         settings.
 //
 //
@@ -30,8 +30,8 @@
 /////////////////////////////////////////////////////////////////////////////
 
 
-#ifndef _GX4_45_TEST_H
-#define _GX4_45_TEST_H
+#ifndef _GX4_25_TEST_H
+#define _GX4_25_TEST_H
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -42,7 +42,7 @@
 #include "mip_sdk.h"
 #include "byteswap_utilities.h"
 #include "mip_gx4_imu.h"
-#include "mip_gx4_45.h"
+#include "mip_gx4_25.h"
 #include <stdio.h>
 #include <unistd.h>
 
@@ -52,14 +52,13 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#define MIP_SDK_GX4_45_IMU_STANDARD_MODE	0x01
-#define MIP_SDK_GX4_45_IMU_DIRECT_MODE	0x02
+#define MIP_SDK_GX4_25_IMU_STANDARD_MODE  0x01
+#define MIP_SDK_GX4_25_IMU_DIRECT_MODE	  0x02
 
 #define NUM_COMMAND_LINE_ARGUMENTS 3
 
 #define DEFAULT_PACKET_TIMEOUT_MS  1000 //milliseconds
 
-//macro to cause Sleep call to behave as it does for windows
 #define Sleep(x) usleep(x*1000.0)
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -76,7 +75,6 @@ void print_packet_stats();
 //MIP Parser Packet Callback Functions
 void filter_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
 void ahrs_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
-void gps_packet_callback(void *user_ptr, u8 *packet, u16 packet_size, u8 callback_type);
 
 //Hardware specific status functions
 u16 mip_3dm_cmd_hw_specific_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer);

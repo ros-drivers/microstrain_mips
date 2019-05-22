@@ -16,19 +16,19 @@
 //
 // Written By: Nathan Miller and Gregg Carpenter
 //
-//!@copyright 2014 Lord Microstrain Sensing Systems. 
+//!@copyright 2014 Lord Microstrain Sensing Systems.
 //
 //!@section CHANGES
-//! 
+//!
 //
 //!@section LICENSE
 //!
-//! THE PRESENT SOFTWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING 
-//! CUSTOMERS WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER 
+//! THE PRESENT SOFTWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING
+//! CUSTOMERS WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER
 //! FOR THEM TO SAVE TIME. AS A RESULT, LORD MICROSTRAIN SENSING SYSTEMS
-//! SHALL NOT BE HELD LIABLE FOR ANY DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES 
-//! WITH RESPECT TO ANY CLAIMS ARISING FROM THE CONTENT OF SUCH SOFTWARE AND/OR 
-//! THE USE MADE BY CUSTOMERS OF THE CODING INFORMATION CONTAINED HEREIN IN CONNECTION 
+//! SHALL NOT BE HELD LIABLE FOR ANY DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES
+//! WITH RESPECT TO ANY CLAIMS ARISING FROM THE CONTENT OF SUCH SOFTWARE AND/OR
+//! THE USE MADE BY CUSTOMERS OF THE CODING INFORMATION CONTAINED HEREIN IN CONNECTION
 //! WITH THEIR PRODUCTS.
 //
 /////////////////////////////////////////////////////////////////////////////
@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
  // IMU-Direct Mode Testing
  //
  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
+
  com_mode = MIP_SDK_GX4_45_IMU_DIRECT_MODE;
 
  ///
@@ -192,7 +192,7 @@ int main(int argc, char* argv[])
  printf("----------------------------------------------------------------------\n");
  printf("Attempting to set communications mode to IMU Direct mode\n");
  printf("----------------------------------------------------------------------\n\n");
- 
+
  while(mip_system_com_mode(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &com_mode) != MIP_INTERFACE_OK){}
 
  ///
@@ -214,7 +214,7 @@ int main(int argc, char* argv[])
   //Base Command Tests
   //
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
+
   ///
   //Put the GX4-45 into idle mode
   ///
@@ -222,7 +222,7 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n");
   printf("Idling Device\n");
   printf("----------------------------------------------------------------------\n\n");
- 
+
   while(mip_base_cmd_idle(&device_interface) != MIP_INTERFACE_OK){}
 
   printf("\n\n");
@@ -235,7 +235,7 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n");
   printf("Pinging Device\n");
   printf("----------------------------------------------------------------------\n\n");
- 
+
   while(mip_base_cmd_ping(&device_interface) != MIP_INTERFACE_OK){}
 
   printf("\n\n");
@@ -248,7 +248,7 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n");
   printf("Getting Device Information\n");
   printf("----------------------------------------------------------------------\n\n");
- 
+
   while(mip_base_cmd_get_device_info(&device_interface, &device_info) != MIP_INTERFACE_OK){}
 
   printf("\n\nDevice Info:\n");
@@ -272,10 +272,10 @@ int main(int argc, char* argv[])
   printf("Firmware Version => %d.%d.%.2d\n\n", (device_info.firmware_version)/1000,
 					     (device_info.firmware_version)%1000/100,
 					     (device_info.firmware_version)%100);
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Get the supported descriptors
   ///
@@ -283,7 +283,7 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n");
   printf("Getting Supported descriptors\n");
   printf("----------------------------------------------------------------------\n\n");
- 
+
   while(mip_base_cmd_get_device_supported_descriptors(&device_interface, (u8*)device_descriptors, &device_descriptors_size) != MIP_INTERFACE_OK){}
 
   printf("\n\nSupported descriptors:\n\n");
@@ -296,7 +296,7 @@ int main(int argc, char* argv[])
 
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Peform a built-in-test
   ///
@@ -304,11 +304,11 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n");
   printf("Running Built In Test\n");
   printf("----------------------------------------------------------------------\n\n");
- 
+
   while(mip_base_cmd_built_in_test(&device_interface, &bit_result) != MIP_INTERFACE_OK){}
 
   printf("\nBIT Result (should be 0x00000000) => 0x%08x\n\n", bit_result);
- 
+
   printf("\n\n");
   Sleep(1500);
 
@@ -317,7 +317,7 @@ int main(int argc, char* argv[])
   // 3DM Command Tests
   //
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
+
   ///
   //Get AHRS Base Rate
   ///
@@ -325,14 +325,14 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n");
   printf("Getting the AHRS datastream base rate\n");
   printf("----------------------------------------------------------------------\n\n");
- 
+
   while(mip_3dm_cmd_get_ahrs_base_rate(&device_interface, &base_rate) != MIP_INTERFACE_OK){}
 
   printf("\nAHRS Base Rate => %d Hz\n\n", base_rate);
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Get Device Status
   ///
@@ -341,9 +341,9 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n");
   printf("Requesting BASIC Status Report:\n");
   printf("----------------------------------------------------------------------\n\n");
- 
+
   //Request basic status report
-  while(mip_3dm_cmd_hw_specific_imu_device_status(&device_interface, GX4_IMU_MODEL_NUMBER, GX4_IMU_BASIC_STATUS_SEL, &imu_basic_field) != MIP_INTERFACE_OK){} 
+  while(mip_3dm_cmd_hw_specific_imu_device_status(&device_interface, GX4_IMU_MODEL_NUMBER, GX4_IMU_BASIC_STATUS_SEL, &imu_basic_field) != MIP_INTERFACE_OK){}
 
   printf("Model Number: \t\t\t\t\t%04u\n", imu_basic_field.device_model);
   printf("Status Selector: \t\t\t\t%s\n", imu_basic_field.status_selector == GX4_IMU_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
@@ -353,7 +353,7 @@ int main(int argc, char* argv[])
   printf("Requesting DIAGNOSTIC Status Report:\n");
 
   //Request diagnostic status report
-  while(mip_3dm_cmd_hw_specific_imu_device_status(&device_interface, GX4_IMU_MODEL_NUMBER, GX4_IMU_DIAGNOSTICS_STATUS_SEL, &imu_diagnostic_field) != MIP_INTERFACE_OK){} 
+  while(mip_3dm_cmd_hw_specific_imu_device_status(&device_interface, GX4_IMU_MODEL_NUMBER, GX4_IMU_DIAGNOSTICS_STATUS_SEL, &imu_diagnostic_field) != MIP_INTERFACE_OK){}
 
   printf("Model Number: \t\t\t\t\t%04u\n", imu_diagnostic_field.device_model);
   printf("Status Selector: \t\t\t\t%s\n", imu_diagnostic_field.status_selector == GX4_IMU_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
@@ -387,7 +387,7 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n");
   printf("Disabling Coning and Sculling compensation\n");
   printf("----------------------------------------------------------------------\n\n");
- 
+
   enable = MIP_3DM_CONING_AND_SCULLING_DISABLE;
 
   while(mip_3dm_cmd_coning_sculling_compensation(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &enable) != MIP_INTERFACE_OK){}
@@ -412,7 +412,7 @@ int main(int argc, char* argv[])
 
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Set/Read Accel Bias
   ///
@@ -424,7 +424,7 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n");
   printf("Accel Bias Vector\n");
   printf("----------------------------------------------------------------------\n\n");
-  
+
   printf("Setting Accel Bias Vector:\n");
   printf("bias_vector[0] = %f\nbias_vector[1] = %f\nbias_vector[2] = %f\n\n", bias_vector[0], bias_vector[1], bias_vector[2]);
 
@@ -444,7 +444,7 @@ int main(int argc, char* argv[])
 
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Set/Read Gyro Bias
   ///
@@ -476,7 +476,7 @@ int main(int argc, char* argv[])
 
   printf("\n\n");
   Sleep(1500);
- 
+
 
   ///
   //Capture Gyro Bias
@@ -485,7 +485,7 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n");
   printf("Performing Gyro Bias capture.\nPlease keep device stationary during the 5 second gyro bias capture interval\n");
   printf("----------------------------------------------------------------------\n\n");
- 
+
   duration = 5000; //milliseconds
 
   while(mip_3dm_cmd_capture_gyro_bias(&device_interface, duration, bias_vector) != MIP_INTERFACE_OK){}
@@ -544,7 +544,7 @@ int main(int argc, char* argv[])
 
   for(i=0; i<9; i++)
    soft_iron[i] = i;
- 
+
   while(mip_3dm_cmd_soft_iron(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, soft_iron) != MIP_INTERFACE_OK){}
 
   //Read back the soft iron matrix values
@@ -566,7 +566,7 @@ int main(int argc, char* argv[])
   {
    printf("ERROR: Failed to set hard iron values!!!\n");
    printf("Sent values:     [%f  %f  %f][%f  %f  %f][%f  %f  %f]\n", soft_iron[0], soft_iron[1], soft_iron[2], soft_iron[3], soft_iron[4], soft_iron[5], soft_iron[6], soft_iron[7], soft_iron[8]);
-   printf("Returned values: [%f  %f  %f][%f  %f  %f][%f  %f  %f]\n", soft_iron_readback[0], soft_iron_readback[1], soft_iron_readback[2], soft_iron_readback[3], soft_iron_readback[4], 
+   printf("Returned values: [%f  %f  %f][%f  %f  %f][%f  %f  %f]\n", soft_iron_readback[0], soft_iron_readback[1], soft_iron_readback[2], soft_iron_readback[3], soft_iron_readback[4],
 	                                                                 soft_iron_readback[5], soft_iron_readback[6], soft_iron_readback[7], soft_iron_readback[8]);
   }
 
@@ -586,7 +586,7 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n");
   printf("Setting the AHRS message format\n");
   printf("----------------------------------------------------------------------\n\n");
- 
+
   data_stream_format_descriptors[0] = MIP_AHRS_DATA_ACCEL_SCALED;
   data_stream_format_descriptors[1] = MIP_AHRS_DATA_GYRO_SCALED;
 
@@ -608,7 +608,7 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n");
   printf("Polling AHRS Data.\n");
   printf("----------------------------------------------------------------------\n\n");
- 
+
   while(mip_3dm_cmd_poll_ahrs(&device_interface, MIP_3DM_POLLING_ENABLE_ACK_NACK, data_stream_format_num_entries, data_stream_format_descriptors) != MIP_INTERFACE_OK){}
 
  }
@@ -619,21 +619,21 @@ int main(int argc, char* argv[])
 
  printf("\n\n");
  Sleep(1500);
- 
+
 
  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
  //
  // Standard Mode Tests
  //
  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
+
  device_descriptors_size  = 128*2;
  com_mode = MIP_SDK_GX4_45_IMU_STANDARD_MODE;
 
  printf("----------------------------------------------------------------------\n");
  printf("Putting Device Into Standard Mode\n");
  printf("----------------------------------------------------------------------\n\n");
- 
+
  //Set communication mode
  while(mip_system_com_mode(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &com_mode) != MIP_INTERFACE_OK){}
 
@@ -642,7 +642,7 @@ int main(int argc, char* argv[])
 
  printf("\n\n");
  Sleep(1500);
- 
+
 
  if(com_mode == MIP_SDK_GX4_45_IMU_STANDARD_MODE)
  {
@@ -660,12 +660,12 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n");
   printf("Idling Device\n");
   printf("----------------------------------------------------------------------\n\n");
- 
+
   while(mip_base_cmd_idle(&device_interface) != MIP_INTERFACE_OK){}
 
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Try to ping the GX4-45
   ///
@@ -673,12 +673,12 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n");
   printf("Pinging Device\n");
   printf("----------------------------------------------------------------------\n\n");
- 
+
   while(mip_base_cmd_ping(&device_interface) != MIP_INTERFACE_OK){}
 
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Get the device information
   ///
@@ -713,7 +713,7 @@ int main(int argc, char* argv[])
 
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Get the supported descriptors
   ///
@@ -734,7 +734,7 @@ int main(int argc, char* argv[])
 
   printf("\n\n");
   Sleep(1500);
- 
+
 
   ///
   //Peform a built-in-test
@@ -747,8 +747,8 @@ int main(int argc, char* argv[])
   while(mip_base_cmd_built_in_test(&device_interface, &bit_result) != MIP_INTERFACE_OK){}
 
   printf("\nBIT Result (should be 0x00000000) => 0x%08x\n\n", bit_result);
- 
-  
+
+
   printf("\n\n");
   Sleep(1500);
 
@@ -757,7 +757,7 @@ int main(int argc, char* argv[])
   // 3DM Command Tests
   //
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
+
   ///
   //Get AHRS Base Rate
   ///
@@ -784,10 +784,10 @@ int main(int argc, char* argv[])
   while(mip_3dm_cmd_get_gps_base_rate(&device_interface, &base_rate) != MIP_INTERFACE_OK){}
 
   printf("\nGPS Base Rate => %d Hz\n", base_rate);
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Get Estimation Filter Base Rate
   ///
@@ -799,10 +799,10 @@ int main(int argc, char* argv[])
   while(mip_3dm_cmd_get_filter_base_rate(&device_interface, &base_rate) != MIP_INTERFACE_OK){}
 
   printf("\nFILTER Base Rate => %d Hz\n", base_rate);
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Set/Read Coning and Sculling Compensation
   ///
@@ -835,7 +835,7 @@ int main(int argc, char* argv[])
 
   printf("\n\n");
   Sleep(1500);
- 
+
 
   ///
   //Set/Read Accel Bias
@@ -868,7 +868,7 @@ int main(int argc, char* argv[])
 
   printf("\n\n");
   Sleep(1500);
- 
+
 
   ///
   //Set/Read Gyro Bias
@@ -901,7 +901,7 @@ int main(int argc, char* argv[])
 
   printf("\n\n");
   Sleep(1500);
- 
+
 
   ///
   //Capture Gyro Bias
@@ -919,7 +919,7 @@ int main(int argc, char* argv[])
 
   printf("\n\n");
   Sleep(1500);
- 
+
 
   ///
   //Set/Read the hard iron offset values
@@ -969,7 +969,7 @@ int main(int argc, char* argv[])
 
   for(i=0; i<9; i++)
    soft_iron[i] = i;
- 
+
   while(mip_3dm_cmd_soft_iron(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, soft_iron) != MIP_INTERFACE_OK){}
 
   //Read back the soft iron matrix values
@@ -991,7 +991,7 @@ int main(int argc, char* argv[])
   {
    printf("ERROR: Failed to set hard iron values!!!\n");
    printf("Sent values:     [%f  %f  %f][%f  %f  %f][%f  %f  %f]\n", soft_iron[0], soft_iron[1], soft_iron[2], soft_iron[3], soft_iron[4], soft_iron[5], soft_iron[6], soft_iron[7], soft_iron[8]);
-   printf("Returned values: [%f  %f  %f][%f  %f  %f][%f  %f  %f]\n", soft_iron_readback[0], soft_iron_readback[1], soft_iron_readback[2], soft_iron_readback[3], soft_iron_readback[4], 
+   printf("Returned values: [%f  %f  %f][%f  %f  %f][%f  %f  %f]\n", soft_iron_readback[0], soft_iron_readback[1], soft_iron_readback[2], soft_iron_readback[3], soft_iron_readback[4],
 	                                                                 soft_iron_readback[5], soft_iron_readback[6], soft_iron_readback[7], soft_iron_readback[8]);
   }
 
@@ -1012,13 +1012,13 @@ int main(int argc, char* argv[])
   printf("Setting the complementary filter values\n");
   printf("----------------------------------------------------------------------\n\n");
 
-  
+
   comp_filter_command.north_compensation_enable = 0;
   comp_filter_command.up_compensation_enable    = 0;
 
   comp_filter_command.north_compensation_time_constant = 30;
   comp_filter_command.up_compensation_time_constant    = 30;
- 
+
   while(mip_3dm_cmd_complementary_filter_settings(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &comp_filter_command) != MIP_INTERFACE_OK){}
 
   //Read back the complementary filter values
@@ -1057,19 +1057,19 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n\n");
 
   //Request basic status report
-  while(mip_3dm_cmd_hw_specific_device_status(&device_interface, GX4_45_MODEL_NUMBER, GX4_45_BASIC_STATUS_SEL, &basic_field) != MIP_INTERFACE_OK){} 
+  while(mip_3dm_cmd_hw_specific_device_status(&device_interface, GX4_45_MODEL_NUMBER, GX4_45_BASIC_STATUS_SEL, &basic_field) != MIP_INTERFACE_OK){}
 
   printf("Model Number: \t\t\t\t\t%04u\n", basic_field.device_model);
   printf("Status Selector: \t\t\t\t%s\n", basic_field.status_selector == GX4_45_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
   printf("Status Flags: \t\t\t\t\t0x%08x\n", basic_field.status_flags);
-  
+
   if(basic_field.system_state == GX4_45_SYSTEM_STATE_INIT)
   {
    strcpy(temp_string,"System Initialization");
   }
   else if(basic_field.system_state == GX4_45_SYSTEM_STATE_SENSOR_STARTUP)
   {
-   strcpy(temp_string,"Sensor Start-up");  
+   strcpy(temp_string,"Sensor Start-up");
   }
   else if(basic_field.system_state == GX4_45_SYSTEM_STATE_RUNNING)
   {
@@ -1082,7 +1082,7 @@ int main(int argc, char* argv[])
   printf("Requesting DIAGNOSTIC Status Report:\n");
 
   //Request diagnostic status report
-  while(mip_3dm_cmd_hw_specific_device_status(&device_interface, GX4_45_MODEL_NUMBER, GX4_45_DIAGNOSTICS_STATUS_SEL, &diagnostic_field) != MIP_INTERFACE_OK){} 
+  while(mip_3dm_cmd_hw_specific_device_status(&device_interface, GX4_45_MODEL_NUMBER, GX4_45_DIAGNOSTICS_STATUS_SEL, &diagnostic_field) != MIP_INTERFACE_OK){}
 
   printf("Model Number: \t\t\t\t\t%04u\n", diagnostic_field.device_model);
   printf("Status Selector: \t\t\t\t%s\n", diagnostic_field.status_selector == GX4_45_BASIC_STATUS_SEL ? "Basic Status Report" : "Diagnostic Status Report");
@@ -1109,13 +1109,13 @@ int main(int argc, char* argv[])
 
   printf("\n\n");
   Sleep(1500);
- 
+
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //
   // Filter Command Tests
   //
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- 
+
 
   ///
   //Reset the filter
@@ -1126,10 +1126,10 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n\n");
 
   while(mip_filter_reset_filter(&device_interface) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Initialize the filter with Euler Angles
   ///
@@ -1141,10 +1141,10 @@ int main(int argc, char* argv[])
   angles[0] = angles[1] = angles[2] = 0;
 
   while(mip_filter_set_init_attitude(&device_interface, angles) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Reset the filter
   ///
@@ -1154,10 +1154,10 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n\n");
 
   while(mip_filter_reset_filter(&device_interface) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Initialize the filter with a heading
   ///
@@ -1167,10 +1167,10 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n\n");
 
   while(mip_filter_set_init_heading(&device_interface, angles[0]) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Reset the filter
   ///
@@ -1180,10 +1180,10 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n\n");
 
   while(mip_filter_reset_filter(&device_interface) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Set/Read the Vehicle dynamics mode
   ///
@@ -1260,7 +1260,7 @@ int main(int argc, char* argv[])
 
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Set/Read the Sensor to Vehicle Frame offset
   ///
@@ -1294,10 +1294,10 @@ int main(int argc, char* argv[])
   printf("\n\nLoading the default sensor to vehicle offset.\n\n");
 
   while(mip_filter_sensor2vehicle_offset(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, NULL) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Set/Read the GPS antenna offset
   ///
@@ -1334,13 +1334,13 @@ int main(int argc, char* argv[])
 
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Set/Read Estimation control bits
   ///
-  
+
   printf("----------------------------------------------------------------------\n");
-  printf("Cycling through Estimation Control Flags\n"); 
+  printf("Cycling through Estimation Control Flags\n");
   printf("----------------------------------------------------------------------\n\n");
 
   //negate successive bitfields
@@ -1351,38 +1351,38 @@ int main(int argc, char* argv[])
 
    //Set control bits
    while(mip_filter_estimation_control(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &estimation_control) != MIP_INTERFACE_OK){}
- 
+
    //Readback set control bits
-   while(mip_filter_estimation_control(&device_interface, MIP_FUNCTION_SELECTOR_READ, &estimation_control_readback) != MIP_INTERFACE_OK){} 
+   while(mip_filter_estimation_control(&device_interface, MIP_FUNCTION_SELECTOR_READ, &estimation_control_readback) != MIP_INTERFACE_OK){}
 
    if(estimation_control != estimation_control_readback)
    {
     printf("ERROR:\n");
-        
+
     if((estimation_control_readback & FILTER_ESTIMATION_CONTROL_GYRO_BIAS) != 0 && (estimation_control & FILTER_ESTIMATION_CONTROL_GYRO_BIAS) == 0)
      printf("Gyroscope Bias Estimation NOT DISABLED\n");
-        
+
     if((estimation_control_readback & FILTER_ESTIMATION_CONTROL_ACCEL_BIAS) != 0 && (estimation_control & FILTER_ESTIMATION_CONTROL_ACCEL_BIAS) == 0)
      printf("Accelerometer Bias Estimation NOT DISABLED\n");
-        
+
     if((estimation_control_readback & FILTER_ESTIMATION_CONTROL_GYRO_SCALE_FACTOR) != 0 && (estimation_control & FILTER_ESTIMATION_CONTROL_GYRO_SCALE_FACTOR) == 0)
      printf("Gyroscope Scale Factor Estimation NOT DISABLED\n");
-        
+
     if((estimation_control_readback & FILTER_ESTIMATION_CONTROL_ACCEL_SCALE_FACTOR) != 0 && (estimation_control & FILTER_ESTIMATION_CONTROL_ACCEL_SCALE_FACTOR) == 0)
      printf("Accelerometer Scale Factor Estimation NOT DISABLED\n");
-        
+
     if((estimation_control_readback & FILTER_ESTIMATION_CONTROL_GPS_ANTENNA_OFFSET) != 0 && (estimation_control & FILTER_ESTIMATION_CONTROL_GPS_ANTENNA_OFFSET) == 0)
-     printf("GPS Antenna Offset Estimation NOT DISABLED\n");    
+     printf("GPS Antenna Offset Estimation NOT DISABLED\n");
    }
   }
 
   printf("\n\nResetting Estimation Control Flags to default state.\n\n");
 
   while(mip_filter_estimation_control(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, &estimation_control) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Set/Read the gps source
   ///
@@ -1415,10 +1415,10 @@ int main(int argc, char* argv[])
   printf("\n\nLoading the default gps source.\n\n");
 
   while(mip_filter_gps_source(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, NULL) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //External GPS Update
   ///
@@ -1454,10 +1454,10 @@ int main(int argc, char* argv[])
   gps_source = 0x01;
 
   while(mip_filter_gps_source(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &gps_source) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //External Heading Update
   ///
@@ -1469,7 +1469,7 @@ int main(int argc, char* argv[])
   //Set device to external heading update mode
   heading_source = 0x3;
 
-  while(mip_filter_heading_source(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &heading_source) != MIP_INTERFACE_OK){} 
+  while(mip_filter_heading_source(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &heading_source) != MIP_INTERFACE_OK){}
 
   external_heading_update.heading_angle = 0.0; //0 Radians
   external_heading_update.heading_angle_1sigma = 0.01; //Radian Standard Deviation in heading estimate
@@ -1478,12 +1478,12 @@ int main(int argc, char* argv[])
   while(mip_filter_external_heading_update(&device_interface, &external_heading_update) != MIP_INTERFACE_OK){}
 
   //Set device to default heading update mode
-  
-  while(mip_filter_heading_source(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, &heading_source) != MIP_INTERFACE_OK){} 
- 
+
+  while(mip_filter_heading_source(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, &heading_source) != MIP_INTERFACE_OK){}
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Cycle through the available heading sources
   ///
@@ -1516,10 +1516,10 @@ int main(int argc, char* argv[])
   printf("\n\nLoading the default heading source.\n\n");
 
   while(mip_filter_heading_source(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, NULL) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Cycle through the available auto-init values
   ///
@@ -1552,10 +1552,10 @@ int main(int argc, char* argv[])
   printf("\n\nLoading the default auto-init value.\n\n");
 
   while(mip_filter_auto_initialization(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, NULL) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Set/Read the accel noise values
   ///
@@ -1589,10 +1589,10 @@ int main(int argc, char* argv[])
   printf("\n\nLoading the default accel noise values.\n\n");
 
   while(mip_filter_accel_noise(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, NULL) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Set/Read the gyro noise values
   ///
@@ -1626,10 +1626,10 @@ int main(int argc, char* argv[])
   printf("\n\nLoading the default gyro noise values.\n\n");
 
   while(mip_filter_gyro_noise(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, NULL) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
 
   ///
   //Set/Read the mag noise values
@@ -1712,7 +1712,7 @@ int main(int argc, char* argv[])
 
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Set/Read the gyro bias model values
   ///
@@ -1754,10 +1754,10 @@ int main(int argc, char* argv[])
   printf("\n\nLoading the default gyro bias model values.\n\n");
 
   while(mip_filter_gyro_bias_model(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, NULL, NULL) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
- 
+
   ///
   //Zero-Velocity Update Control
   ///
@@ -1772,7 +1772,7 @@ int main(int argc, char* argv[])
   //Set ZUPT parameters
   while(mip_filter_zero_velocity_update_control(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &zero_update_control) != MIP_INTERFACE_OK){}
 
-  //Read back parameter settings  
+  //Read back parameter settings
   while(mip_filter_zero_velocity_update_control(&device_interface, MIP_FUNCTION_SELECTOR_READ, &zero_update_readback) != MIP_INTERFACE_OK){}
 
   if(zero_update_control.enable != zero_update_readback.enable || zero_update_control.threshold != zero_update_readback.threshold)
@@ -1782,7 +1782,7 @@ int main(int argc, char* argv[])
 
   //Reset to default value
   while(mip_filter_zero_velocity_update_control(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, NULL) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
 
@@ -1797,7 +1797,7 @@ int main(int argc, char* argv[])
   //Set device to external heading update mode
   heading_source = 0x3;
 
-  while(mip_filter_heading_source(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &heading_source) != MIP_INTERFACE_OK){} 
+  while(mip_filter_heading_source(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &heading_source) != MIP_INTERFACE_OK){}
 
   external_heading_with_time.gps_tow = 0.0;
   external_heading_with_time.gps_week_number = 0;
@@ -1809,9 +1809,9 @@ int main(int argc, char* argv[])
 
   //Resetting default heading update
   printf("\n\nResetting default heading update.\n\n");
-  
-  while(mip_filter_heading_source(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, NULL) != MIP_INTERFACE_OK){} 
- 
+
+  while(mip_filter_heading_source(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, NULL) != MIP_INTERFACE_OK){}
+
   printf("\n\n");
   Sleep(1500);
 
@@ -1829,7 +1829,7 @@ int main(int argc, char* argv[])
   //Set ZUPT parameters
   while(mip_filter_zero_angular_rate_update_control(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &zero_update_control) != MIP_INTERFACE_OK){}
 
-  //Read back parameter settings  
+  //Read back parameter settings
   while(mip_filter_zero_angular_rate_update_control(&device_interface, MIP_FUNCTION_SELECTOR_READ, &zero_update_readback) != MIP_INTERFACE_OK){}
 
   if(zero_update_control.enable != zero_update_readback.enable || zero_update_control.threshold != zero_update_readback.threshold)
@@ -1843,7 +1843,7 @@ int main(int argc, char* argv[])
 
   printf("\n\n");
   Sleep(1500);
- 
+
 
   ///
   //Tare Orientation
@@ -1873,7 +1873,7 @@ int main(int argc, char* argv[])
    if(mip_filter_tare_orientation(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, i) != MIP_INTERFACE_OK)
    {
     printf("ERROR: Failed Axis - ");
-    
+
     if(i & FILTER_TARE_ROLL_AXIS)
      printf(" Roll Axis ");
 
@@ -1902,12 +1902,12 @@ int main(int argc, char* argv[])
    }
 
    Sleep(1000);
-  } 
-  
+  }
+
   printf("\n\nRestoring Orientation to default value.\n\n");
 
   //Restore to default value
-  while(mip_filter_tare_orientation(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, 0) != MIP_INTERFACE_OK){}  
+  while(mip_filter_tare_orientation(&device_interface, MIP_FUNCTION_SELECTOR_LOAD_DEFAULT, 0) != MIP_INTERFACE_OK){}
 
   printf("\n\n");
   Sleep(1500);
@@ -2010,7 +2010,7 @@ int main(int argc, char* argv[])
  {
   printf("ERROR: Failed to set accel magnitude error adaptive measurement values!!!\n");
   printf("Sent values:     Enable: %i, Parameters: %f %f %f %f %f %f\n", accel_magnitude_error_command.enable,
-                                                                         accel_magnitude_error_command.low_pass_cutoff, 
+                                                                         accel_magnitude_error_command.low_pass_cutoff,
 																		 accel_magnitude_error_command.min_1sigma,
 																		 accel_magnitude_error_command.low_limit,
 																		 accel_magnitude_error_command.high_limit,
@@ -2018,7 +2018,7 @@ int main(int argc, char* argv[])
 																		 accel_magnitude_error_command.high_limit_1sigma);
 
   printf("Returned values: Enable: %i, Parameters: %f %f %f %f %f %f\n", accel_magnitude_error_readback.enable,
-                                                                         accel_magnitude_error_readback.low_pass_cutoff, 
+                                                                         accel_magnitude_error_readback.low_pass_cutoff,
 																		 accel_magnitude_error_readback.min_1sigma,
 																		 accel_magnitude_error_readback.low_limit,
 																		 accel_magnitude_error_readback.high_limit,
@@ -2034,7 +2034,7 @@ int main(int argc, char* argv[])
  Sleep(1500);
 
 
- 
+
  ///
  //Set/Read the mag magnitude error adaptive measurement values
  ///
@@ -2070,7 +2070,7 @@ int main(int argc, char* argv[])
  {
   printf("ERROR: Failed to set mag magnitude error adaptive measurement values!!!\n");
   printf("Sent values:     Enable: %i, Parameters: %f %f %f %f %f %f\n", mag_magnitude_error_command.enable,
-                                                                         mag_magnitude_error_command.low_pass_cutoff, 
+                                                                         mag_magnitude_error_command.low_pass_cutoff,
 																		 mag_magnitude_error_command.min_1sigma,
 																		 mag_magnitude_error_command.low_limit,
 																		 mag_magnitude_error_command.high_limit,
@@ -2078,7 +2078,7 @@ int main(int argc, char* argv[])
 																		 mag_magnitude_error_command.high_limit_1sigma);
 
   printf("Returned values: Enable: %i, Parameters: %f %f %f %f %f %f\n", mag_magnitude_error_readback.enable,
-                                                                         mag_magnitude_error_readback.low_pass_cutoff, 
+                                                                         mag_magnitude_error_readback.low_pass_cutoff,
 																		 mag_magnitude_error_readback.min_1sigma,
 																		 mag_magnitude_error_readback.low_limit,
 																		 mag_magnitude_error_readback.high_limit,
@@ -2094,7 +2094,7 @@ int main(int argc, char* argv[])
   Sleep(1500);
 
 
- 
+
 
  ///
  //Set/Read the mag dip angle error adaptive measurement values
@@ -2127,13 +2127,13 @@ int main(int argc, char* argv[])
  {
   printf("ERROR: Failed to set mag dip angle error adaptive measurement values!!!\n");
   printf("Sent values:     Enable: %i, Parameters: %f %f %f %f\n", mag_dip_angle_error_command.enable,
-                                                                   mag_dip_angle_error_command.low_pass_cutoff, 
+                                                                   mag_dip_angle_error_command.low_pass_cutoff,
 																   mag_dip_angle_error_command.min_1sigma,
 																   mag_dip_angle_error_command.high_limit,
 																   mag_dip_angle_error_command.high_limit_1sigma);
 
   printf("Returned values: Enable: %i, Parameters: %f %f %f %f\n", mag_dip_angle_error_readback.enable,
-                                                                   mag_dip_angle_error_readback.low_pass_cutoff, 
+                                                                   mag_dip_angle_error_readback.low_pass_cutoff,
 																   mag_dip_angle_error_readback.min_1sigma,
 																   mag_dip_angle_error_readback.high_limit,
 																   mag_dip_angle_error_readback.high_limit_1sigma);
@@ -2154,7 +2154,7 @@ int main(int argc, char* argv[])
  // Streaming Data Tests
  //
  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
- 
+
 
 
   ///
@@ -2163,7 +2163,7 @@ int main(int argc, char* argv[])
 
   if(mip_interface_add_descriptor_set_callback(&device_interface, MIP_FILTER_DATA_SET, NULL, &filter_packet_callback) != MIP_INTERFACE_OK)
    return -1;
-  
+
   if(mip_interface_add_descriptor_set_callback(&device_interface, MIP_AHRS_DATA_SET, NULL, &ahrs_packet_callback) != MIP_INTERFACE_OK)
    return -1;
 
@@ -2190,7 +2190,7 @@ int main(int argc, char* argv[])
   data_stream_format_num_entries = 2;
 
   while(mip_3dm_cmd_ahrs_message_format(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &data_stream_format_num_entries, data_stream_format_descriptors, data_stream_format_decimation) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
 
@@ -2203,7 +2203,7 @@ int main(int argc, char* argv[])
   printf("----------------------------------------------------------------------\n\n");
 
   while(mip_3dm_cmd_poll_ahrs(&device_interface, MIP_3DM_POLLING_ENABLE_ACK_NACK, data_stream_format_num_entries, data_stream_format_descriptors) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
 
@@ -2222,7 +2222,7 @@ int main(int argc, char* argv[])
   data_stream_format_decimation[0]  = 0x04;
   data_stream_format_decimation[1]  = 0x04;
   data_stream_format_decimation[2]  = 0x04;
-  
+
   data_stream_format_num_entries = 3;
 
   while(mip_3dm_cmd_gps_message_format(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &data_stream_format_num_entries,
@@ -2264,7 +2264,7 @@ int main(int argc, char* argv[])
 
   while(mip_3dm_cmd_filter_message_format(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, &data_stream_format_num_entries,
 				       data_stream_format_descriptors, data_stream_format_decimation) != MIP_INTERFACE_OK){}
- 
+
   printf("\n\n");
   Sleep(1500);
 
@@ -2301,7 +2301,7 @@ int main(int argc, char* argv[])
  enable = 0x01;
 
  while(mip_3dm_cmd_continuous_data_stream(&device_interface, MIP_FUNCTION_SELECTOR_WRITE, MIP_3DM_AHRS_DATASTREAM, &enable) != MIP_INTERFACE_OK){}
- 
+
  printf("\n\n");
  Sleep(1500);
 
@@ -2731,28 +2731,28 @@ void print_packet_stats()
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-/////////////////////////////////////////////////////////////////////////////// 
-//                                                                              
-//! @fn                                                                         
+///////////////////////////////////////////////////////////////////////////////
+//
+//! @fn
 //! u16 mip_3dm_cmd_hw_specific_imu_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer)
-//                                                                              
-//! @section DESCRIPTION                                                        
-//! Requests GX4-IMU Basic or Diagnostic Status Message.                        
-//                                                                              
-//! @section DETAILS                                                            
-//!                                                                             
+//
+//! @section DESCRIPTION
+//! Requests GX4-IMU Basic or Diagnostic Status Message.
+//
+//! @section DETAILS
+//!
 //! @param [in] mip_interface *device_interface - pointer to the mip interface structure.
 //! @param [in] u16 model_number - LORD Microstrain Sensing Systems model number for GX4 IMU (6237)
 //! @param [in] u8 status selector - specifies which type of status message is being requested.
 //! @paran [out] u8 *response_buffer - pointer to the location to store response bytes.
-//                                                                              
+//
 //! @retval MIP_INTERFACE_ERROR  Interface not initialized or device not in IMU Direct Mode.\n
-//! @retval MIP_INTERFACE_OK     Status message successfully recieved.\n        
-//                                                                              
-//! @section NOTES                                                              
-//!                                                                             
-//! This function should only be called in IMU Direct Mode.                     
-/////////////////////////////////////////////////////////////////////////////// 
+//! @retval MIP_INTERFACE_OK     Status message successfully recieved.\n
+//
+//! @section NOTES
+//!
+//! This function should only be called in IMU Direct Mode.
+///////////////////////////////////////////////////////////////////////////////
 
 u16 mip_3dm_cmd_hw_specific_imu_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer)
 {
@@ -2761,10 +2761,10 @@ u16 mip_3dm_cmd_hw_specific_imu_device_status(mip_interface *device_interface, u
  gx4_imu_diagnostic_device_status_field *diagnostic_ptr;
  u16 response_size = MIP_FIELD_HEADER_SIZE;
 
- if(status_selector == GX4_IMU_BASIC_STATUS_SEL)                                    
-  response_size += sizeof(gx4_imu_basic_status_field);                               
- else if(status_selector == GX4_IMU_DIAGNOSTICS_STATUS_SEL)                         
-  response_size += sizeof(gx4_imu_diagnostic_device_status_field); 
+ if(status_selector == GX4_IMU_BASIC_STATUS_SEL)
+  response_size += sizeof(gx4_imu_basic_status_field);
+ else if(status_selector == GX4_IMU_DIAGNOSTICS_STATUS_SEL)
+  response_size += sizeof(gx4_imu_diagnostic_device_status_field);
 
  while(mip_3dm_cmd_device_status(device_interface, model_number, status_selector, response_buffer, &response_size) != MIP_INTERFACE_OK){}
 
@@ -2773,7 +2773,7 @@ u16 mip_3dm_cmd_hw_specific_imu_device_status(mip_interface *device_interface, u
   if(response_size != sizeof(gx4_imu_basic_status_field))
    return MIP_INTERFACE_ERROR;
   else if(MIP_SDK_CONFIG_BYTESWAP){
- 
+
    basic_ptr = (gx4_imu_basic_status_field *)response_buffer;
 
    byteswap_inplace(&basic_ptr->device_model, sizeof(basic_ptr->device_model));
@@ -2787,7 +2787,7 @@ u16 mip_3dm_cmd_hw_specific_imu_device_status(mip_interface *device_interface, u
   if(response_size != sizeof(gx4_imu_diagnostic_device_status_field))
    return MIP_INTERFACE_ERROR;
   else if(MIP_SDK_CONFIG_BYTESWAP){
- 
+
    diagnostic_ptr = (gx4_imu_diagnostic_device_status_field *)response_buffer;
 
    byteswap_inplace(&diagnostic_ptr->device_model, sizeof(diagnostic_ptr->device_model));
@@ -2817,28 +2817,28 @@ u16 mip_3dm_cmd_hw_specific_imu_device_status(mip_interface *device_interface, u
 }
 
 
-/////////////////////////////////////////////////////////////////////////////// 
-//                                                                              
-//! @fn                                                                         
+///////////////////////////////////////////////////////////////////////////////
+//
+//! @fn
 //! u16 mip_3dm_cmd_hw_specific_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer)
-//                                                                              
-//! @section DESCRIPTION                                                        
-//! Requests GX4-45 Basic or Diagnostic Status Message.                            
-//                                                                              
-//! @section DETAILS                                                            
-//!                                                                             
+//
+//! @section DESCRIPTION
+//! Requests GX4-45 Basic or Diagnostic Status Message.
+//
+//! @section DETAILS
+//!
 //! @param [in] mip_interface *device_interface - pointer to the mip interface structure.
 //! @param [in] u16 model_number - LORD Microstrain Sensing Systems model number for GX4-45 (6236)
 //! @param [in] u8 status selector - specifies which type of status message is being requested.
 //! @paran [out] u8 *response_buffer - pointer to the location to store response bytes.
-//                                                                              
+//
 //! @retval MIP_INTERFACE_ERROR  Interface not initialized or device not in IMU Direct Mode.\n
-//! @retval MIP_INTERFACE_OK     Status message successfully recieved.\n        
-//                                                                              
-//! @section NOTES                                                              
-//!                                                                             
-/////////////////////////////////////////////////////////////////////////////// 
-    
+//! @retval MIP_INTERFACE_OK     Status message successfully recieved.\n
+//
+//! @section NOTES
+//!
+///////////////////////////////////////////////////////////////////////////////
+
 u16 mip_3dm_cmd_hw_specific_device_status(mip_interface *device_interface, u16 model_number, u8 status_selector, u8 *response_buffer)
 {
 
@@ -2846,10 +2846,10 @@ u16 mip_3dm_cmd_hw_specific_device_status(mip_interface *device_interface, u16 m
  gx4_45_diagnostic_device_status_field *diagnostic_ptr;
  u16 response_size = MIP_FIELD_HEADER_SIZE;
 
- if(status_selector == GX4_45_BASIC_STATUS_SEL)                                    
-  response_size += sizeof(gx4_45_basic_status_field);                               
- else if(status_selector == GX4_45_DIAGNOSTICS_STATUS_SEL)                         
-  response_size += sizeof(gx4_45_diagnostic_device_status_field); 
+ if(status_selector == GX4_45_BASIC_STATUS_SEL)
+  response_size += sizeof(gx4_45_basic_status_field);
+ else if(status_selector == GX4_45_DIAGNOSTICS_STATUS_SEL)
+  response_size += sizeof(gx4_45_diagnostic_device_status_field);
 
  while(mip_3dm_cmd_device_status(device_interface, model_number, status_selector, response_buffer, &response_size) != MIP_INTERFACE_OK){}
 
@@ -2868,7 +2868,7 @@ u16 mip_3dm_cmd_hw_specific_device_status(mip_interface *device_interface, u16 m
    byteswap_inplace(&basic_ptr->system_timer_ms, sizeof(basic_ptr->system_timer_ms));
 
   }
-  
+
  }
  else if(status_selector == GX4_45_DIAGNOSTICS_STATUS_SEL)
  {
