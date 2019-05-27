@@ -6,7 +6,7 @@
 
 
 
-namespace microstrain_3dm
+namespace microstrain_mips
 {
 
 RosDiagnosticUpdater::RosDiagnosticUpdater(Microstrain::Microstrain *device)
@@ -94,7 +94,7 @@ void RosDiagnosticUpdater::imuDiagnostics(diagnostic_updater::DiagnosticStatusWr
 }
 
 
-void RosDiagnosticUpdater::statusCallback(const microstrain_3dm::status_msg::ConstPtr& status)
+void RosDiagnosticUpdater::statusCallback(const microstrain_mips::status_msg::ConstPtr& status)
 {
   last_status_ = *status;
   update();

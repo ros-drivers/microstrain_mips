@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(microstrain_3dm)
+project(microstrain_mips)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -129,7 +129,7 @@ set(MIPSRC
 )
 
 # Libraries
-add_library(microstrain_3dm
+add_library(microstrain_mips
   src/microstrain_3dm.cpp
   src/mip_sdk_user_functions.c
   #src/GX4-45_Test.cpp
@@ -147,13 +147,13 @@ add_executable(GX4-45_Test
   ${MIPSRC}
 )
 
-add_executable(microstrain_3dm_node
+add_executable(microstrain_mips_node
   src/microstrain_3dm_node.cpp
   src/microstrain_diagnostic_updater.cpp
 )
 
-add_dependencies(microstrain_3dm_node
-  microstrain_3dm_gencpp
+add_dependencies(microstrain_mips_node
+  microstrain_mips_gencpp
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
 )
 add_executable(set_accel_bias_client src/set_accel_bias_client.cpp)
@@ -250,109 +250,109 @@ add_executable(get_mag_dip_adaptive_vals_client src/get_mag_dip_adaptive_vals_cl
 
 add_executable(get_accel_bias_model_client src/get_accel_bias_model_client.cpp)
 
-add_dependencies(set_accel_bias_client microstrain_3dm_gencpp)
+add_dependencies(set_accel_bias_client microstrain_mips_gencpp)
 
-add_dependencies(set_accel_bias_client microstrain_3dm_gencpp)
+add_dependencies(set_accel_bias_client microstrain_mips_gencpp)
 
-add_dependencies(get_accel_bias_client microstrain_3dm_gencpp)
+add_dependencies(get_accel_bias_client microstrain_mips_gencpp)
 
-add_dependencies(set_gyro_bias_client microstrain_3dm_gencpp)
+add_dependencies(set_gyro_bias_client microstrain_mips_gencpp)
 
-add_dependencies(get_gyro_bias_client microstrain_3dm_gencpp)
+add_dependencies(get_gyro_bias_client microstrain_mips_gencpp)
 
-add_dependencies(set_hard_iron_values_client microstrain_3dm_gencpp)
+add_dependencies(set_hard_iron_values_client microstrain_mips_gencpp)
 
-add_dependencies(get_hard_iron_values_client microstrain_3dm_gencpp)
+add_dependencies(get_hard_iron_values_client microstrain_mips_gencpp)
 
-add_dependencies(device_report_client microstrain_3dm_gencpp)
+add_dependencies(device_report_client microstrain_mips_gencpp)
 
-add_dependencies(gyro_bias_capture_client microstrain_3dm_gencpp)
+add_dependencies(gyro_bias_capture_client microstrain_mips_gencpp)
 
-add_dependencies(set_soft_iron_matrix_client microstrain_3dm_gencpp)
+add_dependencies(set_soft_iron_matrix_client microstrain_mips_gencpp)
 
-add_dependencies(set_complementary_filter_client microstrain_3dm_gencpp)
+add_dependencies(set_complementary_filter_client microstrain_mips_gencpp)
 
-add_dependencies(get_complementary_filter_client microstrain_3dm_gencpp)
+add_dependencies(get_complementary_filter_client microstrain_mips_gencpp)
 
-add_dependencies(set_filter_euler_client microstrain_3dm_gencpp)
+add_dependencies(set_filter_euler_client microstrain_mips_gencpp)
 
-add_dependencies(set_filter_heading_client microstrain_3dm_gencpp)
+add_dependencies(set_filter_heading_client microstrain_mips_gencpp)
 
-add_dependencies(set_accel_bias_model_client microstrain_3dm_gencpp)
+add_dependencies(set_accel_bias_model_client microstrain_mips_gencpp)
 
-add_dependencies(set_accel_adaptive_vals_client microstrain_3dm_gencpp)
+add_dependencies(set_accel_adaptive_vals_client microstrain_mips_gencpp)
 
-add_dependencies(set_sensor_vehicle_frame_trans_client microstrain_3dm_gencpp)
+add_dependencies(set_sensor_vehicle_frame_trans_client microstrain_mips_gencpp)
 
-add_dependencies(get_sensor_vehicle_frame_trans_client microstrain_3dm_gencpp)
+add_dependencies(get_sensor_vehicle_frame_trans_client microstrain_mips_gencpp)
 
-add_dependencies(set_sensor_vehicle_frame_offset_client microstrain_3dm_gencpp)
+add_dependencies(set_sensor_vehicle_frame_offset_client microstrain_mips_gencpp)
 
-add_dependencies(get_sensor_vehicle_frame_offset_client microstrain_3dm_gencpp)
+add_dependencies(get_sensor_vehicle_frame_offset_client microstrain_mips_gencpp)
 
-add_dependencies(set_reference_position_client microstrain_3dm_gencpp)
+add_dependencies(set_reference_position_client microstrain_mips_gencpp)
 
-add_dependencies(get_reference_position_client microstrain_3dm_gencpp)
+add_dependencies(get_reference_position_client microstrain_mips_gencpp)
 
-add_dependencies(set_coning_sculling_comp_client microstrain_3dm_gencpp)
+add_dependencies(set_coning_sculling_comp_client microstrain_mips_gencpp)
 
-add_dependencies(get_coning_sculling_comp_client microstrain_3dm_gencpp)
+add_dependencies(get_coning_sculling_comp_client microstrain_mips_gencpp)
 
-add_dependencies(set_estimation_control_flags_client microstrain_3dm_gencpp)
+add_dependencies(set_estimation_control_flags_client microstrain_mips_gencpp)
 
-add_dependencies(get_estimation_control_flags_client microstrain_3dm_gencpp)
+add_dependencies(get_estimation_control_flags_client microstrain_mips_gencpp)
 
-add_dependencies(set_dynamics_mode_client microstrain_3dm_gencpp)
+add_dependencies(set_dynamics_mode_client microstrain_mips_gencpp)
 
-add_dependencies(get_dynamics_mode_client microstrain_3dm_gencpp)
+add_dependencies(get_dynamics_mode_client microstrain_mips_gencpp)
 
-add_dependencies(get_basic_status_client microstrain_3dm_gencpp)
+add_dependencies(get_basic_status_client microstrain_mips_gencpp)
 
-add_dependencies(get_diagnostic_report_client microstrain_3dm_gencpp)
+add_dependencies(get_diagnostic_report_client microstrain_mips_gencpp)
 
-add_dependencies(set_zero_angle_update_threshold_client microstrain_3dm_gencpp)
+add_dependencies(set_zero_angle_update_threshold_client microstrain_mips_gencpp)
 
-add_dependencies(get_zero_angle_update_threshold_client microstrain_3dm_gencpp)
+add_dependencies(get_zero_angle_update_threshold_client microstrain_mips_gencpp)
 
-add_dependencies(set_tare_orientation_client microstrain_3dm_gencpp)
+add_dependencies(set_tare_orientation_client microstrain_mips_gencpp)
 
-add_dependencies(set_accel_noise_client microstrain_3dm_gencpp)
+add_dependencies(set_accel_noise_client microstrain_mips_gencpp)
 
-add_dependencies(get_accel_noise_client microstrain_3dm_gencpp)
+add_dependencies(get_accel_noise_client microstrain_mips_gencpp)
 
-add_dependencies(set_gyro_noise_client microstrain_3dm_gencpp)
+add_dependencies(set_gyro_noise_client microstrain_mips_gencpp)
 
-add_dependencies(get_gyro_noise_client microstrain_3dm_gencpp)
+add_dependencies(get_gyro_noise_client microstrain_mips_gencpp)
 
-add_dependencies(set_mag_noise_client microstrain_3dm_gencpp)
+add_dependencies(set_mag_noise_client microstrain_mips_gencpp)
 
-add_dependencies(get_mag_noise_client microstrain_3dm_gencpp)
+add_dependencies(get_mag_noise_client microstrain_mips_gencpp)
 
-add_dependencies(set_gyro_bias_model_client microstrain_3dm_gencpp)
+add_dependencies(set_gyro_bias_model_client microstrain_mips_gencpp)
 
-add_dependencies(get_gyro_bias_model_client microstrain_3dm_gencpp)
+add_dependencies(get_gyro_bias_model_client microstrain_mips_gencpp)
 
-add_dependencies(get_accel_adaptive_vals_client microstrain_3dm_gencpp)
+add_dependencies(get_accel_adaptive_vals_client microstrain_mips_gencpp)
 
-add_dependencies(set_mag_adaptive_vals_client microstrain_3dm_gencpp)
+add_dependencies(set_mag_adaptive_vals_client microstrain_mips_gencpp)
 
-add_dependencies(get_mag_adaptive_vals_client microstrain_3dm_gencpp)
+add_dependencies(get_mag_adaptive_vals_client microstrain_mips_gencpp)
 
-add_dependencies(set_mag_dip_adaptive_vals_client microstrain_3dm_gencpp)
+add_dependencies(set_mag_dip_adaptive_vals_client microstrain_mips_gencpp)
 
-add_dependencies(get_mag_dip_adaptive_vals_client microstrain_3dm_gencpp)
+add_dependencies(get_mag_dip_adaptive_vals_client microstrain_mips_gencpp)
 
-add_dependencies(get_accel_bias_model_client microstrain_3dm_gencpp)
+add_dependencies(get_accel_bias_model_client microstrain_mips_gencpp)
 
 
 # Linking
 target_link_libraries(GX4-45_Test rt)
 
-target_link_libraries(microstrain_3dm
+target_link_libraries(microstrain_mips
   ${catkin_LIBRARIES}
 )
-target_link_libraries(microstrain_3dm_node
-  microstrain_3dm
+target_link_libraries(microstrain_mips_node
+  microstrain_mips
   ${catkin_LIBRARIES}
 )
 
@@ -457,7 +457,7 @@ target_link_libraries(get_accel_bias_model_client ${catkin_LIBRARIES})
 ## Install ##
 #############
 
-install(TARGETS microstrain_3dm microstrain_3dm_node
+install(TARGETS microstrain_mips microstrain_mips_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

@@ -26,7 +26,7 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <time.h>
 
-#include "microstrain_3dm/status_msg.h"
+#include "microstrain_mips/status_msg.h"
 #include "microstrain_diagnostic_updater.h"
 
 
@@ -155,7 +155,7 @@ namespace Microstrain
 
 
     //Publishes device status
-    device_status_pub_ = node.advertise<microstrain_3dm::status_msg>("device/status", 100);
+    device_status_pub_ = node.advertise<microstrain_mips::status_msg>("device/status", 100);
 
 
     //Services to set/get device functions
@@ -744,7 +744,7 @@ namespace Microstrain
     ROS_INFO("Setting spin rate to <%d>",spin_rate);
     ros::Rate r(spin_rate);  // Rate in Hz
 
-    microstrain_3dm::RosDiagnosticUpdater ros_diagnostic_updater(this);
+    microstrain_mips::RosDiagnosticUpdater ros_diagnostic_updater(this);
 
     while (ros::ok()){
       //Update the parser (this function reads the port and parses the bytes
@@ -781,7 +781,7 @@ namespace Microstrain
 
   //Services to get/set values on devices
   //Set accel bias values
-  bool Microstrain::set_accel_bias(microstrain_3dm::SetAccelBias::Request &req, microstrain_3dm::SetAccelBias::Response &res)
+  bool Microstrain::set_accel_bias(microstrain_mips::SetAccelBias::Request &req, microstrain_mips::SetAccelBias::Response &res)
    {
      ROS_INFO("Setting accel bias values");
      memset(field_data, 0, 3*sizeof(float));
@@ -840,7 +840,7 @@ namespace Microstrain
     }
 
     //Set gyro bias values
-   bool Microstrain::set_gyro_bias(microstrain_3dm::SetGyroBias::Request &req, microstrain_3dm::SetGyroBias::Response &res)
+   bool Microstrain::set_gyro_bias(microstrain_mips::SetGyroBias::Request &req, microstrain_mips::SetGyroBias::Response &res)
     {
       ROS_INFO("Setting gyro bias values");
       memset(field_data, 0, 3*sizeof(float));
@@ -900,7 +900,7 @@ namespace Microstrain
      }
 
      //Set hard iron values
-    bool Microstrain::set_hard_iron_values(microstrain_3dm::SetHardIronValues::Request &req, microstrain_3dm::SetHardIronValues::Response &res)
+    bool Microstrain::set_hard_iron_values(microstrain_mips::SetHardIronValues::Request &req, microstrain_mips::SetHardIronValues::Response &res)
      {
        if(GX5_15 == true){
          ROS_INFO("Device does not support this feature");
@@ -1028,7 +1028,7 @@ namespace Microstrain
     }
 
     //Set soft iron matrix values
-    bool Microstrain::set_soft_iron_matrix(microstrain_3dm::SetSoftIronMatrix::Request &req, microstrain_3dm::SetSoftIronMatrix::Response &res)
+    bool Microstrain::set_soft_iron_matrix(microstrain_mips::SetSoftIronMatrix::Request &req, microstrain_mips::SetSoftIronMatrix::Response &res)
     {
       if(GX5_15 == true){
         ROS_INFO("Device does not support this feature");
@@ -1123,7 +1123,7 @@ namespace Microstrain
      }
 
     //Set complementary filter values
-    bool Microstrain::set_complementary_filter(microstrain_3dm::SetComplementaryFilter::Request &req, microstrain_3dm::SetComplementaryFilter::Response &res)
+    bool Microstrain::set_complementary_filter(microstrain_mips::SetComplementaryFilter::Request &req, microstrain_mips::SetComplementaryFilter::Response &res)
     {
      ROS_INFO("Setting the complementary filter values\n");
 
@@ -1185,7 +1185,7 @@ namespace Microstrain
     }
 
     //Initialize filter with Euler angles
-    bool Microstrain::set_filter_euler(microstrain_3dm::SetFilterEuler::Request &req, microstrain_3dm::SetFilterEuler::Response &res)
+    bool Microstrain::set_filter_euler(microstrain_mips::SetFilterEuler::Request &req, microstrain_mips::SetFilterEuler::Response &res)
     {
      memset(angles, 0, 3*sizeof(float));
      ROS_INFO("Resetting the Filter\n");
@@ -1217,7 +1217,7 @@ namespace Microstrain
   }
 
     //Set filter with heading angle
-    bool Microstrain::set_filter_heading(microstrain_3dm::SetFilterHeading::Request &req, microstrain_3dm::SetFilterHeading::Response &res)
+    bool Microstrain::set_filter_heading(microstrain_mips::SetFilterHeading::Request &req, microstrain_mips::SetFilterHeading::Response &res)
     {
      ROS_INFO("Resetting the Filter\n");
 
@@ -1246,7 +1246,7 @@ namespace Microstrain
 
 
   //Set sensor to vehicle frame transformation
-  bool Microstrain::set_sensor_vehicle_frame_trans(microstrain_3dm::SetSensorVehicleFrameTrans::Request &req, microstrain_3dm::SetSensorVehicleFrameTrans::Response &res)
+  bool Microstrain::set_sensor_vehicle_frame_trans(microstrain_mips::SetSensorVehicleFrameTrans::Request &req, microstrain_mips::SetSensorVehicleFrameTrans::Response &res)
   {
     if(GX5_15 == true){
       ROS_INFO("Device does not support this feature");
@@ -1322,7 +1322,7 @@ namespace Microstrain
   }
 
     //Set reference position
-    bool Microstrain::set_reference_position(microstrain_3dm::SetReferencePosition::Request &req, microstrain_3dm::SetReferencePosition::Response &res)
+    bool Microstrain::set_reference_position(microstrain_mips::SetReferencePosition::Request &req, microstrain_mips::SetReferencePosition::Response &res)
     {
     ROS_INFO("Setting reference Position\n");
 
@@ -1387,7 +1387,7 @@ namespace Microstrain
     }
 
     //Enable or disable coning and sculling compensation
-    bool Microstrain::set_coning_sculling_comp(microstrain_3dm::SetConingScullingComp::Request &req, microstrain_3dm::SetConingScullingComp::Response &res)
+    bool Microstrain::set_coning_sculling_comp(microstrain_mips::SetConingScullingComp::Request &req, microstrain_mips::SetConingScullingComp::Response &res)
     {
     if(req.enable == 0){
       ROS_INFO("Disabling Coning and Sculling compensation\n");
@@ -1456,7 +1456,7 @@ namespace Microstrain
     }
 
     //Set estimation control filter flags
-    bool Microstrain::set_estimation_control_flags(microstrain_3dm::SetEstimationControlFlags::Request &req, microstrain_3dm::SetEstimationControlFlags::Response &res)
+    bool Microstrain::set_estimation_control_flags(microstrain_mips::SetEstimationControlFlags::Request &req, microstrain_mips::SetEstimationControlFlags::Response &res)
     {
     estimation_control = req.flag;
     start = clock();
@@ -1568,7 +1568,7 @@ namespace Microstrain
     }
 
     //Set zero angular-rate update threshold
-    bool Microstrain::set_zero_angle_update_threshold(microstrain_3dm::SetZeroAngleUpdateThreshold::Request &req, microstrain_3dm::SetZeroAngleUpdateThreshold::Response &res)
+    bool Microstrain::set_zero_angle_update_threshold(microstrain_mips::SetZeroAngleUpdateThreshold::Request &req, microstrain_mips::SetZeroAngleUpdateThreshold::Response &res)
     {
       ROS_INFO("Setting Zero Angular-Rate-Update threshold\n");
 
@@ -1623,7 +1623,7 @@ namespace Microstrain
     }
 
     //Set tare orientation angle values
-    bool Microstrain::set_tare_orientation(microstrain_3dm::SetTareOrientation::Request &req, microstrain_3dm::SetTareOrientation::Response &res)
+    bool Microstrain::set_tare_orientation(microstrain_mips::SetTareOrientation::Request &req, microstrain_mips::SetTareOrientation::Response &res)
     {
       if(req.axis < 1 || req.axis > 7){
         ROS_INFO("Value must be between 1-7. 1 = Roll, 2 = Pitch, 3 = Roll/Pitch, 4 = Yaw, 5 = Roll/Yaw, 6 = Pitch/Yaw, 7 = Roll/Pitch/Yaw");
@@ -1680,7 +1680,7 @@ namespace Microstrain
     }
 
     //Set accel noise values
-    bool Microstrain::set_accel_noise(microstrain_3dm::SetAccelNoise::Request &req, microstrain_3dm::SetAccelNoise::Response &res)
+    bool Microstrain::set_accel_noise(microstrain_mips::SetAccelNoise::Request &req, microstrain_mips::SetAccelNoise::Response &res)
     {
       ROS_INFO("Setting the accel noise values\n");
 
@@ -1739,7 +1739,7 @@ namespace Microstrain
     }
 
     //Set gyro noise values
-    bool Microstrain::set_gyro_noise(microstrain_3dm::SetGyroNoise::Request &req, microstrain_3dm::SetGyroNoise::Response &res)
+    bool Microstrain::set_gyro_noise(microstrain_mips::SetGyroNoise::Request &req, microstrain_mips::SetGyroNoise::Response &res)
     {
       ROS_INFO("Setting the gyro noise values\n");
 
@@ -1798,7 +1798,7 @@ namespace Microstrain
     }
 
     //Set magnetometer noise values
-    bool Microstrain::set_mag_noise(microstrain_3dm::SetMagNoise::Request &req, microstrain_3dm::SetMagNoise::Response &res)
+    bool Microstrain::set_mag_noise(microstrain_mips::SetMagNoise::Request &req, microstrain_mips::SetMagNoise::Response &res)
     {
       if(GX5_15 == true){
         ROS_INFO("Device does not support this feature");
@@ -1870,7 +1870,7 @@ namespace Microstrain
 
 
     //Set gyro bias model
-    bool Microstrain::set_gyro_bias_model(microstrain_3dm::SetGyroBiasModel::Request &req, microstrain_3dm::SetGyroBiasModel::Response &res)
+    bool Microstrain::set_gyro_bias_model(microstrain_mips::SetGyroBiasModel::Request &req, microstrain_mips::SetGyroBiasModel::Response &res)
     {
       ROS_INFO("Setting the gyro bias model values\n");
 
@@ -1965,7 +1965,7 @@ namespace Microstrain
 
 
     //Set accel bias model
-    bool Microstrain::set_accel_bias_model(microstrain_3dm::SetAccelBiasModel::Request &req, microstrain_3dm::SetAccelBiasModel::Response &res)
+    bool Microstrain::set_accel_bias_model(microstrain_mips::SetAccelBiasModel::Request &req, microstrain_mips::SetAccelBiasModel::Response &res)
     {
       if(GX5_15 == true || GX5_25 == true){
         ROS_INFO("Device does not support this feature");
@@ -2027,7 +2027,7 @@ namespace Microstrain
     }
 
     //Set accel magnitude error adaptive measurement values
-    bool Microstrain::set_accel_adaptive_vals(microstrain_3dm::SetAccelAdaptiveVals::Request &req, microstrain_3dm::SetAccelAdaptiveVals::Response &res )
+    bool Microstrain::set_accel_adaptive_vals(microstrain_mips::SetAccelAdaptiveVals::Request &req, microstrain_mips::SetAccelAdaptiveVals::Response &res )
     {
       ROS_INFO("Setting the accel magnitude error adaptive measurement values\n");
 
@@ -2095,7 +2095,7 @@ namespace Microstrain
     }
 
     //Set magnetometer magnitude error adaptive measurement values
-    bool Microstrain::set_mag_adaptive_vals(microstrain_3dm::SetMagAdaptiveVals::Request &req, microstrain_3dm::SetMagAdaptiveVals::Response &res )
+    bool Microstrain::set_mag_adaptive_vals(microstrain_mips::SetMagAdaptiveVals::Request &req, microstrain_mips::SetMagAdaptiveVals::Response &res )
     {
       if(GX5_15 == true){
         ROS_INFO("Device does not support this feature");
@@ -2202,7 +2202,7 @@ namespace Microstrain
     }
 
     //Get magnetometer dip angle error adaptive measurement values
-    bool Microstrain::set_mag_dip_adaptive_vals(microstrain_3dm::SetMagDipAdaptiveVals::Request &req, microstrain_3dm::SetMagDipAdaptiveVals::Response &res )
+    bool Microstrain::set_mag_dip_adaptive_vals(microstrain_mips::SetMagDipAdaptiveVals::Request &req, microstrain_mips::SetMagDipAdaptiveVals::Response &res )
     {
       if(GX5_15 == true || GX5_25 == true){
         ROS_INFO("Device does not support this feature");
@@ -2285,7 +2285,7 @@ namespace Microstrain
 
 
     //Set vehicle dynamics mode. Only in 45 model.
-    bool Microstrain::set_dynamics_mode(microstrain_3dm::SetDynamicsMode::Request &req, microstrain_3dm::SetDynamicsMode::Response &res)
+    bool Microstrain::set_dynamics_mode(microstrain_mips::SetDynamicsMode::Request &req, microstrain_mips::SetDynamicsMode::Response &res)
     {
       if(GX5_15 == true || GX5_25 == true){
         ROS_INFO("Device does not support this feature");
@@ -2326,7 +2326,7 @@ namespace Microstrain
     }
 
     //Set sensor to vehicle frame offset. Only in 45
-    bool Microstrain::set_sensor_vehicle_frame_offset(microstrain_3dm::SetSensorVehicleFrameOffset::Request &req, microstrain_3dm::SetSensorVehicleFrameOffset::Response &res)
+    bool Microstrain::set_sensor_vehicle_frame_offset(microstrain_mips::SetSensorVehicleFrameOffset::Request &req, microstrain_mips::SetSensorVehicleFrameOffset::Response &res)
     {
      if(GX5_15 == true || GX5_25 == true){
         ROS_INFO("Device does not support this feature");
