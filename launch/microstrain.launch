@@ -13,13 +13,13 @@
   <!-- For setting debug level to debug -->
   <group if="$(arg debug)">
     <env name="ROSCONSOLE_CONFIG_FILE"
-       value="$(find microstrain_3dm)/config/custom_rosconsole.conf"/>
+       value="$(find microstrain_mips)/config/custom_rosconsole.conf"/>
   </group>
 
   <!-- Microstrain sensor node -->
   <node name="microstrain_mips_node"
-  pkg="microstrain_3dm"
-  type="microstrain_3dm_node" output="screen" ns="gx5">
+  pkg="microstrain_mips"
+  type="microstrain_mips_node" output="screen" ns="gx5">
     <param name="port" value="$(arg port)" type="str" />
     <param name="baudrate" value="$(arg baudrate)" type="int" />
 
@@ -56,7 +56,7 @@
       args="/yaw_pid_debug/Setpoint /vel_pid_debug/Setpoint"/>-->
     <!-- Diagnostic Aggregator for robot monitor usage -->
     <node pkg="diagnostic_aggregator" type="aggregator_node" name="imu_diagnostic_aggregator">
-      <rosparam command="load" file="$(find microstrain_3dm)/config/diagnostic_analyzers.yaml" />
+      <rosparam command="load" file="$(find microstrain_mips)/config/diagnostic_analyzers.yaml" />
     </node>
   </group>
 
