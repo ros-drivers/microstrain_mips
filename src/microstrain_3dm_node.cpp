@@ -35,7 +35,7 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "microstrain_3dm_node");
+  ros::init(argc, argv, "microstrain_mips_node");
   Microstrain::Microstrain ustrain;
   ustrain.run();
   ros::shutdown();
