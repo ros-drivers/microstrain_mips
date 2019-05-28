@@ -2,8 +2,8 @@
 Changelog for package microstrain_mips
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.2 (2019-05-28)
+------------------
 * Merge pull request `#18 <https://github.com/ros-drivers/microstrain_mips/issues/18>`_ from ljazzal/master
   Harmonized package name throughout the source code
 * renamed remaining "microstrain_3dm_node"

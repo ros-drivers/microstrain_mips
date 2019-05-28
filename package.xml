@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>microstrain_mips</name>
-  <version>0.0.1</version>
+  <version>0.0.2</version>
   <description>The microstrain_mips package provides a driver for the LORD/Microstrain 3DM_GX5_XX GPS-aided IMU sensor.</description>
   <author email="briansbingham@gmail.com">Brian Bingham</author> -->
   <maintainer email="briansbingham@gmail.com">Brian Bingham</maintainer>
