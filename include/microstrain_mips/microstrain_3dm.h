@@ -27,14 +27,15 @@ along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 #define _MICROSTRAIN_3DM_H
 
 // Tell compiler that the following MIP SDI are C functions
-extern "C" {
-#include "mip_sdk.h"
-#include "byteswap_utilities.h"
-#include "mip_gx4_imu.h"
-#include "mip_gx4_45.h"
-#include "mip_gx4_25.h"
-#include "mip_sdk_3dm.h"
-#include "GX4-45_Test.h"
+extern "C" 
+{
+  #include "mip_sdk.h"
+  #include "byteswap_utilities.h"
+  #include "mip_gx4_imu.h"
+  #include "mip_gx4_45.h"
+  #include "mip_gx4_25.h"
+  #include "mip_sdk_3dm.h"
+  #include "GX4-45_Test.h"
 }
 
 #include <cstdio>
@@ -82,8 +83,8 @@ extern "C" {
 #include "microstrain_mips/SetMagDipAdaptiveVals.h"
 
 
-#define MIP_SDK_GX4_45_IMU_STANDARD_MODE	0x01
-#define MIP_SDK_GX4_45_IMU_DIRECT_MODE	0x02
+#define MIP_SDK_GX4_45_IMU_STANDARD_MODE  0x01
+#define MIP_SDK_GX4_45_IMU_DIRECT_MODE  0x02
 
 #define NUM_COMMAND_LINE_ARGUMENTS 3
 
@@ -241,7 +242,7 @@ namespace Microstrain
   private:
   //! @brief Reset KF service callback
   bool reset_callback(std_srvs::Empty::Request &req,
-		      std_srvs::Empty::Response &resp);
+          std_srvs::Empty::Response &resp);
   //! @brief Convience for printing packet stats
   void print_packet_stats();
 
