@@ -309,6 +309,9 @@ namespace Microstrain
   bool publish_imu_;
   bool publish_odom_;
   bool publish_bias_;
+  std::vector<double> imu_linear_cov_;
+  std::vector<double> imu_angular_cov_;
+  std::vector<double> imu_orientation_cov_;
 
   //Device Flags
   bool GX5_15;

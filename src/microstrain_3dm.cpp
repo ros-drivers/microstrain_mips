@@ -51,7 +51,10 @@ namespace Microstrain
     odom_child_frame_id_("odom_frame"),
     publish_gps_(true),
     publish_imu_(true),
-    publish_odom_(true)
+    publish_odom_(true),
+    imu_linear_cov_(std::vector<double>(9,0.0)),
+    imu_angular_cov_(std::vector<double>(9,0.0)),
+    imu_orientation_cov_(std::vector<double>(9,0.0))
   {
     // pass
   }
@@ -146,8 +149,20 @@ namespace Microstrain
 		     std::string("base_link"));
 
     private_nh.param("publish_imu",publish_imu_, true);
-
     private_nh.param("publish_bias",publish_bias_, true);
+
+    // Covariance parameters to set the sensor_msg/IMU covariance values
+    std::vector<double> default_cov(9,0.0);
+    private_nh.param("imu_orientation_cov", imu_orientation_cov_, default_cov);
+    private_nh.param("imu_linear_cov",imu_linear_cov_, default_cov);
+    private_nh.param("imu_angular_cov",imu_angular_cov_, default_cov);
+
+
+    ROS_INFO("Publishing the values: %d, %d",default_cov.size(),imu_orientation_cov_.size());
+    for( unsigned int a = 0; a < imu_orientation_cov_.size(); a = a + 1 )
+    {
+      ROS_INFO("Imu orientation values: %f",imu_orientation_cov_[a]);
+    }
 
     // ROS publishers and subscribers
     if (publish_imu_)
@@ -2861,6 +2876,9 @@ void Microstrain::device_status_callback()
 		    imu_msg_.linear_acceleration.x = 9.81*curr_ahrs_accel_.scaled_accel[0];
 		    imu_msg_.linear_acceleration.y = 9.81*curr_ahrs_accel_.scaled_accel[1];
 		    imu_msg_.linear_acceleration.z = 9.81*curr_ahrs_accel_.scaled_accel[2];
+        // Since the sensor does not produce a covariance for linear acceleration, set it based
+        // on our pulled in parameters.
+        std::copy( imu_linear_cov_.begin(), imu_linear_cov_.end(), imu_msg_.linear_acceleration_covariance.begin());
 
 		  }break;
 
@@ -2878,6 +2896,9 @@ void Microstrain::device_status_callback()
 		    imu_msg_.angular_velocity.x = curr_ahrs_gyro_.scaled_gyro[0];
 		    imu_msg_.angular_velocity.y = curr_ahrs_gyro_.scaled_gyro[1];
 		    imu_msg_.angular_velocity.z = curr_ahrs_gyro_.scaled_gyro[2];
+        // Since the sensor does not produce a covariance for angular velocity, set it based
+        // on our pulled in parameters.
+        std::copy( imu_angular_cov_.begin(), imu_angular_cov_.end(), imu_msg_.angular_velocity_covariance.begin());
 
 		  }break;
 
@@ -2906,6 +2927,8 @@ void Microstrain::device_status_callback()
 		    imu_msg_.orientation.y = curr_ahrs_quaternion_.q[1];
 		    imu_msg_.orientation.z = -1.0*curr_ahrs_quaternion_.q[3];
 		    imu_msg_.orientation.w = curr_ahrs_quaternion_.q[0];
+        // Since the MIP_AHRS data does not contain uncertainty values we have to set them based on the parameter values.
+        std::copy(imu_orientation_cov_.begin(), imu_orientation_cov_.end(), imu_msg_.orientation_covariance.begin());
 
 		  }break;
 
