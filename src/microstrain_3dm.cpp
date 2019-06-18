@@ -157,13 +157,6 @@ namespace Microstrain
     private_nh.param("imu_linear_cov",imu_linear_cov_, default_cov);
     private_nh.param("imu_angular_cov",imu_angular_cov_, default_cov);
 
-
-    ROS_INFO("Publishing the values: %d, %d",default_cov.size(),imu_orientation_cov_.size());
-    for( unsigned int a = 0; a < imu_orientation_cov_.size(); a = a + 1 )
-    {
-      ROS_INFO("Imu orientation values: %f",imu_orientation_cov_[a]);
-    }
-
     // ROS publishers and subscribers
     if (publish_imu_)
       imu_pub_ = node.advertise<sensor_msgs::Imu>("imu/data",100);
