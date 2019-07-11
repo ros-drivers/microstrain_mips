@@ -5,6 +5,7 @@ project(microstrain_mips)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  roslint
   message_generation
   geometry_msgs
   nav_msgs
@@ -479,3 +480,7 @@ install(DIRECTORY launch config
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+## Run roslint on only the node files for now
+# TODO: Add more files as needed
+roslint_cpp(src/microstrain_3dm.cpp src/microstrain_3dm_node.cpp)
