@@ -152,8 +152,8 @@ namespace Microstrain
 
     private_nh.param("publish_imu", publish_imu_, true);
     private_nh.param("publish_bias", publish_bias_, true);
-    private_nh.param("publish_filtered_imu",publish_filtered_imu_, false);
-    private_nh.param("remove_imu_gravity",remove_imu_gravity_, false);
+    private_nh.param("publish_filtered_imu", publish_filtered_imu_, false);
+    private_nh.param("remove_imu_gravity", remove_imu_gravity_, false);
 
     // Covariance parameters to set the sensor_msg/IMU covariance values
     std::vector<double> default_cov(9, 0.0);
@@ -165,7 +165,7 @@ namespace Microstrain
     if (publish_imu_)
       imu_pub_ = node.advertise<sensor_msgs::Imu>("imu/data", 100);
     if (publish_filtered_imu_)
-      filtered_imu_pub_ = node.advertise<sensor_msgs::Imu>("filtered/imu/data",100);
+      filtered_imu_pub_ = node.advertise<sensor_msgs::Imu>("filtered/imu/data", 100);
 
     // Publishes device status
     device_status_pub_ = node.advertise<microstrain_mips::status_msg>("device/status", 100);
@@ -384,8 +384,8 @@ namespace Microstrain
 
       // This is the EKF filter status, not just navigation/odom status
       if (publish_odom_ || publish_filtered_imu_)
-      {  
-        nav_status_pub_ = node.advertise<std_msgs::Int16MultiArray>("nav/status",100);
+      {
+        nav_status_pub_ = node.advertise<std_msgs::Int16MultiArray>("nav/status", 100);
       }
 
       // Setup device callbacks
@@ -642,10 +642,10 @@ namespace Microstrain
         data_stream_format_descriptors[1] = MIP_FILTER_DATA_ATT_UNCERTAINTY_EULER;
         data_stream_format_descriptors[2] = MIP_FILTER_DATA_COMPENSATED_ANGULAR_RATE;
         data_stream_format_descriptors[3] = MIP_FILTER_DATA_FILTER_STATUS;
-        data_stream_format_decimation[0]  = nav_decimation; //0x32;
-        data_stream_format_decimation[1]  = nav_decimation; //0x32;
-        data_stream_format_decimation[2]  = nav_decimation; //0x32;
-        data_stream_format_decimation[3]  = nav_decimation; //0x32;
+        data_stream_format_decimation[0]  = nav_decimation;  // 0x32;
+        data_stream_format_decimation[1]  = nav_decimation;  // 0x32;
+        data_stream_format_decimation[2]  = nav_decimation;  // 0x32;
+        data_stream_format_decimation[3]  = nav_decimation;  // 0x32;
 
         // If we want the odometry add that data
         if (publish_odom_ && publish_filtered_imu_)
@@ -653,7 +653,7 @@ namespace Microstrain
           // Size is up to 10 elements
           data_stream_format_descriptors[4] = MIP_FILTER_DATA_LLH_POS;
           data_stream_format_descriptors[5] = MIP_FILTER_DATA_NED_VEL;
-          //data_stream_format_descriptors[2] = MIP_FILTER_DATA_ATT_EULER_ANGLES;
+          // data_stream_format_descriptors[2] = MIP_FILTER_DATA_ATT_EULER_ANGLES;
           data_stream_format_descriptors[6] = MIP_FILTER_DATA_POS_UNCERTAINTY;
           data_stream_format_descriptors[7] = MIP_FILTER_DATA_VEL_UNCERTAINTY;
 
@@ -667,30 +667,29 @@ namespace Microstrain
             data_stream_format_descriptors[8] = MIP_FILTER_DATA_COMPENSATED_ACCELERATION;
           }
 
-          data_stream_format_decimation[4]  = nav_decimation; //0x32;
-          data_stream_format_decimation[5]  = nav_decimation; //0x32;
-          data_stream_format_decimation[6]  = nav_decimation; //0x32;
-          data_stream_format_decimation[7]  = nav_decimation; //0x32;
-          data_stream_format_decimation[8]  = nav_decimation; //0x32;
+          data_stream_format_decimation[4]  = nav_decimation;  // 0x32;
+          data_stream_format_decimation[5]  = nav_decimation;  // 0x32;
+          data_stream_format_decimation[6]  = nav_decimation;  // 0x32;
+          data_stream_format_decimation[7]  = nav_decimation;  // 0x32;
+          data_stream_format_decimation[8]  = nav_decimation;  // 0x32;
           data_stream_format_num_entries = 9;
         }
         else if (publish_odom_ && !publish_filtered_imu_)
-        {          
+        {
           data_stream_format_descriptors[4] = MIP_FILTER_DATA_LLH_POS;
           data_stream_format_descriptors[5] = MIP_FILTER_DATA_NED_VEL;
-          //data_stream_format_descriptors[2] = MIP_FILTER_DATA_ATT_EULER_ANGLES;
+          // data_stream_format_descriptors[2] = MIP_FILTER_DATA_ATT_EULER_ANGLES;
           data_stream_format_descriptors[6] = MIP_FILTER_DATA_POS_UNCERTAINTY;
           data_stream_format_descriptors[7] = MIP_FILTER_DATA_VEL_UNCERTAINTY;
 
-          data_stream_format_decimation[4]  = nav_decimation; //0x32;
-          data_stream_format_decimation[5]  = nav_decimation; //0x32;
-          data_stream_format_decimation[6]  = nav_decimation; //0x32;
-          data_stream_format_decimation[7]  = nav_decimation; //0x32;
+          data_stream_format_decimation[4]  = nav_decimation;  // 0x32;
+          data_stream_format_decimation[5]  = nav_decimation;  // 0x32;
+          data_stream_format_decimation[6]  = nav_decimation;  // 0x32;
+          data_stream_format_decimation[7]  = nav_decimation;  // 0x32;
           data_stream_format_num_entries = 8;
         }
         else
         {
-
           // The filter has one message that removes gravity and one that does not
           if (remove_imu_gravity_)
           {
@@ -700,7 +699,7 @@ namespace Microstrain
           {
             data_stream_format_descriptors[4] = MIP_FILTER_DATA_COMPENSATED_ACCELERATION;
           }
-          data_stream_format_decimation[4]  = nav_decimation; //0x32;
+          data_stream_format_decimation[4]  = nav_decimation;  // 0x32;
           data_stream_format_num_entries = 5;
         }
 
@@ -751,7 +750,7 @@ namespace Microstrain
 
 
         // GX5_25 doesn't appear to suport this feature thus GX5_15 probably won't either
-        if(GX5_35 == true || GX5_45 == true)
+        if (GX5_35 == true || GX5_45 == true)
         {
           // Dynamics Mode
           // Set dynamics mode
@@ -3316,7 +3315,7 @@ namespace Microstrain
               nav_msg_.pose.pose.orientation.y = curr_filter_quaternion_.q[1];
               nav_msg_.pose.pose.orientation.z = -1.0*curr_filter_quaternion_.q[3];
               nav_msg_.pose.pose.orientation.w = curr_filter_quaternion_.q[0];
-              
+
               if (publish_filtered_imu_)
               {
                 // Header
@@ -3342,7 +3341,7 @@ namespace Microstrain
               nav_msg_.twist.twist.angular.x = curr_filter_angular_rate_.x;
               nav_msg_.twist.twist.angular.y = curr_filter_angular_rate_.y;
               nav_msg_.twist.twist.angular.z = curr_filter_angular_rate_.z;
-                          
+
               if (publish_filtered_imu_)
               {
                 filtered_imu_msg_.angular_velocity.x = curr_filter_angular_rate_.x;
@@ -3391,12 +3390,15 @@ namespace Microstrain
               nav_msg_.pose.covariance[21] = curr_filter_att_uncertainty_.roll*curr_filter_att_uncertainty_.roll;
               nav_msg_.pose.covariance[28] = curr_filter_att_uncertainty_.pitch*curr_filter_att_uncertainty_.pitch;
               nav_msg_.pose.covariance[35] = curr_filter_att_uncertainty_.yaw*curr_filter_att_uncertainty_.yaw;
-            
+
               if (publish_filtered_imu_)
               {
-                filtered_imu_msg_.orientation_covariance[0] = curr_filter_att_uncertainty_.roll*curr_filter_att_uncertainty_.roll;
-                filtered_imu_msg_.orientation_covariance[4] = curr_filter_att_uncertainty_.pitch*curr_filter_att_uncertainty_.pitch;
-                filtered_imu_msg_.orientation_covariance[8] = curr_filter_att_uncertainty_.yaw*curr_filter_att_uncertainty_.yaw;
+                filtered_imu_msg_.orientation_covariance[0] =
+                    curr_filter_att_uncertainty_.roll*curr_filter_att_uncertainty_.roll;
+                filtered_imu_msg_.orientation_covariance[4] =
+                    curr_filter_att_uncertainty_.pitch*curr_filter_att_uncertainty_.pitch;
+                filtered_imu_msg_.orientation_covariance[8] =
+                    curr_filter_att_uncertainty_.yaw*curr_filter_att_uncertainty_.yaw;
               }
             }
             break;
@@ -3429,7 +3431,7 @@ namespace Microstrain
             {
               memcpy(&curr_filter_linear_accel_, field_data, sizeof(mip_filter_linear_acceleration));
 
-              //For little-endian targets, byteswap the data field
+              // For little-endian targets, byteswap the data field
               mip_filter_linear_acceleration_byteswap(&curr_filter_linear_accel_);
 
               // If we want gravity removed, use this as acceleration
@@ -3446,10 +3448,9 @@ namespace Microstrain
 
             case MIP_FILTER_DATA_COMPENSATED_ACCELERATION:
             {
-
               memcpy(&curr_filter_accel_comp_, field_data, sizeof(mip_filter_compensated_acceleration));
 
-              //For little-endian targets, byteswap the data field
+              // For little-endian targets, byteswap the data field
               mip_filter_compensated_acceleration_byteswap(&curr_filter_accel_comp_);
 
               // If we do not want to have gravity removed, use this as acceleration
@@ -3476,13 +3477,15 @@ namespace Microstrain
 
         if (publish_filtered_imu_)
         {
-          // TODO: Does it make sense to get the angular velocity bias and acceleration bias to populate these?
+          // Does it make sense to get the angular velocity bias and acceleration bias to populate these?
           // Since the sensor does not produce a covariance for linear acceleration, set it based
           // on our pulled in parameters.
-          std::copy( imu_linear_cov_.begin(), imu_linear_cov_.end(), filtered_imu_msg_.linear_acceleration_covariance.begin());
+          std::copy(imu_linear_cov_.begin(), imu_linear_cov_.end(),
+              filtered_imu_msg_.linear_acceleration_covariance.begin());
           // Since the sensor does not produce a covariance for angular velocity, set it based
           // on our pulled in parameters.
-          std::copy( imu_angular_cov_.begin(), imu_angular_cov_.end(), filtered_imu_msg_.angular_velocity_covariance.begin());
+          std::copy(imu_angular_cov_.begin(), imu_angular_cov_.end(),
+              filtered_imu_msg_.angular_velocity_covariance.begin());
 
           filtered_imu_pub_.publish(filtered_imu_msg_);
         }
