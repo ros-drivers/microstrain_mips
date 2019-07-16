@@ -3,7 +3,7 @@
   <!-- Standalone example launch file for 3DM-GX5-25 -->
 
   <!-- Declare arguments with default values -->
-  <arg name="port" default="/dev/microstrain" />
+  <arg name="port" default="/dev/ttyACM0" />
   <arg name="baudrate" default="115200" />
   <arg name="imu_rate" default="100" />
   <arg name="imu_frame_id" default="gx5_link" />
@@ -37,6 +37,12 @@
     <!-- Declination source 1=None, 2=magnetic, 3=manual -->
     <param name="declination_source" value="2" type="int" />
     <param name="declination" value="0.23" type="double" />
+    <!-- Filtered IMU rate is based on nav_rate since it is tied in with the onboard Kalman Filter -->
+    <!-- If you set the filtered_imu rate to be something fairly high, make sure to lower the IMU rate
+          above since it appears that the data rate can flood the USB. -->
+    <param name="publish_filtered_imu" value="true" type="bool" />
+    <!-- Remove gravity is only valid with the filtered IMU data. -->
+    <param name="remove_imu_gravity" value="true" type="bool" />
     <!-- Static IMU message covariance values -->
     <!-- Since internally these are std::vector we need to use the rosparam tags -->
     <rosparam param="imu_orientation_cov"> [0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01]</rosparam>

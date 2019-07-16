@@ -49,6 +49,8 @@ namespace Microstrain
     publish_gps_(true),
     publish_imu_(true),
     publish_odom_(true),
+    publish_filtered_imu_(false),
+    remove_imu_gravity_(false),
     imu_linear_cov_(std::vector<double>(9, 0.0)),
     imu_angular_cov_(std::vector<double>(9, 0.0)),
     imu_orientation_cov_(std::vector<double>(9, 0.0))
@@ -150,6 +152,8 @@ namespace Microstrain
 
     private_nh.param("publish_imu", publish_imu_, true);
     private_nh.param("publish_bias", publish_bias_, true);
+    private_nh.param("publish_filtered_imu",publish_filtered_imu_, false);
+    private_nh.param("remove_imu_gravity",remove_imu_gravity_, false);
 
     // Covariance parameters to set the sensor_msg/IMU covariance values
     std::vector<double> default_cov(9, 0.0);
@@ -160,6 +164,8 @@ namespace Microstrain
     // ROS publishers and subscribers
     if (publish_imu_)
       imu_pub_ = node.advertise<sensor_msgs::Imu>("imu/data", 100);
+    if (publish_filtered_imu_)
+      filtered_imu_pub_ = node.advertise<sensor_msgs::Imu>("filtered/imu/data",100);
 
     // Publishes device status
     device_status_pub_ = node.advertise<microstrain_mips::status_msg>("device/status", 100);
@@ -374,7 +380,12 @@ namespace Microstrain
       if (publish_odom_)
       {
         nav_pub_ = node.advertise<nav_msgs::Odometry>("nav/odom", 100);
-        nav_status_pub_ = node.advertise<std_msgs::Int16MultiArray>("nav/status", 100);
+      }
+
+      // This is the EKF filter status, not just navigation/odom status
+      if (publish_odom_ || publish_filtered_imu_)
+      {  
+        nav_status_pub_ = node.advertise<std_msgs::Int16MultiArray>("nav/status",100);
       }
 
       // Setup device callbacks
@@ -605,7 +616,7 @@ namespace Microstrain
       }  // end of GPS setup
 
       // Filter setup
-      if (publish_odom_)
+      if (publish_odom_ || publish_filtered_imu_)
       {
         start = clock();
         while (mip_3dm_cmd_get_filter_base_rate(&device_interface_, &base_rate) != MIP_INTERFACE_OK)
@@ -624,24 +635,74 @@ namespace Microstrain
         ////////// Filter Message Format
         // Set
         ROS_INFO("Setting Filter stream format");
-        data_stream_format_descriptors[0] = MIP_FILTER_DATA_LLH_POS;
-        data_stream_format_descriptors[1] = MIP_FILTER_DATA_NED_VEL;
-        // data_stream_format_descriptors[2] = MIP_FILTER_DATA_ATT_EULER_ANGLES;
-        data_stream_format_descriptors[2] = MIP_FILTER_DATA_ATT_QUATERNION;
-        data_stream_format_descriptors[3] = MIP_FILTER_DATA_POS_UNCERTAINTY;
-        data_stream_format_descriptors[4] = MIP_FILTER_DATA_VEL_UNCERTAINTY;
-        data_stream_format_descriptors[5] = MIP_FILTER_DATA_ATT_UNCERTAINTY_EULER;
-        data_stream_format_descriptors[6] = MIP_FILTER_DATA_COMPENSATED_ANGULAR_RATE;
-        data_stream_format_descriptors[7] = MIP_FILTER_DATA_FILTER_STATUS;
-        data_stream_format_decimation[0]  = nav_decimation;  // 0x32;
-        data_stream_format_decimation[1]  = nav_decimation;  // 0x32;
-        data_stream_format_decimation[2]  = nav_decimation;  // 0x32;
-        data_stream_format_decimation[3]  = nav_decimation;  // 0x32;
-        data_stream_format_decimation[4]  = nav_decimation;  // 0x32;
-        data_stream_format_decimation[5]  = nav_decimation;  // 0x32;
-        data_stream_format_decimation[6]  = nav_decimation;  // 0x32;
-        data_stream_format_decimation[7]  = nav_decimation;  // 0x32;
-        data_stream_format_num_entries = 8;
+
+        // Order doesn't matter since we parse them with a case statement below.
+        // First start by loading the common values.
+        data_stream_format_descriptors[0] = MIP_FILTER_DATA_ATT_QUATERNION;
+        data_stream_format_descriptors[1] = MIP_FILTER_DATA_ATT_UNCERTAINTY_EULER;
+        data_stream_format_descriptors[2] = MIP_FILTER_DATA_COMPENSATED_ANGULAR_RATE;
+        data_stream_format_descriptors[3] = MIP_FILTER_DATA_FILTER_STATUS;
+        data_stream_format_decimation[0]  = nav_decimation; //0x32;
+        data_stream_format_decimation[1]  = nav_decimation; //0x32;
+        data_stream_format_decimation[2]  = nav_decimation; //0x32;
+        data_stream_format_decimation[3]  = nav_decimation; //0x32;
+
+        // If we want the odometry add that data
+        if (publish_odom_ && publish_filtered_imu_)
+        {
+          // Size is up to 10 elements
+          data_stream_format_descriptors[4] = MIP_FILTER_DATA_LLH_POS;
+          data_stream_format_descriptors[5] = MIP_FILTER_DATA_NED_VEL;
+          //data_stream_format_descriptors[2] = MIP_FILTER_DATA_ATT_EULER_ANGLES;
+          data_stream_format_descriptors[6] = MIP_FILTER_DATA_POS_UNCERTAINTY;
+          data_stream_format_descriptors[7] = MIP_FILTER_DATA_VEL_UNCERTAINTY;
+
+          // The filter has one message that removes gravity and one that does not
+          if (remove_imu_gravity_)
+          {
+            data_stream_format_descriptors[8] = MIP_FILTER_DATA_LINEAR_ACCELERATION;
+          }
+          else
+          {
+            data_stream_format_descriptors[8] = MIP_FILTER_DATA_COMPENSATED_ACCELERATION;
+          }
+
+          data_stream_format_decimation[4]  = nav_decimation; //0x32;
+          data_stream_format_decimation[5]  = nav_decimation; //0x32;
+          data_stream_format_decimation[6]  = nav_decimation; //0x32;
+          data_stream_format_decimation[7]  = nav_decimation; //0x32;
+          data_stream_format_decimation[8]  = nav_decimation; //0x32;
+          data_stream_format_num_entries = 9;
+        }
+        else if (publish_odom_ && !publish_filtered_imu_)
+        {          
+          data_stream_format_descriptors[4] = MIP_FILTER_DATA_LLH_POS;
+          data_stream_format_descriptors[5] = MIP_FILTER_DATA_NED_VEL;
+          //data_stream_format_descriptors[2] = MIP_FILTER_DATA_ATT_EULER_ANGLES;
+          data_stream_format_descriptors[6] = MIP_FILTER_DATA_POS_UNCERTAINTY;
+          data_stream_format_descriptors[7] = MIP_FILTER_DATA_VEL_UNCERTAINTY;
+
+          data_stream_format_decimation[4]  = nav_decimation; //0x32;
+          data_stream_format_decimation[5]  = nav_decimation; //0x32;
+          data_stream_format_decimation[6]  = nav_decimation; //0x32;
+          data_stream_format_decimation[7]  = nav_decimation; //0x32;
+          data_stream_format_num_entries = 8;
+        }
+        else
+        {
+
+          // The filter has one message that removes gravity and one that does not
+          if (remove_imu_gravity_)
+          {
+            data_stream_format_descriptors[4] = MIP_FILTER_DATA_LINEAR_ACCELERATION;
+          }
+          else
+          {
+            data_stream_format_descriptors[4] = MIP_FILTER_DATA_COMPENSATED_ACCELERATION;
+          }
+          data_stream_format_decimation[4]  = nav_decimation; //0x32;
+          data_stream_format_num_entries = 5;
+        }
 
         start = clock();
         while (mip_3dm_cmd_filter_message_format(&device_interface_,
@@ -688,29 +749,16 @@ namespace Microstrain
           ros::Duration(dT).sleep();
         }
 
-        // Dynamics Mode
-        // Set dynamics mode
-        ROS_INFO("Setting dynamics mode to %#04X", dynamics_mode);
-        start = clock();
-        while (mip_filter_vehicle_dynamics_mode(&device_interface_,
-            MIP_FUNCTION_SELECTOR_WRITE, &dynamics_mode) != MIP_INTERFACE_OK)
-        {
-          if (clock() - start > 5000)
-          {
-            ROS_INFO("mip_filter_vehicle_dynamics_mode function timed out.");
-            break;
-          }
-        }
 
-        ros::Duration(dT).sleep();
-        // Readback dynamics mode
-        if (readback_settings)
+        // GX5_25 doesn't appear to suport this feature thus GX5_15 probably won't either
+        if(GX5_35 == true || GX5_45 == true)
         {
-          // Read the settings back
-          ROS_INFO("Reading back dynamics mode setting");
+          // Dynamics Mode
+          // Set dynamics mode
+          ROS_INFO("Setting dynamics mode to %#04X", dynamics_mode);
           start = clock();
           while (mip_filter_vehicle_dynamics_mode(&device_interface_,
-              MIP_FUNCTION_SELECTOR_READ, &readback_dynamics_mode) != MIP_INTERFACE_OK)
+              MIP_FUNCTION_SELECTOR_WRITE, &dynamics_mode) != MIP_INTERFACE_OK)
           {
             if (clock() - start > 5000)
             {
@@ -720,27 +768,45 @@ namespace Microstrain
           }
 
           ros::Duration(dT).sleep();
-          if (dynamics_mode == readback_dynamics_mode)
-            ROS_INFO("Success: Dynamics mode setting is: %#04X", readback_dynamics_mode);
-          else
-            ROS_ERROR("Failure: Dynamics mode set to be %#04X, but reads as %#04X",
-                dynamics_mode, readback_dynamics_mode);
-        }
-
-        if (save_settings)
-        {
-          ROS_INFO("Saving dynamics mode settings to EEPROM");
-          start = clock();
-          while (mip_filter_vehicle_dynamics_mode(&device_interface_,
-              MIP_FUNCTION_SELECTOR_STORE_EEPROM, NULL) != MIP_INTERFACE_OK)
+          // Readback dynamics mode
+          if (readback_settings)
           {
-            if (clock() - start > 5000)
+            // Read the settings back
+            ROS_INFO("Reading back dynamics mode setting");
+            start = clock();
+            while (mip_filter_vehicle_dynamics_mode(&device_interface_,
+                MIP_FUNCTION_SELECTOR_READ, &readback_dynamics_mode) != MIP_INTERFACE_OK)
             {
-              ROS_INFO("mip_filter_vehicle_dynamics_mode function timed out.");
-              break;
+              if (clock() - start > 5000)
+              {
+                ROS_INFO("mip_filter_vehicle_dynamics_mode function timed out.");
+                break;
+              }
             }
+
+            ros::Duration(dT).sleep();
+            if (dynamics_mode == readback_dynamics_mode)
+              ROS_INFO("Success: Dynamics mode setting is: %#04X", readback_dynamics_mode);
+            else
+              ROS_ERROR("Failure: Dynamics mode set to be %#04X, but reads as %#04X",
+                  dynamics_mode, readback_dynamics_mode);
           }
-          ros::Duration(dT).sleep();
+
+          if (save_settings)
+          {
+            ROS_INFO("Saving dynamics mode settings to EEPROM");
+            start = clock();
+            while (mip_filter_vehicle_dynamics_mode(&device_interface_,
+                MIP_FUNCTION_SELECTOR_STORE_EEPROM, NULL) != MIP_INTERFACE_OK)
+            {
+              if (clock() - start > 5000)
+              {
+                ROS_INFO("mip_filter_vehicle_dynamics_mode function timed out.");
+                break;
+              }
+            }
+            ros::Duration(dT).sleep();
+          }
         }
 
         // Set heading Source
@@ -3148,7 +3214,7 @@ namespace Microstrain
     u16              field_offset = 0;
 
     // If we aren't publishing, then return
-    if (!publish_odom_)
+    if (!publish_odom_ && !publish_filtered_imu_)
       return;
 
     // ROS_INFO("Filter callback");
@@ -3250,6 +3316,18 @@ namespace Microstrain
               nav_msg_.pose.pose.orientation.y = curr_filter_quaternion_.q[1];
               nav_msg_.pose.pose.orientation.z = -1.0*curr_filter_quaternion_.q[3];
               nav_msg_.pose.pose.orientation.w = curr_filter_quaternion_.q[0];
+              
+              if (publish_filtered_imu_)
+              {
+                // Header
+                filtered_imu_msg_.header.seq = filter_valid_packet_count_;
+                filtered_imu_msg_.header.stamp = ros::Time::now();
+                filtered_imu_msg_.header.frame_id = imu_frame_id_;
+                filtered_imu_msg_.orientation.x = curr_filter_quaternion_.q[2];
+                filtered_imu_msg_.orientation.y = curr_filter_quaternion_.q[1];
+                filtered_imu_msg_.orientation.z = -1.0*curr_filter_quaternion_.q[3];
+                filtered_imu_msg_.orientation.w = curr_filter_quaternion_.q[0];
+              }
             }
             break;
 
@@ -3264,6 +3342,13 @@ namespace Microstrain
               nav_msg_.twist.twist.angular.x = curr_filter_angular_rate_.x;
               nav_msg_.twist.twist.angular.y = curr_filter_angular_rate_.y;
               nav_msg_.twist.twist.angular.z = curr_filter_angular_rate_.z;
+                          
+              if (publish_filtered_imu_)
+              {
+                filtered_imu_msg_.angular_velocity.x = curr_filter_angular_rate_.x;
+                filtered_imu_msg_.angular_velocity.y = curr_filter_angular_rate_.y;
+                filtered_imu_msg_.angular_velocity.z = curr_filter_angular_rate_.z;
+              }
             }
             break;
 
@@ -3306,6 +3391,13 @@ namespace Microstrain
               nav_msg_.pose.covariance[21] = curr_filter_att_uncertainty_.roll*curr_filter_att_uncertainty_.roll;
               nav_msg_.pose.covariance[28] = curr_filter_att_uncertainty_.pitch*curr_filter_att_uncertainty_.pitch;
               nav_msg_.pose.covariance[35] = curr_filter_att_uncertainty_.yaw*curr_filter_att_uncertainty_.yaw;
+            
+              if (publish_filtered_imu_)
+              {
+                filtered_imu_msg_.orientation_covariance[0] = curr_filter_att_uncertainty_.roll*curr_filter_att_uncertainty_.roll;
+                filtered_imu_msg_.orientation_covariance[4] = curr_filter_att_uncertainty_.pitch*curr_filter_att_uncertainty_.pitch;
+                filtered_imu_msg_.orientation_covariance[8] = curr_filter_att_uncertainty_.yaw*curr_filter_att_uncertainty_.yaw;
+              }
             }
             break;
 
@@ -3329,12 +3421,71 @@ namespace Microstrain
             }
             break;
 
+            ///
+            // Scaled Accelerometer
+            ///
+
+            case MIP_FILTER_DATA_LINEAR_ACCELERATION:
+            {
+              memcpy(&curr_filter_linear_accel_, field_data, sizeof(mip_filter_linear_acceleration));
+
+              //For little-endian targets, byteswap the data field
+              mip_filter_linear_acceleration_byteswap(&curr_filter_linear_accel_);
+
+              // If we want gravity removed, use this as acceleration
+              if (remove_imu_gravity_)
+              {
+                // Stuff into ROS message - acceleration already in m/s^2
+                filtered_imu_msg_.linear_acceleration.x = curr_filter_linear_accel_.x;
+                filtered_imu_msg_.linear_acceleration.y = curr_filter_linear_accel_.y;
+                filtered_imu_msg_.linear_acceleration.z = curr_filter_linear_accel_.z;
+              }
+              // Otherwise, do nothing with this packet
+            }
+            break;
+
+            case MIP_FILTER_DATA_COMPENSATED_ACCELERATION:
+            {
+
+              memcpy(&curr_filter_accel_comp_, field_data, sizeof(mip_filter_compensated_acceleration));
+
+              //For little-endian targets, byteswap the data field
+              mip_filter_compensated_acceleration_byteswap(&curr_filter_accel_comp_);
+
+              // If we do not want to have gravity removed, use this as acceleration
+              if (!remove_imu_gravity_)
+              {
+                // Stuff into ROS message - acceleration already in m/s^2
+                filtered_imu_msg_.linear_acceleration.x = curr_filter_accel_comp_.x;
+                filtered_imu_msg_.linear_acceleration.y = curr_filter_accel_comp_.y;
+                filtered_imu_msg_.linear_acceleration.z = curr_filter_accel_comp_.z;
+              }
+              // Otherwise, do nothing with this packet
+            }
+            break;
+
             default: break;
           }
         }
 
         // Publish
-        nav_pub_.publish(nav_msg_);
+        if (publish_odom_)
+        {
+          nav_pub_.publish(nav_msg_);
+        }
+
+        if (publish_filtered_imu_)
+        {
+          // TODO: Does it make sense to get the angular velocity bias and acceleration bias to populate these?
+          // Since the sensor does not produce a covariance for linear acceleration, set it based
+          // on our pulled in parameters.
+          std::copy( imu_linear_cov_.begin(), imu_linear_cov_.end(), filtered_imu_msg_.linear_acceleration_covariance.begin());
+          // Since the sensor does not produce a covariance for angular velocity, set it based
+          // on our pulled in parameters.
+          std::copy( imu_angular_cov_.begin(), imu_angular_cov_.end(), filtered_imu_msg_.angular_velocity_covariance.begin());
+
+          filtered_imu_pub_.publish(filtered_imu_msg_);
+        }
       }
       break;
 
