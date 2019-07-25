@@ -992,6 +992,10 @@ namespace Microstrain
     {
       max_rate = std::max(max_rate, imu_rate_);
     }
+    if (publish_filtered_imu_)
+    {
+      max_rate = std::max(max_rate, nav_rate_);
+    }
     if (publish_gps_)
     {
       max_rate = std::max(max_rate, gps_rate_);
