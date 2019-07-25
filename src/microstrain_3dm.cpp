@@ -425,7 +425,7 @@ namespace Microstrain
 
       // AHRS Setup
       // Get base rate
-      if (publish_imu_)
+      if (publish_imu_ || publish_filtered_imu_)
       {
         start = clock();
         while (mip_3dm_cmd_get_ahrs_base_rate(&device_interface_, &base_rate) != MIP_INTERFACE_OK)
@@ -439,8 +439,9 @@ namespace Microstrain
 
         ROS_INFO("AHRS Base Rate => %d Hz", base_rate);
         ros::Duration(dT).sleep();
-        // Deterimine decimation to get close to goal rate
-        u8 imu_decimation = (u8)(static_cast<float>(base_rate)/ static_cast<float>(imu_rate_));
+        // Deterimine decimation to get close to goal rate (We use the highest of the imu rates)
+        int rate = (imu_rate_ > nav_rate_) ? imu_rate_ : nav_rate_;
+        u8 imu_decimation = (u8)(static_cast<float>(base_rate)/ static_cast<float>(rate));
         ROS_INFO("AHRS decimation set to %#04X", imu_decimation);
 
         // AHRS Message Format
