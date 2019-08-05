@@ -12,6 +12,7 @@
 
   <depend>roscpp</depend>
   <depend>cmake_modules</depend>
+  <depend>diagnostic_updater</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
   <depend>std_msgs</depend>
@@ -20,10 +21,9 @@
   <depend>sensor_msgs</depend>
   <depend>nav_msgs</depend>
 
-  <build_depend>message_generation</build_depend> 
-  <build_depend>roslint</build_depend> 
+  <build_depend>message_generation</build_depend>
+  <build_depend>roslint</build_depend>
   <exec_depend>message_runtime</exec_depend>
-  <exec_depend>diagnostic_updater</exec_depend>
   <exec_depend>diagnostic_aggregator</exec_depend>
 
   <export>
