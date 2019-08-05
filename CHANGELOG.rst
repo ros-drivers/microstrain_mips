@@ -2,8 +2,8 @@
 Changelog for package microstrain_mips
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.3 (2019-08-05)
+------------------
 * Made diagnostic_updater build dep as well.
 * Merge pull request `#21 <https://github.com/ros-drivers/microstrain_mips/issues/21>`_ from samkys/cleanup
   Cleanup
