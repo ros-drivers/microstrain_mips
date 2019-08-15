@@ -630,7 +630,17 @@ namespace Microstrain
         }
 
         ROS_INFO("FILTER Base Rate => %d Hz", base_rate);
-        u8 nav_decimation = (u8)(static_cast<float>(base_rate)/ static_cast<float>(nav_rate_));
+        // If we have made it this far in this statement, we know we want to publish filtered data
+        // from the IMU. We need to make sure to set the data rate to the correct speed dependent
+        // upon which filtered field we are after. Thus make sure we get the fastest data rate.
+        int rate = nav_rate_;
+        if(publish_filtered_imu_)
+        {
+          // Set filter rate based on max of filter topic rates
+          rate = (imu_rate_ > nav_rate_) ? imu_rate_ : nav_rate_;
+        }
+
+        u8 nav_decimation = (u8)(static_cast<float>(base_rate)/ static_cast<float>(rate));
         ros::Duration(dT).sleep();
 
         ////////// Filter Message Format
@@ -914,7 +924,7 @@ namespace Microstrain
 
       // Enable Data streams
       dT = 0.25;
-      if (publish_imu_)
+      if (publish_imu_ || publish_filtered_imu_)
       {
         ROS_INFO("Enabling AHRS stream");
         enable = 0x01;
@@ -994,7 +1004,7 @@ namespace Microstrain
     }
     if (publish_filtered_imu_)
     {
-      max_rate = std::max(max_rate, nav_rate_);
+      max_rate = std::max(std::max(max_rate, nav_rate_),imu_rate_);
     }
     if (publish_gps_)
     {

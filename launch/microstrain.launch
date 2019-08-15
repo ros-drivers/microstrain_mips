@@ -40,7 +40,7 @@
     <!-- Filtered IMU rate is based on nav_rate since it is tied in with the onboard Kalman Filter -->
     <!-- If you set the filtered_imu rate to be something fairly high, make sure to lower the IMU rate
           above since it appears that the data rate can flood the USB. -->
-    <param name="publish_filtered_imu" value="true" type="bool" />
+    <param name="publish_filtered_imu" value="false" type="bool" />
     <!-- Remove gravity is only valid with the filtered IMU data. -->
     <param name="remove_imu_gravity" value="true" type="bool" />
     <!-- Static IMU message covariance values -->
