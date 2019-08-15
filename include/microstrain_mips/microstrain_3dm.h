@@ -47,6 +47,7 @@ extern "C"
 #include "sensor_msgs/NavSatFix.h"
 #include "sensor_msgs/Imu.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include "geometry_msgs/Vector3.h"
 #include "nav_msgs/Odometry.h"
 #include "std_msgs/Int8.h"
