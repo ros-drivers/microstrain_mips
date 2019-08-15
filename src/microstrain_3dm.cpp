@@ -155,6 +155,7 @@ namespace Microstrain
     private_nh.param("publish_bias", publish_bias_, true);
     private_nh.param("publish_filtered_imu", publish_filtered_imu_, false);
     private_nh.param("remove_imu_gravity", remove_imu_gravity_, false);
+    private_nh.param("frame_based_enu", frame_based_enu_, false);
 
     // Covariance parameters to set the sensor_msg/IMU covariance values
     std::vector<double> default_cov(9, 0.0);

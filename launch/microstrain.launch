@@ -29,6 +29,12 @@
     <param name="save_settings" value="true" type="bool" />
     <param name="auto_init" value="true" type="bool" />
 
+    <!-- This parameter is to set wether the device orientation uses a basic 
+      NED->ENU orientation swap or not. If true, the ENU reported should
+      match the label printed on the device. If false X & Y are swapped
+      and Z is negated. -->
+    <param name="frame_based_enu" value="false" type="bool" />
+
     <!-- The GX5-25 is AHRS only, so need to turn off the other messages -->
     <!-- AHRS Settings -->
     <param name="publish_imu" value="true" type="bool" />
