@@ -51,6 +51,7 @@ namespace Microstrain
     publish_odom_(true),
     publish_filtered_imu_(false),
     remove_imu_gravity_(false),
+    frame_based_enu_(false),
     imu_linear_cov_(std::vector<double>(9, 0.0)),
     imu_angular_cov_(std::vector<double>(9, 0.0)),
     imu_orientation_cov_(std::vector<double>(9, 0.0))
@@ -3325,11 +3326,30 @@ namespace Microstrain
               // For little-endian targets, byteswap the data field
               mip_filter_attitude_quaternion_byteswap(&curr_filter_quaternion_);
 
-              // put into ENU - swap X/Y, invert Z
-              nav_msg_.pose.pose.orientation.x = curr_filter_quaternion_.q[2];
-              nav_msg_.pose.pose.orientation.y = curr_filter_quaternion_.q[1];
-              nav_msg_.pose.pose.orientation.z = -1.0*curr_filter_quaternion_.q[3];
-              nav_msg_.pose.pose.orientation.w = curr_filter_quaternion_.q[0];
+              // If we want the orientation to be based on the reference on the imu
+              tf2::Qauternion q(curr_filter_quaternion_.q[1],curr_filter_quaternion_.q[2],
+                                curr_filter_quaternion_.q[3],curr_filter_quaternion_.q[0]);
+              geometry_msgs::Quaternion quat_msg;
+
+              if(frame_based_enu_)
+              {
+                // Create a rotation from NED -> ENU
+                tf2::Qauternion q_rotate;
+                q_rotate.setRPY(M_PI,0.0,M_PI/2);
+                // Apply the NED to ENU rotation such that the coordinate frame matches
+                q = q_rotate*q;
+                quat_msg = tf2::toMsg(q);
+              }
+              else
+              {
+                // put into ENU - swap X/Y, invert Z
+                quat_msg.x = q[2];
+                quat_msg.y = q[1];
+                quat_msg.z = -1.0*q[3];
+                quat_msg.w = q[0];
+              }
+
+              nav_msg_.pose.pose.orientation = quat_msg;
 
               if (publish_filtered_imu_)
               {
@@ -3337,10 +3357,7 @@ namespace Microstrain
                 filtered_imu_msg_.header.seq = filter_valid_packet_count_;
                 filtered_imu_msg_.header.stamp = ros::Time::now();
                 filtered_imu_msg_.header.frame_id = imu_frame_id_;
-                filtered_imu_msg_.orientation.x = curr_filter_quaternion_.q[2];
-                filtered_imu_msg_.orientation.y = curr_filter_quaternion_.q[1];
-                filtered_imu_msg_.orientation.z = -1.0*curr_filter_quaternion_.q[3];
-                filtered_imu_msg_.orientation.w = curr_filter_quaternion_.q[0];
+                filtered_imu_msg_.orientation = nav_msg_.pose.pose.orientation;
               }
             }
             break;
@@ -3501,7 +3518,6 @@ namespace Microstrain
           // on our pulled in parameters.
           std::copy(imu_angular_cov_.begin(), imu_angular_cov_.end(),
               filtered_imu_msg_.angular_velocity_covariance.begin());
-
           filtered_imu_pub_.publish(filtered_imu_msg_);
         }
       }
@@ -3684,11 +3700,34 @@ namespace Microstrain
 
               // For little-endian targets, byteswap the data field
               mip_ahrs_quaternion_byteswap(&curr_ahrs_quaternion_);
-              // put into ENU - swap X/Y, invert Z
-              imu_msg_.orientation.x = curr_ahrs_quaternion_.q[2];
-              imu_msg_.orientation.y = curr_ahrs_quaternion_.q[1];
-              imu_msg_.orientation.z = -1.0*curr_ahrs_quaternion_.q[3];
-              imu_msg_.orientation.w = curr_ahrs_quaternion_.q[0];
+
+              // If we want the orientation to be based on the reference on the imu
+              tf2::Qauternion q(curr_ahrs_quaternion_.q[1],curr_ahrs_quaternion_.q[2],
+                                curr_ahrs_quaternion_.q[3],curr_ahrs_quaternion_.q[0]);
+              geometry_msgs::Quaternion quat_msg;
+
+              if(frame_based_enu_)
+              {
+                // Create a rotation from NED -> ENU
+                tf2::Qauternion q_rotate;
+                q_rotate.setRPY(M_PI,0.0,M_PI/2);
+                // Apply the NED to ENU rotation such that the coordinate frame matches
+                q = q_rotate*q;
+                quat_msg = tf2::toMsg(q);
+              }
+              else
+              {
+                // put into ENU - swap X/Y, invert Z
+                quat_msg.x = q[2];
+                quat_msg.y = q[1];
+                quat_msg.z = -1.0*q[3];
+                quat_msg.w = q[0];
+              }
+
+              imu_msg_.orientation = quat_msg;
+
+
+
               // Since the MIP_AHRS data does not contain uncertainty values
               // we have to set them based on the parameter values.
               std::copy(imu_orientation_cov_.begin(), imu_orientation_cov_.end(),

@@ -310,6 +310,7 @@ namespace Microstrain
     bool publish_bias_;
     bool publish_filtered_imu_;
     bool remove_imu_gravity_;
+    bool frame_based_enu_;
     std::vector<double> imu_linear_cov_;
     std::vector<double> imu_angular_cov_;
     std::vector<double> imu_orientation_cov_;
