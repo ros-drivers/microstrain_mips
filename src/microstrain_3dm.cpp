@@ -3327,14 +3327,14 @@ namespace Microstrain
               mip_filter_attitude_quaternion_byteswap(&curr_filter_quaternion_);
 
               // If we want the orientation to be based on the reference on the imu
-              tf2::Qauternion q(curr_filter_quaternion_.q[1],curr_filter_quaternion_.q[2],
+              tf2::Quaternion q(curr_filter_quaternion_.q[1],curr_filter_quaternion_.q[2],
                                 curr_filter_quaternion_.q[3],curr_filter_quaternion_.q[0]);
               geometry_msgs::Quaternion quat_msg;
 
               if(frame_based_enu_)
               {
                 // Create a rotation from NED -> ENU
-                tf2::Qauternion q_rotate;
+                tf2::Quaternion q_rotate;
                 q_rotate.setRPY(M_PI,0.0,M_PI/2);
                 // Apply the NED to ENU rotation such that the coordinate frame matches
                 q = q_rotate*q;
@@ -3702,14 +3702,14 @@ namespace Microstrain
               mip_ahrs_quaternion_byteswap(&curr_ahrs_quaternion_);
 
               // If we want the orientation to be based on the reference on the imu
-              tf2::Qauternion q(curr_ahrs_quaternion_.q[1],curr_ahrs_quaternion_.q[2],
+              tf2::Quaternion q(curr_ahrs_quaternion_.q[1],curr_ahrs_quaternion_.q[2],
                                 curr_ahrs_quaternion_.q[3],curr_ahrs_quaternion_.q[0]);
               geometry_msgs::Quaternion quat_msg;
 
               if(frame_based_enu_)
               {
                 // Create a rotation from NED -> ENU
-                tf2::Qauternion q_rotate;
+                tf2::Quaternion q_rotate;
                 q_rotate.setRPY(M_PI,0.0,M_PI/2);
                 // Apply the NED to ENU rotation such that the coordinate frame matches
                 q = q_rotate*q;
