@@ -3344,10 +3344,10 @@ namespace Microstrain
               else
               {
                 // put into ENU - swap X/Y, invert Z
-                quat_msg.x = q[2];
-                quat_msg.y = q[1];
-                quat_msg.z = -1.0*q[3];
-                quat_msg.w = q[0];
+                quat_msg.x = q[1];
+                quat_msg.y = q[0];
+                quat_msg.z = -1.0*q[2];
+                quat_msg.w = q[3];
               }
 
               nav_msg_.pose.pose.orientation = quat_msg;
@@ -3719,10 +3719,10 @@ namespace Microstrain
               else
               {
                 // put into ENU - swap X/Y, invert Z
-                quat_msg.x = q[2];
-                quat_msg.y = q[1];
-                quat_msg.z = -1.0*q[3];
-                quat_msg.w = q[0];
+                quat_msg.x = q[1];
+                quat_msg.y = q[0];
+                quat_msg.z = -1.0*q[2];
+                quat_msg.w = q[3];
               }
 
               imu_msg_.orientation = quat_msg;
