@@ -278,6 +278,47 @@ namespace Microstrain
       ROS_FATAL("Couldn't open serial port!  Is it plugged in?");
     }
 
+    // We want to get the default device info even if we don't setup the device
+    // Get device info
+    start = clock();
+    while (mip_base_cmd_get_device_info(&device_interface_, &device_info) != MIP_INTERFACE_OK)
+    {
+      if (clock() - start > 5000)
+      {
+        ROS_INFO("mip_base_cmd_get_device_info function timed out.");
+        break;
+      }
+    }
+
+    // Get device model name
+    memset(temp_string, 0, 20*sizeof(char));
+    memcpy(temp_string, device_info.model_name, BASE_DEVICE_INFO_PARAM_LENGTH*2);
+    ROS_INFO("Model Name  => %s\n", temp_string);
+    std::string model_name;
+
+    for (int i = 6; i < 20; i++)
+    {
+      model_name += temp_string[i];
+    }
+
+    // Set device model flag
+    model_name = model_name.c_str();
+    if (model_name == GX5_45_DEVICE)
+    {
+      GX5_45 = true;
+    }
+    if (model_name == GX5_35_DEVICE)
+    {
+      GX5_35 = true;
+    }
+    if (model_name == GX5_25_DEVICE)
+    {
+      GX5_25 = true;
+    }
+    if (model_name == GX5_15_DEVICE)
+    {
+      GX5_15 = true;
+    }
 
     ////////////////////////////////////////
     // Device setup
@@ -319,48 +360,6 @@ namespace Microstrain
       {
          ROS_ERROR("Appears we didn't get into standard mode!");
       }
-
-      // Get device info
-      start = clock();
-      while (mip_base_cmd_get_device_info(&device_interface_, &device_info) != MIP_INTERFACE_OK)
-      {
-        if (clock() - start > 5000)
-        {
-          ROS_INFO("mip_base_cmd_get_device_info function timed out.");
-          break;
-        }
-      }
-
-      // Get device model name
-      memset(temp_string, 0, 20*sizeof(char));
-      memcpy(temp_string, device_info.model_name, BASE_DEVICE_INFO_PARAM_LENGTH*2);
-      ROS_INFO("Model Name  => %s\n", temp_string);
-      std::string model_name;
-
-      for (int i = 6; i < 20; i++)
-      {
-        model_name += temp_string[i];
-      }
-
-      // Set device model flag
-      model_name = model_name.c_str();
-      if (model_name == GX5_45_DEVICE)
-      {
-        GX5_45 = true;
-      }
-      if (model_name == GX5_35_DEVICE)
-      {
-        GX5_35 = true;
-      }
-      if (model_name == GX5_25_DEVICE)
-      {
-        GX5_25 = true;
-      }
-      if (model_name == GX5_15_DEVICE)
-      {
-        GX5_15 = true;
-      }
-
 
       // Set GPS publishing to true if IMU model has GPS
       if (GX5_45 || GX5_35)
