@@ -5,7 +5,7 @@
   <description>The microstrain_mips package provides a driver for the LORD/Microstrain 3DM_GX5_XX GPS-aided IMU sensor.</description>
   <author email="briansbingham@gmail.com">Brian Bingham</author> -->
   <maintainer email="briansbingham@gmail.com">Brian Bingham</maintainer>
-  <license>GPL</license>
+  <license>MIT</license>
   <url type="website">http://wiki.ros.org/microstrain_3dm_gx5_45</url>
 
   <buildtool_depend>catkin</buildtool_depend>
