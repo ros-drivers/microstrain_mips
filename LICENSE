@@ -1,8 +1,8 @@
-All code within the microstrain_3dm_gx5_45 package that was developed by Brian Bingham is released under the MIT license.
+All code within the microstrain_mips package that was developed by Brian Bingham is released under the MIT license.
 
 ================================================================================
 
-The microstrain_3dm_gx5_45 package makes use of the MIP SDK written by Lord Microstrain Sensing Systems.  The source files for the MIP SDK are included with their copyright and license statements.
+The microstrain_mips package makes use of the MIP SDK written by Lord Microstrain Sensing Systems.  The source files for the MIP SDK are included with their copyright and license statements.
 
 ================================================================================
 
