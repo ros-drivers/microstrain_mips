@@ -2,7 +2,7 @@
 
 Copyright (c) 2017, Brian Bingham
 
-This code is licensed under MIT license (see LICENSE for details)
+This code is licensed under MIT license (see LICENSE file for details)
 
 */
 
