@@ -3,7 +3,7 @@
   <!-- Standalone example launch file for 3DM-GX5-25 -->
 
   <!-- Declare arguments with default values -->
-  <arg name="port" default="/dev/microstrain" />
+  <arg name="port" default="/dev/ttyACM0" />
   <arg name="baudrate" default="115200" />
   <arg name="imu_rate" default="100" />
   <arg name="imu_frame_id" default="gx5_link" />
