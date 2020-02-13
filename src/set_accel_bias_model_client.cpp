@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_mips/SetAccelBiasModel.h"
+#include "ros_mscl/SetAccelBiasModel.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_accel_bias_model_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_mips::SetAccelBiasModel>("SetAccelBiasModel");
-  microstrain_mips::SetAccelBiasModel srv;
+  ros::ServiceClient client = n.serviceClient<ros_mscl::SetAccelBiasModel>("SetAccelBiasModel");
+  ros_mscl::SetAccelBiasModel srv;
 
   srv.request.noise_vector.x = atoll(argv[1]);
   srv.request.noise_vector.y = atoll(argv[2]);

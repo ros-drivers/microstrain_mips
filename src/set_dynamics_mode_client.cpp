@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_mips/SetDynamicsMode.h"
+#include "ros_mscl/SetDynamicsMode.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_dynamics_mode_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_mips::SetDynamicsMode>("SetDynamicsMode");
-  microstrain_mips::SetDynamicsMode srv;
+  ros::ServiceClient client = n.serviceClient<ros_mscl::SetDynamicsMode>("SetDynamicsMode");
+  ros_mscl::SetDynamicsMode srv;
 
   srv.request.mode = atoll(argv[1]);
 

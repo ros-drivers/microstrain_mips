@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_mips/SetMagDipAdaptiveVals.h"
+#include "ros_mscl/SetMagDipAdaptiveVals.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_mag_dip_adaptive_vals_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_mips::SetMagDipAdaptiveVals>("SetMagDipAdaptiveVals");
-  microstrain_mips::SetMagDipAdaptiveVals srv;
+  ros::ServiceClient client = n.serviceClient<ros_mscl::SetMagDipAdaptiveVals>("SetMagDipAdaptiveVals");
+  ros_mscl::SetMagDipAdaptiveVals srv;
 
   srv.request.enable = atoll(argv[1]);
   srv.request.low_pass_cutoff = atoll(argv[2]);

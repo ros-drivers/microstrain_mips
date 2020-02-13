@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_mips/SetComplementaryFilter.h"
+#include "ros_mscl/SetComplementaryFilter.h"
 
 
 int main(int argc, char **argv){
@@ -7,8 +7,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_complementary_filter_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_mips::SetComplementaryFilter>("SetComplementaryFilter");
-  microstrain_mips::SetComplementaryFilter srv;
+  ros::ServiceClient client = n.serviceClient<ros_mscl::SetComplementaryFilter>("SetComplementaryFilter");
+  ros_mscl::SetComplementaryFilter srv;
 
   srv.request.north_comp_enable = atoll(argv[1]);
   srv.request.up_comp_enable = atoll(argv[2]);

@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_mips/SetTareOrientation.h"
+#include "ros_mscl/SetTareOrientation.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_tare_orientation_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_mips::SetTareOrientation>("SetTareOrientation");
-  microstrain_mips::SetTareOrientation srv;
+  ros::ServiceClient client = n.serviceClient<ros_mscl::SetTareOrientation>("SetTareOrientation");
+  ros_mscl::SetTareOrientation srv;
 
   srv.request.axis= atoll(argv[1]);
 

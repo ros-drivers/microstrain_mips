@@ -1,56 +1,68 @@
 ## Description
 
-Interface software, including ROS node, for Microstrain IMUs.
+Interface (driver) software, including ROS node, for inertial sensors compatible with the [Microstrain Communication Library (MSCL)] (https://github.com/LORD-MicroStrain/MSCL).
 
-| Function  | GX5-45 | GX5-25  |
-| ------------- | ------------- | -------------  |
-| mip_system_com_mode  |  X  |  X  |
-| device_report  |  X  |  X  |
-| mip_3dm_cmd_coning_sculling_compensation  |  X  |  X  |
-| set_accel_bias |  X  |  X  |
-| get_accel_bias |  X  |  X  |
-| set_gyro_bias  |  X  |  X  |
-| get_gyro_bias  |  X  |  X  |
-| gyro_bias_capture  |  X  |  X  |
-| set_hard_iron_values |  X  |  X  |
-| get_hard_iron_values |  X  |  X  |
-| set_soft_iron_matrix  |  X  |  X  |
-| get_soft_iron_matrix  |  X  |  X  |
-| set_complementary_filter  |  X  |  X  |
-| get_complementary_filter  |  X  |  X  |
-| set_filter_euler  |  X  |  X  |
-| set_filter_heading  |  X  |  X  |
-| set_sensor_vehicle_frame_trans  |  X  |  X  |
-| get_sensor_vehicle_frame_trans  |  X  |  X  |
-| set_reference_position  |  X  |  X  |
-| get_reference_position  |  X  |  X  |
-| set_coning_sculling_comp  |  X  |  X  |
-| get_coning_sculling_comp  |  X  |  X  |
-| set_estimation_control_flags  |  X  |  X  |
-| get_estimation_control_flags  |  X  |  X  |
-|mip_filter_zero_velocity_update_control  |  X  |  X  |
-| set_zero_angle_update_threshold  |  X  |  X  |
-| get_zero_angle_update_threshold  |  X  |  X  |
-| set_tare_orientation  |  X  |  X  |
-| set_accel_noise  |  X  |  X  |
-| get_accel_noise  |  X  |  X  |
-| set_gyro_noise  |  X  |  X  |
-| get_gyro_noise  |  X  |  X  |
-| set_mag_noise  |  X  |    |
-| get_mag_noise  |  X  |    |
-| set_gyro_bias_model  |  X  |  X  |
-| get_gyro_bias_model  |  X  |  X  |
-| set_accel_adaptive_vals  |  X  |  X  |
-| get_accel_adaptive_vals  |  X  |  X  |
-| get_mag_adaptive_vals  |  X  |   |
-| set_mag_adaptive_vals  |  X  |   |
-| get_basic_status  |  X  |  X  |
-| get_diagnostic_report  |  X  |  X  |
-| set_dynamics_mode  |  X  |    |
-| get_dynamics_mode  |  X  |    |
-| set_sensor_vehicle_frame_offset  |  X  |    |
-| get_sensor_vehicle_frame_offset  |  X  |    |
-| set_accel_bias_model  |  X  |    |
-| get_accel_bias_model  |  X  |    |
-| set_mag_dip_adaptive_vals  |  X  |    |
-| get_mag_dip_adaptive_vals  |  X  |    |
+MSCL is developed by [LORD Sensing - Microstrain](http://microstrain.com) in Williston, VT. 
+
+
+## Build Instructions
+
+Download and install MSCL at /usr/share
+
+#### Building from source
+
+    cd ~/catkin_ws
+    catkin_make
+    source devel/setup.bash
+
+##### Pre-built MSCL Binaries/Packages (v52.2.1)
+Windows:
+[C++](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/mscl_52.2.1_Windows_C++.zip) | 
+[Python 2.7](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/mscl_52.2.1_Windows_Python2.7.zip) |
+[Python 3.6](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/mscl_52.2.1_Windows_Python3.6.zip) |
+[.NET](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/mscl_52.2.1_Windows_DotNet.zip)
+
+Debian:
+  * x64:
+  [C++](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/c++-mscl_52.2.1_amd64.deb) |
+  [Python 2](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python2-mscl_52.2.1_amd64.deb) |
+  [Python 3](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python3-mscl_52.2.1_amd64.deb)
+  * arm64:
+  [C++](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/c++-mscl_52.2.1_arm64.deb) |
+  [Python 2](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python2-mscl_52.2.1_arm64.deb) |
+  [Python 3](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python3-mscl_52.2.1_arm64.deb)
+  * armhf (Raspbian):
+  [C++](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/c++-mscl_52.2.1_armhf.deb) |
+  [Python 2](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python2-mscl_52.2.1_armhf.deb) |
+  [Python 3](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python3-mscl_52.2.1_armhf.deb)
+
+RPM:
+  * x64:
+  [C++](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/c++-mscl-52.2.1_x86_64.rpm) |
+  [Python 2](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python2-mscl-52.2.1_x86_64.rpm) |
+  [Python 3](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python3-mscl-52.2.1_x86_64.rpm)
+  * arm64:
+  [C++](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/c++-mscl-52.2.1_aarch64.rpm) |
+  [Python 2](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python2-mscl-52.2.1_aarch64.rpm) |
+  [Python 3](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python3-mscl-52.2.1_aarch64.rpm)
+  * CentOS:
+  [C++](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/c++-mscl-52.2.1_x86_64_centos7.6.1810.rpm) |
+  [Python 2](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python2-mscl-52.2.1_x86_64_centos7.6.1810.rpm)
+
+If the pre-built packages aren't available on your platform, you can build MSCL from source. This library will search for MSCL at /usr/share.
+
+Instructions can be found here:
+[Building MSCL on Windows](https://github.com/LORD-MicroStrain/MSCL/blob/master/BuildScripts/buildReadme_Windows.md) | 
+[Building MSCL on Linux](https://github.com/LORD-MicroStrain/MSCL/blob/master/BuildScripts/buildReadme_Linux.md)
+
+### Documentation
+
+[How to use MSCL](https://github.com/LORD-MicroStrain/MSCL/blob/master/HowToUseMSCL.md)
+  
+[FAQs](https://github.com/LORD-MicroStrain/MSCL/blob/master/FAQs.md)
+
+
+## License
+ROS-MSCL is released under the MIT License - see the `LICENSE` file in the source distribution.
+
+Copyright (c)  2020, Parker Hannifin Corp.

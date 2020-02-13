@@ -160,9 +160,9 @@ Building from source
 DISTRO={hydro|indigo}
 cd ~/catkin_ws
 rosdep update
-rosdep check --from-paths src/microstrain_3dm_gx5_45/ --rosdistro=$DISRO
-rosdep install --from-paths src/microstrain_3dm_gx5_45/ --ignore-src --rosdistro=$DISTRO --simulate
-rosdep install --from-paths src/microstrain_3dm_gx5_45/ --ignore-src --rosdistro=$DISTRO
+rosdep check --from-paths src/ros_mscl/ --rosdistro=$DISRO
+rosdep install --from-paths src/ros_mscl/ --ignore-src --rosdistro=$DISTRO --simulate
+rosdep install --from-paths src/ros_mscl/ --ignore-src --rosdistro=$DISTRO
 catkin_make
 source devel/setup.bash
 }}}

@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_mips/SetAccelNoise.h"
+#include "ros_mscl/SetAccelNoise.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_accel_noise_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_mips::SetAccelNoise>("SetAccelNoise");
-  microstrain_mips::SetAccelNoise srv;
+  ros::ServiceClient client = n.serviceClient<ros_mscl::SetAccelNoise>("SetAccelNoise");
+  ros_mscl::SetAccelNoise srv;
 
   srv.request.noise.x = atoll(argv[1]);
   srv.request.noise.y = atoll(argv[2]);

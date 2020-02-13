@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_mips/SetReferencePosition.h"
+#include "ros_mscl/SetReferencePosition.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_reference_position_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_mips::SetReferencePosition>("SetReferencePosition");
-  microstrain_mips::SetReferencePosition srv;
+  ros::ServiceClient client = n.serviceClient<ros_mscl::SetReferencePosition>("SetReferencePosition");
+  ros_mscl::SetReferencePosition srv;
 
   srv.request.position.x = atoll(argv[1]);
   srv.request.position.y = atoll(argv[2]);

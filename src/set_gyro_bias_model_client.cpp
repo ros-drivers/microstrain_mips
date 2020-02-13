@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_mips/SetGyroBiasModel.h"
+#include "ros_mscl/SetGyroBiasModel.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_gyro_bias_model_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_mips::SetGyroBiasModel>("SetGyroBiasModel");
-  microstrain_mips::SetGyroBiasModel srv;
+  ros::ServiceClient client = n.serviceClient<ros_mscl::SetGyroBiasModel>("SetGyroBiasModel");
+  ros_mscl::SetGyroBiasModel srv;
 
   srv.request.noise_vector.x = atoll(argv[1]);
   srv.request.noise_vector.y = atoll(argv[2]);

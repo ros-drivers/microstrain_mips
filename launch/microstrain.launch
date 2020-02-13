@@ -3,7 +3,7 @@
   <!-- Standalone example launch file for 3DM-GX5-25 -->
 
   <!-- Declare arguments with default values -->
-  <arg name="port" default="/dev/microstrain" />
+  <arg name="port" default="/dev/ttyACM0" />
   <arg name="baudrate" default="115200" />
   <arg name="imu_rate" default="100" />
   <arg name="imu_frame_id" default="gx5_link" />
@@ -13,13 +13,13 @@
   <!-- For setting debug level to debug -->
   <group if="$(arg debug)">
     <env name="ROSCONSOLE_CONFIG_FILE"
-       value="$(find microstrain_mips)/config/custom_rosconsole.conf"/>
+       value="$(find ros_mscl)/config/custom_rosconsole.conf"/>
   </group>
 
   <!-- Microstrain sensor node -->
-  <node name="microstrain_mips_node"
-  pkg="microstrain_mips"
-  type="microstrain_mips_node" output="screen" ns="gx5">
+  <node name="ros_mscl_node"
+  pkg="ros_mscl"
+  type="ros_mscl_node" output="screen" ns="gx5">
     <param name="port" value="$(arg port)" type="str" />
     <param name="baudrate" value="$(arg baudrate)" type="int" />
 
@@ -29,12 +29,6 @@
     <param name="save_settings" value="true" type="bool" />
     <param name="auto_init" value="true" type="bool" />
 
-    <!-- This parameter is to set wether the device orientation uses a basic 
-      NED->ENU orientation swap or not. If true, the ENU reported should
-      match the label printed on the device. If false X & Y are swapped
-      and Z is negated. -->
-    <param name="frame_based_enu" value="false" type="bool" />
-
     <!-- The GX5-25 is AHRS only, so need to turn off the other messages -->
     <!-- AHRS Settings -->
     <param name="publish_imu" value="true" type="bool" />
@@ -43,12 +37,6 @@
     <!-- Declination source 1=None, 2=magnetic, 3=manual -->
     <param name="declination_source" value="2" type="int" />
     <param name="declination" value="0.23" type="double" />
-    <!-- Filtered IMU rate is based on nav_rate since it is tied in with the onboard Kalman Filter -->
-    <!-- If you set the filtered_imu rate to be something fairly high, make sure to lower the IMU rate
-          above since it appears that the data rate can flood the USB. -->
-    <param name="publish_filtered_imu" value="false" type="bool" />
-    <!-- Remove gravity is only valid with the filtered IMU data. -->
-    <param name="remove_imu_gravity" value="true" type="bool" />
     <!-- Static IMU message covariance values -->
     <!-- Since internally these are std::vector we need to use the rosparam tags -->
     <rosparam param="imu_orientation_cov"> [0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01]</rosparam>
@@ -73,7 +61,7 @@
       args="/yaw_pid_debug/Setpoint /vel_pid_debug/Setpoint"/>-->
     <!-- Diagnostic Aggregator for robot monitor usage -->
     <node pkg="diagnostic_aggregator" type="aggregator_node" name="imu_diagnostic_aggregator">
-      <rosparam command="load" file="$(find microstrain_mips)/config/diagnostic_analyzers.yaml" />
+      <rosparam command="load" file="$(find ros_mscl)/config/diagnostic_analyzers.yaml" />
     </node>
   </group>
 

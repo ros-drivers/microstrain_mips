@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "microstrain_mips/SetGyroNoise.h"
+#include "ros_mscl/SetGyroNoise.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_gyro_noise_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<microstrain_mips::SetGyroNoise>("SetGyroNoise");
-  microstrain_mips::SetGyroNoise srv;
+  ros::ServiceClient client = n.serviceClient<ros_mscl::SetGyroNoise>("SetGyroNoise");
+  ros_mscl::SetGyroNoise srv;
 
   srv.request.noise.x = atoll(argv[1]);
   srv.request.noise.y = atoll(argv[2]);

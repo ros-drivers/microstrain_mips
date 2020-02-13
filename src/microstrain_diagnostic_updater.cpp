@@ -6,10 +6,10 @@
 
 
 
-namespace microstrain_mips
+namespace ros_mscl
 {
 
-RosDiagnosticUpdater::RosDiagnosticUpdater(Microstrain::Microstrain *device)
+RosDiagnosticUpdater::RosDiagnosticUpdater(mscl::InertialNode *device)
 {
   setHardwareID("unknown");
   add("general", this, &RosDiagnosticUpdater::generalDiagnostics);
@@ -28,7 +28,6 @@ void RosDiagnosticUpdater::generalDiagnostics(diagnostic_updater::DiagnosticStat
   stat.add("Device Model", last_status_.device_model);
   stat.add("Status Selector", last_status_.status_selector);
   stat.add("Status Flags", last_status_.status_flags);
-  //stat.add("System State", last_status_.system_state);
   stat.add("System Timer ms", last_status_.system_timer_ms);
   stat.add("IMU Stream Enabled", last_status_.imu_stream_enabled);
   stat.add("Filter Stream Enabled", last_status_.filter_stream_enabled);
@@ -94,7 +93,7 @@ void RosDiagnosticUpdater::imuDiagnostics(diagnostic_updater::DiagnosticStatusWr
 }
 
 
-void RosDiagnosticUpdater::statusCallback(const microstrain_mips::status_msg::ConstPtr& status)
+void RosDiagnosticUpdater::statusCallback(const ros_mscl::status_msg::ConstPtr& status)
 {
   last_status_ = *status;
   update();

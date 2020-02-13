@@ -1,6 +1,14 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Changelog for package microstrain_mips
+Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1.0.0 (2020-02-13)
+------------------
+* Added mscl support
+* Removed MIPSDK and utility functions in mip_sdk_user_functions
+* Changed name of node and package to ros_mscl
+* Added device feature detection to improve compatibility with a greater range of devices
+* Added Parker Hannifin Corp to maintainers
 
 0.0.3 (2019-08-05)
 ------------------

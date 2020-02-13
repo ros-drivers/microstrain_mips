@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>microstrain_mips</name>
-  <version>0.0.3</version>
-  <description>The microstrain_mips package provides a driver for the LORD/Microstrain 3DM_GX5_XX GPS-aided IMU sensor.</description>
-  <author email="briansbingham@gmail.com">Brian Bingham</author> -->
-  <maintainer email="briansbingham@gmail.com">Brian Bingham</maintainer>
+  <name>ros_mscl</name>
+  <version>1.0.0</version>
+  <description>The ros_mscl package provides a driver for the LORD/Microstrain inertial products.</description>
+  <author>Brian Bingham</author>
+  <author>Parker Hannifin Corp</author>
+  <maintainer email="sensing_support@lord.com">Parker Hannifin Corp</maintainer>
   <license>MIT</license>
-  <url type="website">http://wiki.ros.org/microstrain_3dm_gx5_45</url>
+  <url type="website">https://github.com/LORD-MicroStrain/ROS-MSCL</url>
 
   <buildtool_depend>catkin</buildtool_depend>
 
@@ -23,6 +24,7 @@
 
   <build_depend>message_generation</build_depend>
   <build_depend>roslint</build_depend>
+  <build_depend>libmscl</build_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>diagnostic_aggregator</exec_depend>
 
