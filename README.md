@@ -38,8 +38,12 @@ Optional launch parameters:
 - imu_rate: sample rate for IMU data (hz), default: 100
 - debug: output debug info? default: false
 - diagnostics: output diagnostic info? default: true
+    
+To check published topics:
+        
+    rostopic list
 
-**Example**: Connect to and publish data from two devices simultaneously:
+**Example**: Connect to and publish data from two devices simultaneously  
 In two different terminals:
     
     roslaunch ros_mscl microstrain.launch name:=sensor1234
@@ -48,10 +52,8 @@ In two different terminals:
 This will launch two nodes that publish data to different namespaces:
 - sensor1234, connected over port: /dev/ttyACM0
 - bestSensor, connected over port: /dev/ttyACM1
-    
-To check published topics:
-        
-    rostopic list
+
+An example subscriber node can be found here: [ROS-MSCL Examples](https://github.com/LORD-MicroStrain/ROS-MSCL/tree/master/Examples)  
 
 
 ## License
