@@ -3,6 +3,7 @@
   <!-- Standalone example launch file for 3DM-GX5-25 -->
 
   <!-- Declare arguments with default values -->
+  <arg name="name" default="gx5" />
   <arg name="port" default="/dev/ttyACM0" />
   <arg name="baudrate" default="115200" />
   <arg name="imu_rate" default="100" />
@@ -19,7 +20,7 @@
   <!-- Microstrain sensor node -->
   <node name="ros_mscl_node"
   pkg="ros_mscl"
-  type="ros_mscl_node" output="screen" ns="gx5">
+  type="ros_mscl_node" output="screen" ns="$(arg name)">
     <param name="port" value="$(arg port)" type="str" />
     <param name="baudrate" value="$(arg baudrate)" type="int" />
 

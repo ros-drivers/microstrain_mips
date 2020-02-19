@@ -7,62 +7,55 @@ MSCL is developed by [LORD Sensing - Microstrain](http://microstrain.com) in Wil
 
 ## Build Instructions
 
-Download and install MSCL at /usr/share
+#### MSCL
+MSCL pre-built packages can be found here: [MSCL Packages](https://github.com/LORD-MicroStrain/MSCL#downloads)
+
+Install instructions can be found here: [How to Use MSCL](https://github.com/LORD-MicroStrain/MSCL/blob/master/HowToUseMSCL.md#linux)
+
+If you choose to install MSCL at a location other than /usr/share, [CMakeLists.txt](https://github.com/LORD-MicroStrain/ROS-MSCL/blob/master/CMakeLists.txt) will need to be updated with the install path.
 
 #### Building from source
+1. Install ROS and create a workspace: [Installing and Configuring Your ROS Environment](http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment)
 
-    cd ~/catkin_ws
-    catkin_make
-    source devel/setup.bash
+2. Move ros_mscl package to the your_workspace/src folder.
 
-##### Pre-built MSCL Binaries/Packages (v52.2.1)
-Windows:
-[C++](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/mscl_52.2.1_Windows_C++.zip) | 
-[Python 2.7](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/mscl_52.2.1_Windows_Python2.7.zip) |
-[Python 3.6](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/mscl_52.2.1_Windows_Python3.6.zip) |
-[.NET](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/mscl_52.2.1_Windows_DotNet.zip)
+3. Locate and register the ros_mscl package: `rospack find ros_mscl`
 
-Debian:
-  * x64:
-  [C++](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/c++-mscl_52.2.1_amd64.deb) |
-  [Python 2](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python2-mscl_52.2.1_amd64.deb) |
-  [Python 3](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python3-mscl_52.2.1_amd64.deb)
-  * arm64:
-  [C++](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/c++-mscl_52.2.1_arm64.deb) |
-  [Python 2](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python2-mscl_52.2.1_arm64.deb) |
-  [Python 3](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python3-mscl_52.2.1_arm64.deb)
-  * armhf (Raspbian):
-  [C++](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/c++-mscl_52.2.1_armhf.deb) |
-  [Python 2](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python2-mscl_52.2.1_armhf.deb) |
-  [Python 3](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python3-mscl_52.2.1_armhf.deb)
+4. Build your workspace:
+        
+        cd ~/your_workspace
+        catkin_make
+        source ~/your_workspace/devel/setup.bash
+   The source command may need to be run in each terminal prior to launching a ROS node.
+#### Launch the node and publish data
+The following command will launch the driver. Keep in mind each instance needs to be run in a separate terminal.
+            
+        roslaunch ros_mscl microstrain.launch
+Optional launch parameters:
+- name: namespace the node will publish messages to, default: gx5
+- port: serial port name to connect to the device over, default: /dev/ttyACM0
+- baudrate: baud rate to open the connection with, default: 115200
+- imu_rate: sample rate for IMU data (hz), default: 100
+- debug: output debug info? default: false
+- diagnostics: output diagnostic info? default: true
 
-RPM:
-  * x64:
-  [C++](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/c++-mscl-52.2.1_x86_64.rpm) |
-  [Python 2](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python2-mscl-52.2.1_x86_64.rpm) |
-  [Python 3](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python3-mscl-52.2.1_x86_64.rpm)
-  * arm64:
-  [C++](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/c++-mscl-52.2.1_aarch64.rpm) |
-  [Python 2](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python2-mscl-52.2.1_aarch64.rpm) |
-  [Python 3](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python3-mscl-52.2.1_aarch64.rpm)
-  * CentOS:
-  [C++](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/c++-mscl-52.2.1_x86_64_centos7.6.1810.rpm) |
-  [Python 2](https://github.com/LORD-MicroStrain/MSCL/releases/download/v52.2.1/python2-mscl-52.2.1_x86_64_centos7.6.1810.rpm)
+**Example**: Connect to and publish data from two devices simultaneously:
+In two different terminals:
+    
+    roslaunch ros_mscl microstrain.launch name:=sensor1234
 
-If the pre-built packages aren't available on your platform, you can build MSCL from source. This library will search for MSCL at /usr/share.
-
-Instructions can be found here:
-[Building MSCL on Windows](https://github.com/LORD-MicroStrain/MSCL/blob/master/BuildScripts/buildReadme_Windows.md) | 
-[Building MSCL on Linux](https://github.com/LORD-MicroStrain/MSCL/blob/master/BuildScripts/buildReadme_Linux.md)
-
-### Documentation
-
-[How to use MSCL](https://github.com/LORD-MicroStrain/MSCL/blob/master/HowToUseMSCL.md)
-  
-[FAQs](https://github.com/LORD-MicroStrain/MSCL/blob/master/FAQs.md)
+    roslaunch ros_mscl microstrain.launch name:=bestSensor port:=/dev/ttyACM1
+This will launch two nodes that publish data to different namespaces:
+- sensor1234, connected over port: /dev/ttyACM0
+- bestSensor, connected over port: /dev/ttyACM1
+    
+To check published topics:
+        
+    rostopic list
 
 
 ## License
 ROS-MSCL is released under the MIT License - see the `LICENSE` file in the source distribution.
 
 Copyright (c)  2020, Parker Hannifin Corp.
+

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Declare arguments with default values -->
+  <arg name="name" default="listener_cpp" />
+  <arg name="device" default="gx5" />
+
+  <node name="listener_cpp"
+    pkg="ros_mscl_cpp_example"
+    type="listener" output="screen" ns="$(arg name)">
+      <param name="device" value="$(arg device)" type="str" />
+  </node>
+
+</launch>
