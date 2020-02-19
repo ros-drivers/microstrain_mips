@@ -1,6 +1,6 @@
 ## Description
 
-Interface (driver) software, including ROS node, for inertial sensors compatible with the [Microstrain Communication Library (MSCL)] (https://github.com/LORD-MicroStrain/MSCL).
+Interface (driver) software, including ROS node, for inertial sensors compatible with the [Microstrain Communication Library (MSCL)](https://github.com/LORD-MicroStrain/MSCL).
 
 MSCL is developed by [LORD Sensing - Microstrain](http://microstrain.com) in Williston, VT. 
 
