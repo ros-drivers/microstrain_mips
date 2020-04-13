@@ -545,17 +545,17 @@ bool Microstrain::set_accel_bias(ros_mscl::SetAccelBias::Request &req,
       mscl::GeometricVector biasVector = msclInertialNode->getAccelerometerBias();
 
       ROS_INFO("Accel bias vector values are: %f %f %f",
-               biasVector.x, biasVector.y, biasVector.z);
+               biasVector.x(), biasVector.y(), biasVector.z());
       ROS_INFO("Client request values are: %.2f %.2f %.2f",
                req.bias.x, req.bias.y, req.bias.z);
 
-      biasVector.x = req.bias.x;
-      biasVector.y = req.bias.y;
-      biasVector.z = req.bias.z;
+      biasVector.x(req.bias.x);
+      biasVector.y(req.bias.y);
+      biasVector.z(req.bias.z);
 
       msclInertialNode->setAccelerometerBias(biasVector);
       ROS_INFO("New accel bias vector values are: %.2f %.2f %.2f",
-               biasVector.x, biasVector.y, biasVector.z);
+               biasVector.x(), biasVector.y(), biasVector.z());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -579,7 +579,7 @@ bool Microstrain::get_accel_bias(std_srvs::Trigger::Request &req,
       mscl::GeometricVector biasVector = msclInertialNode->getAccelerometerBias();
 
       ROS_INFO("Accel bias vector values are: %f %f %f.\n",
-               biasVector.x, biasVector.y, biasVector.z);
+               biasVector.x(), biasVector.y(), biasVector.z());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -603,18 +603,18 @@ bool Microstrain::set_gyro_bias(ros_mscl::SetGyroBias::Request &req,
       mscl::GeometricVector biasVector = msclInertialNode->getGyroBias();
 
       ROS_INFO("Gyro bias vector values are: %f %f %f",
-               biasVector.x, biasVector.y, biasVector.z);
+               biasVector.x(), biasVector.y(), biasVector.z());
       ROS_INFO("Client request values are: %.2f %.2f %.2f",
                req.bias.x, req.bias.y, req.bias.z);
 
-      biasVector.x = req.bias.x;
-      biasVector.y = req.bias.y;
-      biasVector.z = req.bias.z;
+      biasVector.x(req.bias.x);
+      biasVector.y(req.bias.y);
+      biasVector.z(req.bias.z);
 
       msclInertialNode->setGyroBias(biasVector);
 
       ROS_INFO("New gyro bias vector values are: %.2f %.2f %.2f",
-               biasVector.x, biasVector.y, biasVector.z);
+               biasVector.x(), biasVector.y(), biasVector.z());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -639,7 +639,7 @@ bool Microstrain::get_gyro_bias(std_srvs::Trigger::Request &req,
       mscl::GeometricVector biasVector = msclInertialNode->getGyroBias();
 
       ROS_INFO("Gyro bias vector values are: %f %f %f",
-               biasVector.x, biasVector.y, biasVector.z);
+               biasVector.x(), biasVector.y(), biasVector.z());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -664,18 +664,18 @@ bool Microstrain::set_hard_iron_values(ros_mscl::SetHardIronValues::Request &req
       mscl::GeometricVector biasVector = msclInertialNode->getMagnetometerHardIronOffset();
 
       ROS_INFO("Hard Iron vector values are: %f %f %f",
-               biasVector.x, biasVector.y, biasVector.z);
+               biasVector.x(), biasVector.y(), biasVector.z());
       ROS_INFO("Client request values are: %.2f %.2f %.2f",
                req.bias.x, req.bias.y, req.bias.z);
 
-      biasVector.x = req.bias.x;
-      biasVector.y = req.bias.y;
-      biasVector.z = req.bias.z;
+      biasVector.x(req.bias.x);
+      biasVector.y(req.bias.y);
+      biasVector.z(req.bias.z);
 
       msclInertialNode->setMagnetometerHardIronOffset(biasVector);
 
       ROS_INFO("New hard iron values are: %.2f %.2f %.2f",
-               biasVector.x, biasVector.y, biasVector.z);
+               biasVector.x(), biasVector.y(), biasVector.z());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -699,7 +699,7 @@ bool Microstrain::get_hard_iron_values(std_srvs::Trigger::Request &req, std_srvs
       mscl::GeometricVector biasVector = msclInertialNode->getMagnetometerHardIronOffset();
 
       ROS_INFO("Hard iron values are: %f %f %f",
-               biasVector.x, biasVector.y, biasVector.z);
+               biasVector.x(), biasVector.y(), biasVector.z());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -749,7 +749,7 @@ bool Microstrain::gyro_bias_capture(std_srvs::Trigger::Request &req, std_srvs::T
       mscl::GeometricVector biasVector = msclInertialNode->captureGyroBias(30000);
 
       ROS_INFO("Gyro Bias Captured:\nbias_vector[0] = %f\nbias_vector[1] = %f\nbias_vector[2] = %f\n\n",
-               biasVector.x, biasVector.y, biasVector.z);
+               biasVector.x(), biasVector.y(), biasVector.z());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -1034,8 +1034,8 @@ bool Microstrain::get_reference_position(std_srvs::Trigger::Request &req, std_sr
     {
       ROS_INFO("Getting reference position");
       mscl::Position referencePosition = msclInertialNode->getFixedReferencePosition().referencePosition;
-      ROS_INFO("Reference position: Lat %f , Long %f, Alt %f", referencePosition.latitude,
-               referencePosition.longitude, referencePosition.altitude);
+      ROS_INFO("Reference position: Lat %f , Long %f, Alt %f", referencePosition.latitude(),
+               referencePosition.longitude(), referencePosition.altitude());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -1143,34 +1143,44 @@ bool Microstrain::get_estimation_control_flags(std_srvs::Trigger::Request &req,
 // Get device basic status. Variables in basic status struct change based on device model
 bool Microstrain::get_basic_status(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
 {
-  res.success = false;
-
-  if (msclInertialNode)
+  if (!msclInertialNode)
   {
-    mscl::DeviceStatusData status;
-
-    try
+    return false;
+  }
+  
+  if(msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_DEVICE_STATUS))
+  {
+    mscl::DeviceStatusMap status;
+    if(msclInertialNode->features().supportedStatusSelectors().size() > 0)
     {
-      status = msclInertialNode->getBasicDeviceStatus();
+      mscl::DeviceStatusData statusData = msclInertialNode->getBasicDeviceStatus();
+      status = statusData.asMap();
     }
-    catch (mscl::Error_MipCmdFailed &e)
-    {
-      return true;
-    }
-    try
+    else
     {
       ROS_INFO("Model Number: \t\t\t\t\t%04u\n", msclInertialNode->modelNumber().c_str());
-      ROS_INFO("Status Selector: \t\t\t\t%d\n", status.statusStructure);
-      ROS_INFO("System state: \t\t\t\t\t%04u\n", status.systemState());
-      ROS_INFO("System Microsecond Timer Count: \t\t%lu ms\n\n", status.systemTimerInMS);
-      res.success = true;
+      return true;
     }
-    catch (mscl::Error &e)
+    
+    for (const auto& [key, value] : status)
     {
-      ROS_ERROR("Error: %s", e.what());
+      switch (key)
+      {
+      case mscl::DeviceStatusValues::ModelNumber:
+        ROS_INFO("Model Number: \t\t\t\t\t%s\n", value.c_str());
+        break;
+      case mscl::DeviceStatusValues::StatusStructure_Value:
+        ROS_INFO("Status Selector: \t\t\t\t%s\n", value.c_str());
+        break;
+      case mscl::DeviceStatusValues::SystemState_Value:
+        ROS_INFO("System state: \t\t\t\t\t%s\n", value.c_str());
+        break;
+      default:
+        break;
+      }
     }
   }
-  return res.success;
+  return true;
 }
 
 // Get diagnostic status of device. Changes based on device model.
@@ -1179,40 +1189,82 @@ bool Microstrain::get_diagnostic_report(std_srvs::Trigger::Request &req,
 {
   res.success = false;
 
-  if (msclInertialNode)
+  if (!msclInertialNode)
+  {    
+    return false;
+  }
+  
+  if(msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_DEVICE_STATUS))
   {
-    mscl::DeviceStatusData status;
-
-    try
+    mscl::DeviceStatusMap status;
+    if(msclInertialNode->features().supportedStatusSelectors().size() > 1) 
     {
-      status = msclInertialNode->getDiagnosticDeviceStatus();
-    }
-    catch (mscl::Error_MipCmdFailed &e)
-    {
-      return true;
-    }
-    try
-    {
-      ROS_INFO("Model Number: \t\t\t\t\t%04u\n", msclInertialNode->modelNumber().c_str());
-      ROS_INFO("Status Selector: \t\t\t\t%d\n", status.statusStructure);
-      ROS_INFO("Status Flags: \t\t\t\t\t%lu\n", status.systemState());
-      ROS_INFO("System Millisecond Timer Count: \t\t%lu ms\n", status.systemTimerInMS);
-      ROS_INFO("IMU Streaming Enabled: \t\t\t\t%s\n", status.imuStreamInfo().enabled == 1 ? "TRUE" : "FALSE");
-      ROS_INFO("FILTER Streaming Enabled: \t\t\t%s\n", status.estimationFilterStreamInfo().enabled == 1 ? "TRUE" : "FALSE");
-      ROS_INFO("Number of Dropped IMU Packets: \t\t\t%lu packets\n", status.imuStreamInfo().outgoingPacketsDropped);
-      ROS_INFO("Number of Dropped FILTER Packets: \t\t%lu packets\n", status.estimationFilterStreamInfo().outgoingPacketsDropped);
-      ROS_INFO("Communications Port Bytes Written: \t\t%lu Bytes\n", status.comPortInfo().bytesWritten);
-      ROS_INFO("Communications Port Bytes Read: \t\t%lu Bytes\n", status.comPortInfo().bytesRead);
-      ROS_INFO("Communications Port Write Overruns: \t\t%lu Bytes\n", status.comPortInfo().overrunsOnWrite);
-      ROS_INFO("Communications Port Read Overruns: \t\t%lu Bytes\n", status.comPortInfo().overrunsOnRead);
-      ROS_INFO("IMU Parser Errors: \t\t\t\t%lu Errors\n", status.imuMessageInfo().messageParsingErrors);
-      ROS_INFO("IMU Message Count: \t\t\t\t%lu Messages\n", status.imuMessageInfo().messagesRead);
-      ROS_INFO("IMU Last Message Received: \t\t\t%lu ms\n", status.imuMessageInfo().lastMessageReadinMS);
+      mscl::DeviceStatusData statusData = msclInertialNode->getDiagnosticDeviceStatus();
+      status = statusData.asMap();
       res.success = true;
     }
-    catch (mscl::Error &e)
+      
+    else if(msclInertialNode->features().supportedStatusSelectors().size() > 0)
     {
-      ROS_ERROR("Error: %s", e.what());
+      mscl::DeviceStatusData statusData = msclInertialNode->getBasicDeviceStatus();
+      status = statusData.asMap();
+      res.success = true;
+    }
+    else
+    {
+      ROS_INFO("Model Number: \t\t\t\t\t%04u\n", msclInertialNode->modelNumber().c_str());
+      return true;
+    }
+    
+    for (const auto& [key, value] : status)
+    {
+      switch (key)
+      {
+      case mscl::DeviceStatusValues::ModelNumber:
+        ROS_INFO("Model Number: \t\t\t\t\t%s\n", value.c_str());
+        break;
+      case mscl::DeviceStatusValues::StatusStructure_Value:
+        ROS_INFO("Status Selector: \t\t\t\t%s\n", value.c_str());
+        break;
+      case mscl::DeviceStatusValues::SystemState_Value:
+        ROS_INFO("System state: \t\t\t\t\t%s\n", value.c_str());
+        break;
+      case mscl::DeviceStatusValues::ImuStreamInfo_Enabled:
+        ROS_INFO("IMU Streaming Enabled: \t\t\t\t%s\n", strcmp(value.c_str(),"1") == 0 ? "TRUE" : "FALSE");
+        break;
+      case mscl::DeviceStatusValues::ImuStreamInfo_PacketsDropped:
+        ROS_INFO("Number of Dropped IMU Packets: \t\t\t%s Packets\n", value.c_str());
+        break;
+      case mscl::DeviceStatusValues::EstimationFilterStreamInfo_Enabled:
+        ROS_INFO("FILTER Streaming Enabled: \t\t\t%s\n", strcmp(value.c_str(),"1") == 0 ? "TRUE" : "FALSE");
+        break;
+      case mscl::DeviceStatusValues::EstimationFilterStreamInfo_PacketsDropped:
+        ROS_INFO("Number of Dropped FILTER Packets: \t\t%s Packets\n", value.c_str());
+        break;
+      case mscl::DeviceStatusValues::ComPortInfo_BytesWritten:
+        ROS_INFO("Communications Port Bytes Written: \t\t%s Bytes\n", value.c_str());
+        break;
+      case mscl::DeviceStatusValues::ComPortInfo_BytesRead:
+        ROS_INFO("Communications Port Bytes Read: \t\t%s Bytes\n", value.c_str());
+        break;
+      case mscl::DeviceStatusValues::ComPortInfo_OverrunsOnWrite:
+        ROS_INFO("Communications Port Write Overruns: \t\t%s\n", value.c_str());
+        break;
+      case mscl::DeviceStatusValues::ComPortInfo_OverrunsOnRead:
+        ROS_INFO("Communications Port Read Overruns: \t\t%s\n", value.c_str());
+        break;
+      case mscl::DeviceStatusValues::ImuMessageInfo_MessageParsingErrors:
+        ROS_INFO("IMU Parser Errors: \t\t\t\t%s Errors\n", value.c_str());
+        break;
+      case mscl::DeviceStatusValues::ImuMessageInfo_MessagesRead:
+        ROS_INFO("IMU Message Count: \t\t\t\t%s Messages\n", value.c_str());
+        break;
+      case mscl::DeviceStatusValues::ImuMessageInfo_LastMessageReadinMS:
+        ROS_INFO("IMU Last Message Received: \t\t\t%s ms\n", value.c_str());
+        break;
+      default:
+        break;
+      }
     }
   }
   return res.success;
@@ -1310,7 +1362,7 @@ bool Microstrain::set_accel_noise(ros_mscl::SetAccelNoise::Request &req,
       noise = msclInertialNode->getAccelNoiseStandardDeviation();
       ROS_INFO("Accel noise values successfully set.\n");
       ROS_INFO("Returned values: %f X %f Y %f Z\n",
-               noise.x, noise.y, noise.z);
+               noise.x(), noise.y(), noise.z());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -1334,7 +1386,7 @@ bool Microstrain::get_accel_noise(std_srvs::Trigger::Request &req,
       ROS_INFO("Getting the accel noise values\n");
       mscl::GeometricVector noise = msclInertialNode->getAccelNoiseStandardDeviation();
       ROS_INFO("Returned values: %f X %f Y %f Z\n",
-               noise.x, noise.y, noise.z);
+               noise.x(), noise.y(), noise.z());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -1362,7 +1414,7 @@ bool Microstrain::set_gyro_noise(ros_mscl::SetGyroNoise::Request &req,
       noise = msclInertialNode->getGyroNoiseStandardDeviation();
       ROS_INFO("Gyro noise values successfully set.\n");
       ROS_INFO("Returned values: %f X %f Y %f Z\n",
-               noise.x, noise.y, noise.z);
+               noise.x(), noise.y(), noise.z());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -1386,7 +1438,7 @@ bool Microstrain::get_gyro_noise(std_srvs::Trigger::Request &req,
       ROS_INFO("Getting the gyro noise values\n");
       mscl::GeometricVector noise = msclInertialNode->getGyroNoiseStandardDeviation();
       ROS_INFO("Gyro noise values: %f X %f Y %f Z\n",
-               noise.x, noise.y, noise.z);
+               noise.x(), noise.y(), noise.z());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -1414,7 +1466,7 @@ bool Microstrain::set_mag_noise(ros_mscl::SetMagNoise::Request &req,
       noise = msclInertialNode->getHardIronOffsetProcessNoise();
       ROS_INFO("Mag noise values successfully set.\n");
       ROS_INFO("Returned values: %f X %f Y %f Z\n",
-               noise.x, noise.y, noise.z);
+               noise.x(), noise.y(), noise.z());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -1438,7 +1490,7 @@ bool Microstrain::get_mag_noise(std_srvs::Trigger::Request &req,
       ROS_INFO("Getting the mag noise values\n");
       mscl::GeometricVector noise = msclInertialNode->getHardIronOffsetProcessNoise();
       ROS_INFO("Returned values: %f X %f Y %f Z\n",
-               noise.x, noise.y, noise.z);
+               noise.x(), noise.y(), noise.z());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -1470,8 +1522,8 @@ bool Microstrain::set_gyro_bias_model(ros_mscl::SetGyroBiasModel::Request &req,
       collection = msclInertialNode->getGyroBiasModelParams();
       ROS_INFO("Gyro bias model values successfully set.\n");
       ROS_INFO("Returned values:  Beta: %f X %f Y %f Z, White Noise: %f X %f Y %f Z\n",
-               collection[0].x, collection[0].y, collection[0].z,
-               collection[1].x, collection[1].y, collection[1].z);
+               collection[0].x(), collection[0].y(), collection[0].z(),
+               collection[1].x(), collection[1].y(), collection[1].z());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -1494,8 +1546,8 @@ bool Microstrain::get_gyro_bias_model(std_srvs::Trigger::Request &req, std_srvs:
       ROS_INFO("Getting the gyro bias model values\n");
       mscl::GeometricVectors collection = msclInertialNode->getGyroBiasModelParams();
       ROS_INFO("Gyro bias model values:  Beta: %f X %f Y %f Z, White Noise: %f X %f Y %f Z\n",
-               collection[0].x, collection[0].y, collection[0].z,
-               collection[1].x, collection[1].y, collection[1].z);
+               collection[0].x(), collection[0].y(), collection[0].z(),
+               collection[1].x(), collection[1].y(), collection[1].z());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -1518,8 +1570,8 @@ bool Microstrain::get_accel_bias_model(std_srvs::Trigger::Request &req,
       ROS_INFO("Getting the accel bias model values\n");
       mscl::GeometricVectors collection = msclInertialNode->getAccelBiasModelParams();
       ROS_INFO("Accel bias model values:  Beta: %f X %f Y %f Z, White Noise: %f X %f Y %f Z\n",
-               collection[0].x, collection[0].y, collection[0].z,
-               collection[1].x, collection[1].y, collection[1].z);
+               collection[0].x(), collection[0].y(), collection[0].z(),
+               collection[1].x(), collection[1].y(), collection[1].z());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -1551,8 +1603,8 @@ bool Microstrain::set_accel_bias_model(ros_mscl::SetAccelBiasModel::Request &req
       collection = msclInertialNode->getAccelBiasModelParams();
       ROS_INFO("Accel bias model values successfully set.\n");
       ROS_INFO("Returned values:  Beta: %f X %f Y %f Z, White Noise: %f X %f Y %f Z\n",
-               collection[0].x, collection[0].y, collection[0].z,
-               collection[1].x, collection[1].y, collection[1].z);
+               collection[0].x(), collection[0].y(), collection[0].z(),
+               collection[1].x(), collection[1].y(), collection[1].z());
       res.success = true;
     }
     catch (mscl::Error &e)
@@ -2250,38 +2302,70 @@ void Microstrain::parseGnssPacket(const mscl::MipDataPacket &packet)
 // Send diagnostic information to device status topic and diagnostic aggregator
 void Microstrain::device_status_callback()
 {
-  if (msclInertialNode)
+  if (!msclInertialNode)
+  {    
+    return;
+  }
+  
+  if(msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_DEVICE_STATUS))
   {
-    mscl::DeviceStatusData status;
-    try
+    if(msclInertialNode->features().supportedStatusSelectors().size() > 1) 
     {
-      status = msclInertialNode->getDiagnosticDeviceStatus();
-
-      device_status_msg_.device_model = status.modelNumber;
-      device_status_msg_.status_selector = status.statusStructure;
-      device_status_msg_.system_state = status.systemState();
-      device_status_msg_.system_timer_ms = status.systemTimerInMS;
-      device_status_msg_.imu_stream_enabled = (status.imuStreamInfo().enabled == 1);
-      device_status_msg_.filter_stream_enabled = (status.estimationFilterStreamInfo().enabled == 1);
-      device_status_msg_.imu_dropped_packets = status.imuStreamInfo().outgoingPacketsDropped;
-      device_status_msg_.filter_dropped_packets = status.estimationFilterStreamInfo().outgoingPacketsDropped;
-      device_status_msg_.com1_port_bytes_written = status.comPortInfo().bytesWritten;
-      device_status_msg_.com1_port_bytes_read = status.comPortInfo().bytesRead;
-      device_status_msg_.com1_port_write_overruns = status.comPortInfo().overrunsOnWrite;
-      device_status_msg_.com1_port_read_overruns = status.comPortInfo().overrunsOnRead;
-      device_status_msg_.imu_parser_errors = status.imuMessageInfo().messageParsingErrors;
-      device_status_msg_.imu_message_count = status.imuMessageInfo().messagesRead;
-      device_status_msg_.imu_last_message_ms = status.imuMessageInfo().lastMessageReadinMS;
+      mscl::DeviceStatusData statusData = msclInertialNode->getDiagnosticDeviceStatus();
+      mscl::DeviceStatusMap status = statusData.asMap();
+      
+      for (const auto& [key, value] : status)
+      {
+        switch (key)
+        {
+        case mscl::DeviceStatusValues::ModelNumber:
+          device_status_msg_.device_model = atoi(value.c_str());
+          break;
+        case mscl::DeviceStatusValues::StatusStructure_Value:
+          device_status_msg_.status_selector = atoi(value.c_str());
+          break;
+        case mscl::DeviceStatusValues::SystemState_Value:
+          device_status_msg_.system_state = atoi(value.c_str());
+          break;
+        case mscl::DeviceStatusValues::ImuStreamInfo_Enabled:
+          device_status_msg_.imu_stream_enabled = strcmp(value.c_str(),"1");
+          break;
+        case mscl::DeviceStatusValues::ImuStreamInfo_PacketsDropped:
+          device_status_msg_.imu_dropped_packets = atoi(value.c_str());
+          break;
+        case mscl::DeviceStatusValues::EstimationFilterStreamInfo_Enabled:
+          device_status_msg_.filter_stream_enabled = strcmp(value.c_str(),"1");
+          break;
+        case mscl::DeviceStatusValues::EstimationFilterStreamInfo_PacketsDropped:
+          device_status_msg_.filter_dropped_packets = atoi(value.c_str());
+          break;
+        case mscl::DeviceStatusValues::ComPortInfo_BytesWritten:
+          device_status_msg_.com1_port_bytes_written = atoi(value.c_str());
+          break;
+        case mscl::DeviceStatusValues::ComPortInfo_BytesRead:
+          device_status_msg_.com1_port_bytes_read = atoi(value.c_str());
+          break;
+        case mscl::DeviceStatusValues::ComPortInfo_OverrunsOnWrite:
+          device_status_msg_.com1_port_write_overruns = atoi(value.c_str());
+          break;
+        case mscl::DeviceStatusValues::ComPortInfo_OverrunsOnRead:
+          device_status_msg_.com1_port_read_overruns = atoi(value.c_str());
+          break;
+        case mscl::DeviceStatusValues::ImuMessageInfo_MessageParsingErrors:
+          device_status_msg_.imu_parser_errors = atoi(value.c_str());
+          break;
+        case mscl::DeviceStatusValues::ImuMessageInfo_MessagesRead:
+          device_status_msg_.imu_message_count = atoi(value.c_str());
+          break;
+        case mscl::DeviceStatusValues::ImuMessageInfo_LastMessageReadinMS:
+          device_status_msg_.imu_last_message_ms = atoi(value.c_str());
+          break;
+        default:
+          break;
+        }
+      }
 
       device_status_pub_.publish(device_status_msg_);
-    }
-    catch (mscl::Error_MipCmdFailed &e)
-    {
-      device_status_pub_.publish(device_status_msg_);
-    }
-    catch (mscl::Error &e)
-    {
-      ROS_ERROR("Error: %s", e.what());
     }
   }
 }
@@ -2289,49 +2373,34 @@ void Microstrain::device_status_callback()
 void Microstrain::print_packet_stats()
 {
   if (msclInertialNode)
+  {    
+    return;
+  }
+  
+  if(msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_DEVICE_STATUS))
   {
-    try
+    if(msclInertialNode->features().supportedStatusSelectors().size() > 1) 
     {
       mscl::DeviceStatusData status = msclInertialNode->getDiagnosticDeviceStatus();
 
       ahrs_valid_packet_count_ = status.imuMessageInfo().messagesRead;
       ahrs_checksum_error_packet_count_ = status.imuMessageInfo().messageParsingErrors;
       ahrs_timeout_packet_count_ = status.imuStreamInfo().outgoingPacketsDropped;
-
-      try
-      {
-        filter_timeout_packet_count_ = status.estimationFilterStreamInfo().outgoingPacketsDropped;
-      }
-      catch (...)
-      {
-        ROS_DEBUG_THROTTLE(1.0, "%u AHRS (%u errors) Packets",
+      filter_timeout_packet_count_ = status.estimationFilterStreamInfo().outgoingPacketsDropped;
+      ROS_DEBUG_THROTTLE(1.0, "%u AHRS (%u errors) Packets",
                            ahrs_valid_packet_count_, ahrs_timeout_packet_count_ + ahrs_checksum_error_packet_count_);
-      }
+      
+      gps_checksum_error_packet_count_ = status.gnssMessageInfo().messageParsingErrors;
+      gps_valid_packet_count_ = status.gnssMessageInfo().messagesRead;
+      gps_timeout_packet_count_ = status.gnssStreamInfo().outgoingPacketsDropped;
 
-      try
-      {
-        gps_checksum_error_packet_count_ = status.gnssMessageInfo().messageParsingErrors;
-        gps_valid_packet_count_ = status.gnssMessageInfo().messagesRead;
-        gps_timeout_packet_count_ = status.gnssStreamInfo().outgoingPacketsDropped;
-
-        ROS_DEBUG_THROTTLE(1.0, "%u FILTER (%u errors)    %u AHRS (%u errors)    %u GPS (%u errors) Packets",
-                           filter_valid_packet_count_, filter_timeout_packet_count_,
-                           ahrs_valid_packet_count_, ahrs_timeout_packet_count_ + ahrs_checksum_error_packet_count_,
-                           gps_valid_packet_count_, gps_timeout_packet_count_ + gps_checksum_error_packet_count_);
-      }
-      catch (...)
-      {
-        ROS_DEBUG_THROTTLE(1.0, "%u FILTER (%u errors)    %u AHRS (%u errors) Packets",
-                           filter_valid_packet_count_, filter_timeout_packet_count_,
-                           ahrs_valid_packet_count_, ahrs_timeout_packet_count_ + ahrs_checksum_error_packet_count_);
-      }
-    }
-    catch (mscl::Error_MipCmdFailed &e)
-    {
-    }
-    catch (mscl::Error &e)
-    {
-      ROS_ERROR("Error: %s", e.what());
+      ROS_DEBUG_THROTTLE(1.0, "%u FILTER (%u errors)    %u AHRS (%u errors)    %u GPS (%u errors) Packets",
+                         filter_valid_packet_count_, filter_timeout_packet_count_,
+                         ahrs_valid_packet_count_, ahrs_timeout_packet_count_ + ahrs_checksum_error_packet_count_,
+                         gps_valid_packet_count_, gps_timeout_packet_count_ + gps_checksum_error_packet_count_);
+      ROS_DEBUG_THROTTLE(1.0, "%u FILTER (%u errors)    %u AHRS (%u errors) Packets",
+                         filter_valid_packet_count_, filter_timeout_packet_count_,
+                         ahrs_valid_packet_count_, ahrs_timeout_packet_count_ + ahrs_checksum_error_packet_count_);
     }
   }
 }
