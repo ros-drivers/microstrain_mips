@@ -15,6 +15,7 @@ This code is licensed under MIT license (see LICENSE file for details)
 #include "ros_mscl/status_msg.h"
 #include "microstrain_diagnostic_updater.h"
 #include <vector>
+#include <stdlib.h>
 
 namespace Microstrain
 {
@@ -125,7 +126,7 @@ void Microstrain::run()
   try
   {
     ROS_INFO("Attempting to open serial port <%s> at <%d> \n", port.c_str(), baudrate);
-    mscl::Connection connection = mscl::Connection::Serial(port.c_str(), baudrate);
+    mscl::Connection connection = mscl::Connection::Serial(realpath(port.c_str(), NULL), baudrate);
     mscl::InertialNode inertialNode(connection);
     msclInertialNode = &inertialNode;
 
