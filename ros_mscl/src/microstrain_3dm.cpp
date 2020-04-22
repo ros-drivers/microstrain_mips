@@ -342,6 +342,7 @@ void Microstrain::run()
       {
         nav_pub_ = node.advertise<nav_msgs::Odometry>("nav/odom", 100);
         nav_status_pub_ = node.advertise<std_msgs::Int16MultiArray>("nav/status", 100);
+        filtered_imu_pub_ = node.advertise<sensor_msgs::Imu>("filtered/imu/data", 100);
       }
 
       // Put into idle mode
@@ -458,6 +459,8 @@ void Microstrain::run()
           }
         }
         inertialNode.enableDataStream(mscl::MipTypes::DataClass::CLASS_ESTFILTER);
+        inertialNode.setAutoInitialization(true);
+        inertialNode.setInitialHeading(0);
       }
 
       if (save_settings)
@@ -2060,7 +2063,10 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
   filter_valid_packet_count_++;
 
   const mscl::MipDataPoints &points = packet.data();
-
+  filtered_imu_msg_.header.seq = filter_valid_packet_count_;
+  filtered_imu_msg_.header.stamp = ros::Time::now();
+  filtered_imu_msg_.header.frame_id = odom_frame_id_;
+  
   nav_msg_.header.seq = filter_valid_packet_count_;
   nav_msg_.header.stamp = ros::Time::now();
   nav_msg_.header.frame_id = odom_frame_id_;
@@ -2075,9 +2081,6 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
     //Estimated LLH Position
     case mscl::MipTypes::CH_FIELD_ESTFILTER_ESTIMATED_LLH_POS:
     {
-      nav_msg_.header.seq = filter_valid_packet_count_;
-      nav_msg_.header.stamp = ros::Time::now();
-      nav_msg_.header.frame_id = odom_frame_id_;
       nav_msg_.child_frame_id = odom_child_frame_id_;
 
       if (point.qualifier() == mscl::MipTypes::CH_LATITUDE)
@@ -2095,15 +2098,16 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
         curr_filter_posHeight = point.as_float();
         nav_msg_.pose.pose.position.z = curr_filter_posHeight;
       }
+      
+      filtered_imu_msg_.linear_acceleration.x = curr_filter_posLong;
+      filtered_imu_msg_.linear_acceleration.y = curr_filter_posLat;
+      filtered_imu_msg_.linear_acceleration.z = curr_filter_posHeight;
     }
     break;
 
     //Estimated NED Velocity
-    case mscl::MipTypes::CH_FIELD_ESTFILTER_ESTIMATED_NED_VELOCITY:
+    case mscl::MipTypes::CH_FIELD_ESTFILTER_ESTIMATED_NED_VELOCITY: 
     {
-      hasNedVelocity = true;
-
-      // Stuff into ROS message
       if (point.qualifier() == mscl::MipTypes::CH_NORTH)
       {
         curr_filter_velNorth = point.as_float();
@@ -2116,12 +2120,12 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
       {
         curr_filter_velDown = point.as_float();
       }
+      
     }
     break;
 
     case mscl::MipTypes::CH_FIELD_ESTFILTER_ESTIMATED_ORIENT_EULER:
     {
-      // Stuff into ROS message
       if (point.qualifier() == mscl::MipTypes::CH_ROLL)
       {
         curr_filter_roll = point.as_float();
@@ -2138,41 +2142,44 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
     break;
 
     case mscl::MipTypes::CH_FIELD_ESTFILTER_ESTIMATED_ORIENT_QUATERNION:
-    {
+    { 
       mscl::Vector quaternion = point.as_Vector();
-
+      curr_filter_quaternion_ = quaternion;
+      
       // put into ENU - swap X/Y, invert Z
       nav_msg_.pose.pose.orientation.x = quaternion.as_floatAt(2);
       nav_msg_.pose.pose.orientation.y = quaternion.as_floatAt(1);
       nav_msg_.pose.pose.orientation.z = quaternion.as_floatAt(3) * -1;
       nav_msg_.pose.pose.orientation.w = quaternion.as_floatAt(0);
+      filtered_imu_msg_.orientation = nav_msg_.pose.pose.orientation;
     }
     break;
 
     case mscl::MipTypes::CH_FIELD_ESTFILTER_ESTIMATED_ANGULAR_RATE:
     {
-      // Stuff into ROS message
       if (point.qualifier() == mscl::MipTypes::CH_X)
       {
         curr_filter_angularRate_x = point.as_float();
         nav_msg_.twist.twist.angular.x = curr_filter_angularRate_x;
+        filtered_imu_msg_.angular_velocity.x = curr_filter_angularRate_x;
       }
       else if (point.qualifier() == mscl::MipTypes::CH_Y)
       {
         curr_filter_angularRate_y = point.as_float();
         nav_msg_.twist.twist.angular.y = curr_filter_angularRate_y;
+        filtered_imu_msg_.angular_velocity.y = curr_filter_angularRate_y;
       }
       else if (point.qualifier() == mscl::MipTypes::CH_Z)
       {
         curr_filter_angularRate_z = point.as_float();
         nav_msg_.twist.twist.angular.z = curr_filter_angularRate_z;
+        filtered_imu_msg_.angular_velocity.z = curr_filter_angularRate_z;
       }
     }
     break;
 
     case mscl::MipTypes::CH_FIELD_ESTFILTER_ESTIMATED_LLH_UNCERT:
     {
-      // Stuff into ROS message
       if (point.qualifier() == mscl::MipTypes::CH_NORTH)
       {
         curr_filter_pos_uncert_north = point.as_float();
@@ -2193,21 +2200,23 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
 
     case mscl::MipTypes::CH_FIELD_ESTFILTER_ESTIMATED_ATT_UNCERT_EULER:
     {
-      // Stuff into ROS message
       if (point.qualifier() == mscl::MipTypes::CH_ROLL)
       {
         curr_filter_att_uncert_roll = point.as_float();
         nav_msg_.pose.covariance[21] = curr_filter_att_uncert_roll * curr_filter_att_uncert_roll;
+        filtered_imu_msg_.orientation_covariance[0] = nav_msg_.pose.covariance[21];
       }
       else if (point.qualifier() == mscl::MipTypes::CH_PITCH)
       {
         curr_filter_att_uncert_pitch = point.as_float();
         nav_msg_.pose.covariance[28] = curr_filter_att_uncert_pitch * curr_filter_att_uncert_pitch;
+        filtered_imu_msg_.orientation_covariance[4] = nav_msg_.pose.covariance[28];
       }
       else if (point.qualifier() == mscl::MipTypes::CH_YAW)
       {
         curr_filter_att_uncert_yaw = point.as_float();
         nav_msg_.pose.covariance[35] = curr_filter_att_uncert_yaw * curr_filter_att_uncert_yaw;
+        filtered_imu_msg_.orientation_covariance[8] = nav_msg_.pose.covariance[35];
       }
     }
     break;
@@ -2236,9 +2245,19 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
     nav_msg_.twist.twist.linear.x = vel_in_sensor_frame[0];
     nav_msg_.twist.twist.linear.y = vel_in_sensor_frame[1];
     nav_msg_.twist.twist.linear.z = vel_in_sensor_frame[2];
+    
+    filtered_imu_msg_.linear_acceleration.x = nav_msg_.twist.twist.linear.x;
+    filtered_imu_msg_.linear_acceleration.y = nav_msg_.twist.twist.linear.y;
+    filtered_imu_msg_.linear_acceleration.z = nav_msg_.twist.twist.linear.z;
   }
+  
+  std::copy(imu_linear_cov_.begin(), imu_linear_cov_.end(),
+              filtered_imu_msg_.linear_acceleration_covariance.begin());
+  std::copy(imu_angular_cov_.begin(), imu_angular_cov_.end(),
+              filtered_imu_msg_.angular_velocity_covariance.begin());
 
   // Publish
+  filtered_imu_pub_.publish(filtered_imu_msg_);
   nav_pub_.publish(nav_msg_);
 }
 
