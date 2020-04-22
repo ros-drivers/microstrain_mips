@@ -270,12 +270,14 @@ namespace Microstrain
   // ROS
   ros::Publisher gps_pub_;
   ros::Publisher imu_pub_;
+  ros::Publisher filtered_imu_pub_;
   ros::Publisher nav_pub_;
   ros::Publisher nav_status_pub_;
   ros::Publisher bias_pub_;
   ros::Publisher device_status_pub_;
   sensor_msgs::NavSatFix gps_msg_;
   sensor_msgs::Imu imu_msg_;
+  sensor_msgs::Imu filtered_imu_msg_;
   nav_msgs::Odometry nav_msg_;
   std_msgs::Int16MultiArray nav_status_msg_;
   geometry_msgs::Vector3 bias_msg_;
