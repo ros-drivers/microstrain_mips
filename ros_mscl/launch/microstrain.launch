@@ -38,6 +38,8 @@
     <!-- Declination source 1=None, 2=magnetic, 3=manual -->
     <param name="declination_source" value="2" type="int" />
     <param name="declination" value="0.23" type="double" />
+    <!-- Heading source 1=None, 2=magnetic  -->
+    <param name="heading_source" value="0" type="int" />
     <!-- Static IMU message covariance values -->
     <!-- Since internally these are std::vector we need to use the rosparam tags -->
     <rosparam param="imu_orientation_cov"> [0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01]</rosparam>
