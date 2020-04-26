@@ -54,12 +54,13 @@ void Microstrain::run()
   bool readback_settings = true;
   bool save_settings = true;
   bool auto_init = true;
+  int heading_source;
   int declination_source;
   uint8_t declination_source_u8;
+  uint8_t heading_source_u8;
   uint8_t readback_declination_source;
   double declination;
 
-  uint8_t heading_source = 0x1;
   uint16_t duration = 0;
 
   com_mode = 0;
@@ -81,6 +82,7 @@ void Microstrain::run()
   private_nh.param("device_setup", device_setup, false);
   private_nh.param("readback_settings", readback_settings, true);
   private_nh.param("save_settings", save_settings, true);
+  private_nh.param("heading_source", heading_source, 0x1);
 
   private_nh.param("auto_init", auto_init, true);
   private_nh.param("gps_rate", gps_rate_, 1);
@@ -102,6 +104,7 @@ void Microstrain::run()
     declination_source = 2;
   }
   declination_source_u8 = (uint8_t)declination_source;
+  heading_source_u8 = (uint8_t)heading_source;
 
   private_nh.param("declination", declination, 0.23);
   private_nh.param("gps_frame_id", gps_frame_id_, std::string("wgs84"));
@@ -451,7 +454,6 @@ void Microstrain::run()
           {
             if (headingSources.AsOptionId() == static_cast<mscl::InertialTypes::HeadingUpdateEnableOption>(heading_source))
             {
-              ROS_INFO("Hard coding heading source to internal mag");
               ROS_INFO("Setting heading source to %#04X", heading_source);
               inertialNode.setHeadingUpdateControl(mscl::HeadingUpdateOptions(static_cast<mscl::InertialTypes::HeadingUpdateEnableOption>(heading_source)));
               break;
@@ -485,25 +487,21 @@ void Microstrain::run()
     ROS_INFO("Starting Data Parsing");
     while (ros::ok())
     {
-      try
-      {
-        mscl::MipDataPackets packets = inertialNode.getDataPackets(1000);
+      mscl::MipDataPackets packets = inertialNode.getDataPackets(1000);
 
-        for (mscl::MipDataPacket packet : packets)
-        {
-          parseMipPacket(packet);
-        }
-      }
-      catch (mscl::Error_Connection)
+      for (mscl::MipDataPacket packet : packets)
       {
-        ROS_ERROR("Device Disconnected");
-        break;
+        parseMipPacket(packet);
       }
-
-      device_status_callback();
-      ros::spinOnce(); // take care of service requests.
-      r.sleep();
     }
+
+    device_status_callback();
+    ros::spinOnce(); // take care of service requests.
+    r.sleep();
+  }
+  catch (mscl::Error_Connection)
+  {
+    ROS_ERROR("Device Disconnected");
   }
 
   catch (mscl::Error &e)
