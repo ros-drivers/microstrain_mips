@@ -7,7 +7,7 @@ Over time we will provide more robust and varied examples in both C++ and Python
 Prerequisite: completed setup and build steps found [here](https://github.com/LORD-MicroStrain/ROS-MSCL).
 
 #### Create the example package
-1. Move the `ros_mscl_cpp_example` package to the `your_workspace/src` folder.
+1. Move the `ros_mscl_cpp_example` or `ros_mscl_py_example` package to the `your_workspace/src` folder.
 
 2. Locate and register the package to the workspace: `rospack find ros_mscl_cpp_example`
 
@@ -17,6 +17,7 @@ Prerequisite: completed setup and build steps found [here](https://github.com/LO
         catkin_make
         source ~/your_workspace/devel/setup.bash
    The source command may need to be run in each terminal prior to launching a ROS node.
+   You may need to change the permissions on the listener.py file if it is failing to run.
 
 
 #### Launch the listener node
