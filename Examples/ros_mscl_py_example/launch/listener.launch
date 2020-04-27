@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Declare arguments with default values -->
+  <arg name="name" default="listener_py" />
+  <arg name="device" default="gx5" />
+
+  <node name="listener_py"
+    pkg="ros_mscl_py_example"
+    type="listener.py" output="screen" ns="$(arg name)">
+      <param name="device" value="$(arg device)" type="str" />
+  </node>
+
+</launch>
