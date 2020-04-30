@@ -1939,11 +1939,18 @@ void Microstrain::parseMipPacket(const mscl::MipDataPacket &packet)
 void Microstrain::parseSensorPacket(const mscl::MipDataPacket &packet)
 {
   ahrs_valid_packet_count_++;
+  
+  uint64_t time = packet.collectedTimestamp().nanoseconds();
+  
+  if (packet.hasDeviceTime() && packet.deviceTimeValid()) 
+  {
+     time = packet.deviceTimestamp().nanoseconds();
+  }
 
   const mscl::MipDataPoints &points = packet.data();
 
   imu_msg_.header.seq = ahrs_valid_packet_count_;
-  imu_msg_.header.stamp = ros::Time::now();
+  imu_msg_.header.stamp = ros::Time().fromNSec ( time );
   imu_msg_.header.frame_id = imu_frame_id_;
 
   bool hasScaledAccel = false;
@@ -2060,13 +2067,20 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
 {
   filter_valid_packet_count_++;
 
+  uint64_t time = packet.collectedTimestamp().nanoseconds();
+  
+  if (packet.hasDeviceTime() && packet.deviceTimeValid()) 
+  {
+     time = packet.deviceTimestamp().nanoseconds();
+  }
+
   const mscl::MipDataPoints &points = packet.data();
   filtered_imu_msg_.header.seq = filter_valid_packet_count_;
-  filtered_imu_msg_.header.stamp = ros::Time::now();
+  filtered_imu_msg_.header.stamp = ros::Time().fromNSec ( time );
   filtered_imu_msg_.header.frame_id = odom_frame_id_;
   
   nav_msg_.header.seq = filter_valid_packet_count_;
-  nav_msg_.header.stamp = ros::Time::now();
+  nav_msg_.header.stamp = ros::Time().fromNSec ( time );
   nav_msg_.header.frame_id = odom_frame_id_;
 
   bool hasNedVelocity = false;
@@ -2262,11 +2276,18 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
 void Microstrain::parseGnssPacket(const mscl::MipDataPacket &packet)
 {
   gps_valid_packet_count_++;
+  
+  uint64_t time = packet.collectedTimestamp().nanoseconds();
+  
+  if (packet.hasDeviceTime() && packet.deviceTimeValid()) 
+  {
+     time = packet.deviceTimestamp().nanoseconds();
+  }
 
   const mscl::MipDataPoints &points = packet.data();
 
   gps_msg_.header.seq = gps_valid_packet_count_;
-  gps_msg_.header.stamp = ros::Time::now();
+  gps_msg_.header.stamp = ros::Time().fromNSec ( time );
   gps_msg_.header.frame_id = gps_frame_id_;
 
   for (mscl::MipDataPoint point : points)
