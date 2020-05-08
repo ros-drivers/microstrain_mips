@@ -1164,18 +1164,19 @@ bool Microstrain::get_basic_status(std_srvs::Trigger::Request &req, std_srvs::Tr
       return true;
     }
     
-    for (const auto& [key, value] : status)
+    mscl::DeviceStatusMap::iterator it;
+    for ( it = status.begin(); it != status.end(); it++ )
     {
-      switch (key)
+      switch (it->first)
       {
       case mscl::DeviceStatusValues::ModelNumber:
-        ROS_INFO("Model Number: \t\t\t\t\t%s\n", value.c_str());
+        ROS_INFO("Model Number: \t\t\t\t\t%s\n", (it->second).c_str());
         break;
       case mscl::DeviceStatusValues::StatusStructure_Value:
-        ROS_INFO("Status Selector: \t\t\t\t%s\n", value.c_str());
+        ROS_INFO("Status Selector: \t\t\t\t%s\n", (it->second).c_str());
         break;
       case mscl::DeviceStatusValues::SystemState_Value:
-        ROS_INFO("System state: \t\t\t\t\t%s\n", value.c_str());
+        ROS_INFO("System state: \t\t\t\t\t%s\n", (it->second).c_str());
         break;
       default:
         break;
@@ -1218,51 +1219,52 @@ bool Microstrain::get_diagnostic_report(std_srvs::Trigger::Request &req,
       return true;
     }
     
-    for (const auto& [key, value] : status)
+    mscl::DeviceStatusMap::iterator it;
+    for ( it = status.begin(); it != status.end(); it++ )
     {
-      switch (key)
+      switch (it->first)
       {
       case mscl::DeviceStatusValues::ModelNumber:
-        ROS_INFO("Model Number: \t\t\t\t\t%s\n", value.c_str());
+        ROS_INFO("Model Number: \t\t\t\t\t%s\n", (it->second).c_str());
         break;
       case mscl::DeviceStatusValues::StatusStructure_Value:
-        ROS_INFO("Status Selector: \t\t\t\t%s\n", value.c_str());
+        ROS_INFO("Status Selector: \t\t\t\t%s\n", (it->second).c_str());
         break;
       case mscl::DeviceStatusValues::SystemState_Value:
-        ROS_INFO("System state: \t\t\t\t\t%s\n", value.c_str());
+        ROS_INFO("System state: \t\t\t\t\t%s\n", (it->second).c_str());
         break;
       case mscl::DeviceStatusValues::ImuStreamInfo_Enabled:
-        ROS_INFO("IMU Streaming Enabled: \t\t\t\t%s\n", strcmp(value.c_str(),"1") == 0 ? "TRUE" : "FALSE");
+        ROS_INFO("IMU Streaming Enabled: \t\t\t\t%s\n", strcmp((it->second).c_str(),"1") == 0 ? "TRUE" : "FALSE");
         break;
       case mscl::DeviceStatusValues::ImuStreamInfo_PacketsDropped:
-        ROS_INFO("Number of Dropped IMU Packets: \t\t\t%s Packets\n", value.c_str());
+        ROS_INFO("Number of Dropped IMU Packets: \t\t\t%s Packets\n", (it->second).c_str());
         break;
       case mscl::DeviceStatusValues::EstimationFilterStreamInfo_Enabled:
-        ROS_INFO("FILTER Streaming Enabled: \t\t\t%s\n", strcmp(value.c_str(),"1") == 0 ? "TRUE" : "FALSE");
+        ROS_INFO("FILTER Streaming Enabled: \t\t\t%s\n", strcmp((it->second).c_str(),"1") == 0 ? "TRUE" : "FALSE");
         break;
       case mscl::DeviceStatusValues::EstimationFilterStreamInfo_PacketsDropped:
-        ROS_INFO("Number of Dropped FILTER Packets: \t\t%s Packets\n", value.c_str());
+        ROS_INFO("Number of Dropped FILTER Packets: \t\t%s Packets\n", (it->second).c_str());
         break;
       case mscl::DeviceStatusValues::ComPortInfo_BytesWritten:
-        ROS_INFO("Communications Port Bytes Written: \t\t%s Bytes\n", value.c_str());
+        ROS_INFO("Communications Port Bytes Written: \t\t%s Bytes\n", (it->second).c_str());
         break;
       case mscl::DeviceStatusValues::ComPortInfo_BytesRead:
-        ROS_INFO("Communications Port Bytes Read: \t\t%s Bytes\n", value.c_str());
+        ROS_INFO("Communications Port Bytes Read: \t\t%s Bytes\n", (it->second).c_str());
         break;
       case mscl::DeviceStatusValues::ComPortInfo_OverrunsOnWrite:
-        ROS_INFO("Communications Port Write Overruns: \t\t%s\n", value.c_str());
+        ROS_INFO("Communications Port Write Overruns: \t\t%s\n", (it->second).c_str());
         break;
       case mscl::DeviceStatusValues::ComPortInfo_OverrunsOnRead:
-        ROS_INFO("Communications Port Read Overruns: \t\t%s\n", value.c_str());
+        ROS_INFO("Communications Port Read Overruns: \t\t%s\n", (it->second).c_str());
         break;
       case mscl::DeviceStatusValues::ImuMessageInfo_MessageParsingErrors:
-        ROS_INFO("IMU Parser Errors: \t\t\t\t%s Errors\n", value.c_str());
+        ROS_INFO("IMU Parser Errors: \t\t\t\t%s Errors\n", (it->second).c_str());
         break;
       case mscl::DeviceStatusValues::ImuMessageInfo_MessagesRead:
-        ROS_INFO("IMU Message Count: \t\t\t\t%s Messages\n", value.c_str());
+        ROS_INFO("IMU Message Count: \t\t\t\t%s Messages\n", (it->second).c_str());
         break;
       case mscl::DeviceStatusValues::ImuMessageInfo_LastMessageReadinMS:
-        ROS_INFO("IMU Last Message Received: \t\t\t%s ms\n", value.c_str());
+        ROS_INFO("IMU Last Message Received: \t\t\t%s ms\n", (it->second).c_str());
         break;
       default:
         break;
@@ -2353,51 +2355,52 @@ void Microstrain::device_status_callback()
       mscl::DeviceStatusData statusData = msclInertialNode->getDiagnosticDeviceStatus();
       mscl::DeviceStatusMap status = statusData.asMap();
       
-      for (const auto& [key, value] : status)
+      mscl::DeviceStatusMap::iterator it;
+      for ( it = status.begin(); it != status.end(); it++ )
       {
-        switch (key)
+        switch (it->first)
         {
         case mscl::DeviceStatusValues::ModelNumber:
-          device_status_msg_.device_model = atoi(value.c_str());
+          device_status_msg_.device_model = atoi(it->second.c_str());
           break;
         case mscl::DeviceStatusValues::StatusStructure_Value:
-          device_status_msg_.status_selector = atoi(value.c_str());
+          device_status_msg_.status_selector = atoi(it->second.c_str());
           break;
         case mscl::DeviceStatusValues::SystemState_Value:
-          device_status_msg_.system_state = atoi(value.c_str());
+          device_status_msg_.system_state = atoi(it->second.c_str());
           break;
         case mscl::DeviceStatusValues::ImuStreamInfo_Enabled:
-          device_status_msg_.imu_stream_enabled = strcmp(value.c_str(),"1");
+          device_status_msg_.imu_stream_enabled = strcmp(it->second.c_str(),"1");
           break;
         case mscl::DeviceStatusValues::ImuStreamInfo_PacketsDropped:
-          device_status_msg_.imu_dropped_packets = atoi(value.c_str());
+          device_status_msg_.imu_dropped_packets = atoi(it->second.c_str());
           break;
         case mscl::DeviceStatusValues::EstimationFilterStreamInfo_Enabled:
-          device_status_msg_.filter_stream_enabled = strcmp(value.c_str(),"1");
+          device_status_msg_.filter_stream_enabled = strcmp(it->second.c_str(),"1");
           break;
         case mscl::DeviceStatusValues::EstimationFilterStreamInfo_PacketsDropped:
-          device_status_msg_.filter_dropped_packets = atoi(value.c_str());
+          device_status_msg_.filter_dropped_packets = atoi(it->second.c_str());
           break;
         case mscl::DeviceStatusValues::ComPortInfo_BytesWritten:
-          device_status_msg_.com1_port_bytes_written = atoi(value.c_str());
+          device_status_msg_.com1_port_bytes_written = atoi(it->second.c_str());
           break;
         case mscl::DeviceStatusValues::ComPortInfo_BytesRead:
-          device_status_msg_.com1_port_bytes_read = atoi(value.c_str());
+          device_status_msg_.com1_port_bytes_read = atoi(it->second.c_str());
           break;
         case mscl::DeviceStatusValues::ComPortInfo_OverrunsOnWrite:
-          device_status_msg_.com1_port_write_overruns = atoi(value.c_str());
+          device_status_msg_.com1_port_write_overruns = atoi(it->second.c_str());
           break;
         case mscl::DeviceStatusValues::ComPortInfo_OverrunsOnRead:
-          device_status_msg_.com1_port_read_overruns = atoi(value.c_str());
+          device_status_msg_.com1_port_read_overruns = atoi(it->second.c_str());
           break;
         case mscl::DeviceStatusValues::ImuMessageInfo_MessageParsingErrors:
-          device_status_msg_.imu_parser_errors = atoi(value.c_str());
+          device_status_msg_.imu_parser_errors = atoi(it->second.c_str());
           break;
         case mscl::DeviceStatusValues::ImuMessageInfo_MessagesRead:
-          device_status_msg_.imu_message_count = atoi(value.c_str());
+          device_status_msg_.imu_message_count = atoi(it->second.c_str());
           break;
         case mscl::DeviceStatusValues::ImuMessageInfo_LastMessageReadinMS:
-          device_status_msg_.imu_last_message_ms = atoi(value.c_str());
+          device_status_msg_.imu_last_message_ms = atoi(it->second.c_str());
           break;
         default:
           break;
