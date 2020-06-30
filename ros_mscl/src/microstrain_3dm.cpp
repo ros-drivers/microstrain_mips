@@ -323,31 +323,33 @@ void Microstrain::run()
       get_mag_dip_adaptive_vals_service = node.advertiseService("get_mag_dip_adaptive_vals", &Microstrain::get_mag_dip_adaptive_vals, this);
     }
 
+
+    //print the device info
+    ROS_INFO("Model Name: %s\n", inertialNode.modelName().c_str());
+    ROS_INFO("Serial Number: %s\n", inertialNode.serialNumber().c_str());
+
+    //enable publishing of fields depending on what the device supports
+    bool supportsGNSS = inertialNode.features().supportsCategory(mscl::MipTypes::DataClass::CLASS_GNSS);
+    bool supportsFilter = inertialNode.features().supportsCategory(mscl::MipTypes::DataClass::CLASS_ESTFILTER);
+
+    private_nh.param("publish_gps", publish_gps_, supportsGNSS);
+    private_nh.param("publish_odom", publish_odom_, supportsFilter);
+
+    if (supportsGNSS)
+    {
+      gps_pub_ = node.advertise<sensor_msgs::NavSatFix>("gps/fix", 100);
+    }
+
+    if (supportsFilter)
+    {
+      nav_pub_ = node.advertise<nav_msgs::Odometry>("nav/odom", 100);
+      nav_status_pub_ = node.advertise<std_msgs::Int16MultiArray>("nav/status", 100);
+      filtered_imu_pub_ = node.advertise<sensor_msgs::Imu>("filtered/imu/data", 100);
+    }
+  
+  
     if (device_setup)
     {
-      //print the device info
-      ROS_INFO("Model Name: %s\n", inertialNode.modelName().c_str());
-      ROS_INFO("Serial Number: %s\n", inertialNode.serialNumber().c_str());
-
-      //enable publishing of fields depending on what the device supports
-      bool supportsGNSS = inertialNode.features().supportsCategory(mscl::MipTypes::DataClass::CLASS_GNSS);
-      bool supportsFilter = inertialNode.features().supportsCategory(mscl::MipTypes::DataClass::CLASS_ESTFILTER);
-
-      private_nh.param("publish_gps", publish_gps_, supportsGNSS);
-      private_nh.param("publish_odom", publish_odom_, supportsFilter);
-
-      if (supportsGNSS)
-      {
-        gps_pub_ = node.advertise<sensor_msgs::NavSatFix>("gps/fix", 100);
-      }
-
-      if (supportsFilter)
-      {
-        nav_pub_ = node.advertise<nav_msgs::Odometry>("nav/odom", 100);
-        nav_status_pub_ = node.advertise<std_msgs::Int16MultiArray>("nav/status", 100);
-        filtered_imu_pub_ = node.advertise<sensor_msgs::Imu>("filtered/imu/data", 100);
-      }
-
       // Put into idle mode
       ROS_INFO("Setting to Idle: Stopping data streams and/or waking from sleep");
       inertialNode.setToIdle();
@@ -374,7 +376,7 @@ void Microstrain::run()
 
         inertialNode.setActiveChannelFields(mscl::MipTypes::DataClass::CLASS_AHRS_IMU, supportedChannels);
 
-        if (features.supportsCommand(mscl::MipTypes::Command::CMD_EF_DECLINATION_SRC))
+        if (features.supportsCommand(mscl::MipTypes::Command::CMD_EF_DECLINATION_SRC ) && device_setup)
         {
           ROS_INFO("Setting Declination Source");
           inertialNode.setDeclinationSource(mscl::GeographicSourceOptions(static_cast<mscl::InertialTypes::GeographicSourceOption>(declination_source_u8), declination));
@@ -437,7 +439,7 @@ void Microstrain::run()
         inertialNode.setActiveChannelFields(mscl::MipTypes::DataClass::CLASS_ESTFILTER, supportedChannels);
 
         //set dynamics mode
-        if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_VEHIC_DYNAMICS_MODE))
+        if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_VEHIC_DYNAMICS_MODE) && device_setup)
         {
           mscl::VehicleModeTypes modes = inertialNode.features().supportedVehicleModeTypes();
           if (std::find(modes.begin(), modes.end(), static_cast<mscl::InertialTypes::VehicleModeType>(dynamics_mode)) != modes.end())
@@ -448,7 +450,7 @@ void Microstrain::run()
         }
 
         // Set heading Source
-        if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_HEADING_UPDATE_CTRL))
+        if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_HEADING_UPDATE_CTRL) && device_setup)
         {
           for (mscl::HeadingUpdateOptions headingSources : inertialNode.features().supportedHeadingUpdateOptions())
           {
