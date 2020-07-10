@@ -2087,7 +2087,7 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
   nav_msg_.header.stamp = ros::Time().fromNSec ( time );
   nav_msg_.header.frame_id = odom_frame_id_;
   std_msgs::Int16MultiArray nav_status;
-  nav_status.data.clear();
+  nav_status.data = {0, 0, 0};
 
   bool hasNedVelocity = false;
 
@@ -2100,14 +2100,14 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
     {
       if (point.qualifier() == mscl::MipTypes::CH_FILTER_STATE) 
       {
-        nav_status.data[0] = point.as_uint();
+        nav_status.data[0] = point.as_uint16();
       } 
       else if (point.qualifier() == mscl::MipTypes::CH_DYNAMICS_MODE){
-        nav_status.data[1] = point.as_uint();
+        nav_status.data[1] = point.as_uint16();
       }
       else if (point.qualifier() == mscl::MipTypes::CH_FLAGS)
       {
-        nav_status.data[2] = point.as_uint();
+        nav_status.data[2] = point.as_uint16();
       }
     }
     break;  
