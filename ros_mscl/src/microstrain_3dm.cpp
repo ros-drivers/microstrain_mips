@@ -2086,6 +2086,8 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
   nav_msg_.header.seq = filter_valid_packet_count_;
   nav_msg_.header.stamp = ros::Time().fromNSec ( time );
   nav_msg_.header.frame_id = odom_frame_id_;
+  std_msgs::Int16MultiArray nav_status;
+  nav_status.data.clear();
 
   bool hasNedVelocity = false;
 
@@ -2094,6 +2096,22 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
     //ROS_INFO("Parsing Points...");
     switch (point.field())
     {
+    case mscl::MipTypes::CH_FIELD_ESTFILTER_FILTER_STATUS:
+    {
+      if (point.qualifier() == mscl::MipTypes::CH_FILTER_STATE) 
+      {
+        nav_status.data[0] = point.as_uint();
+      } 
+      else if (point.qualifier() == mscl::MipTypes::CH_DYNAMICS_MODE){
+        nav_status.data[1] = point.as_uint();
+      }
+      else if (point.qualifier() == mscl::MipTypes::CH_FLAGS)
+      {
+        nav_status.data[2] = point.as_uint();
+      }
+    }
+    break;  
+        
     //Estimated LLH Position
     case mscl::MipTypes::CH_FIELD_ESTFILTER_ESTIMATED_LLH_POS:
     {
@@ -2275,6 +2293,7 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
   // Publish
   filtered_imu_pub_.publish(filtered_imu_msg_);
   nav_pub_.publish(nav_msg_);
+  nav_status_pub_.publish(nav_status);
 }
 
 void Microstrain::parseGnssPacket(const mscl::MipDataPacket &packet)
