@@ -13,6 +13,7 @@ This code is licensed under MIT license (see LICENSE file for details)
 
 #include "mscl/mscl.h"
 #include "ros_mscl/status_msg.h"
+#include "ros_mscl/nav_status_msg.h"
 #include "microstrain_diagnostic_updater.h"
 #include <vector>
 #include <stdlib.h>
@@ -56,9 +57,11 @@ void Microstrain::run()
   bool auto_init = true;
   int heading_source;
   int declination_source;
+  float initial_heading;
   uint8_t declination_source_u8;
   uint8_t heading_source_u8;
   uint8_t readback_declination_source;
+  uint8_t initial_heading_u8;
   double declination;
 
   uint16_t duration = 0;
@@ -83,6 +86,7 @@ void Microstrain::run()
   private_nh.param("readback_settings", readback_settings, true);
   private_nh.param("save_settings", save_settings, true);
   private_nh.param("heading_source", heading_source, 0x1);
+  private_nh.param("initial_heading", initial_heading, (float)0.0);
 
   private_nh.param("auto_init", auto_init, true);
   private_nh.param("gps_rate", gps_rate_, 1);
@@ -129,14 +133,14 @@ void Microstrain::run()
   try
   {
     ROS_INFO("Attempting to open serial port <%s> at <%d> \n", port.c_str(), baudrate);
-    mscl::Connection connection = mscl::Connection::Serial(realpath(port.c_str(), NULL), baudrate);
+    mscl::Connection connection = mscl::Connection::Serial(realpath(port.c_str(), 0), baudrate);
     mscl::InertialNode inertialNode(connection);
     msclInertialNode = &inertialNode;
-
     const mscl::MipNodeFeatures &features = inertialNode.features();
 
     if (publish_imu_)
       imu_pub_ = node.advertise<sensor_msgs::Imu>("imu/data", 100);
+      
 
     // Publishes device status
     device_status_pub_ = node.advertise<ros_mscl::status_msg>("device/status", 100);
@@ -331,6 +335,11 @@ void Microstrain::run()
     //enable publishing of fields depending on what the device supports
     bool supportsGNSS = inertialNode.features().supportsCategory(mscl::MipTypes::DataClass::CLASS_GNSS);
     bool supportsFilter = inertialNode.features().supportsCategory(mscl::MipTypes::DataClass::CLASS_ESTFILTER);
+    mscl::HeadingUpdateOptionsList options = inertialNode.features().supportedHeadingUpdateOptions();
+    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_MAG_HARD_IRON_OFFSET))
+    {
+      mag_pub_ = node.advertise<sensor_msgs::MagneticField>("mag", 100);
+    }
 
     private_nh.param("publish_gps", publish_gps_, supportsGNSS);
     private_nh.param("publish_odom", publish_odom_, supportsFilter);
@@ -338,12 +347,13 @@ void Microstrain::run()
     if (supportsGNSS)
     {
       gps_pub_ = node.advertise<sensor_msgs::NavSatFix>("gps/fix", 100);
+      gps_odom_pub_ = node.advertise<nav_msgs::Odometry>("gps/odom", 100);
     }
 
     if (supportsFilter)
     {
       nav_pub_ = node.advertise<nav_msgs::Odometry>("nav/odom", 100);
-      nav_status_pub_ = node.advertise<std_msgs::Int16MultiArray>("nav/status", 100);
+      nav_status_pub_ = node.advertise<ros_mscl::nav_status_msg>("nav/status", 100);
       filtered_imu_pub_ = node.advertise<sensor_msgs::Imu>("filtered/imu/data", 100);
     }
   
@@ -363,7 +373,8 @@ void Microstrain::run()
         mscl::MipTypes::MipChannelFields ahrsChannels{
             mscl::MipTypes::ChannelField::CH_FIELD_SENSOR_SCALED_ACCEL_VEC,
             mscl::MipTypes::ChannelField::CH_FIELD_SENSOR_SCALED_GYRO_VEC,
-            mscl::MipTypes::ChannelField::CH_FIELD_SENSOR_ORIENTATION_QUATERNION};
+            mscl::MipTypes::ChannelField::CH_FIELD_SENSOR_ORIENTATION_QUATERNION,
+            mscl::MipTypes::ChannelField::CH_FIELD_SENSOR_SCALED_MAG_VEC};
 
         mscl::MipChannels supportedChannels;
         for (mscl::MipTypes::ChannelField channel : msclInertialNode->features().supportedChannelFields(mscl::MipTypes::DataClass::CLASS_AHRS_IMU))
@@ -393,8 +404,9 @@ void Microstrain::run()
 
         mscl::MipTypes::MipChannelFields gnssChannels{
             mscl::MipTypes::ChannelField::CH_FIELD_GNSS_LLH_POSITION,
-            mscl::MipTypes::ChannelField::CH_FIELD_GNSS_NED_VELOCITY,
-            mscl::MipTypes::ChannelField::CH_FIELD_GNSS_GPS_TIME};
+            mscl::MipTypes::ChannelField::CH_FIELD_GNSS_ECEF_VELOCITY,
+            mscl::MipTypes::ChannelField::CH_FIELD_GNSS_GPS_TIME,
+            mscl::MipTypes::ChannelField::CH_FIELD_GNSS_ECEF_POSITION};
 
         mscl::MipChannels supportedChannels;
         for (mscl::MipTypes::ChannelField channel : msclInertialNode->features().supportedChannelFields(mscl::MipTypes::DataClass::CLASS_GNSS))
@@ -461,10 +473,17 @@ void Microstrain::run()
               break;
             }
           }
+
+          inertialNode.setAutoInitialization(true);
+
+          if (heading_source == 0) 
+          {
+            ROS_INFO("Setting initial heading to %f", initial_heading);
+            inertialNode.setInitialHeading(initial_heading);
+          }
         }
+
         inertialNode.enableDataStream(mscl::MipTypes::DataClass::CLASS_ESTFILTER);
-        inertialNode.setAutoInitialization(true);
-        inertialNode.setInitialHeading(0);
       }
 
       if (save_settings)
@@ -936,8 +955,8 @@ bool Microstrain::set_filter_heading(ros_mscl::SetFilterHeading::Request &req,
   {
     try
     {
-      ROS_INFO("Resetting the Filter\n");
-      msclInertialNode->resetFilter();
+      //ROS_INFO("Resetting the Filter\n");
+      //msclInertialNode->resetFilter();
 
       ROS_INFO("Initializing the Filter with a heading angle\n");
       msclInertialNode->setInitialHeading(req.angle);
@@ -1103,7 +1122,6 @@ bool Microstrain::get_coning_sculling_comp(std_srvs::Trigger::Request &req, std_
 bool Microstrain::set_estimation_control_flags(ros_mscl::SetEstimationControlFlags::Request &req,
                                                ros_mscl::SetEstimationControlFlags::Response &res)
 {
-  res.success = true;
   if (msclInertialNode)
   {
     try
@@ -1123,7 +1141,7 @@ bool Microstrain::set_estimation_control_flags(ros_mscl::SetEstimationControlFla
   return res.success;
 }
 
-// Get estimatio control filter flags
+// Get estimation control filter flags
 bool Microstrain::get_estimation_control_flags(std_srvs::Trigger::Request &req,
                                                std_srvs::Trigger::Response &res)
 {
@@ -2012,14 +2030,17 @@ void Microstrain::parseSensorPacket(const mscl::MipDataPacket &packet)
       if (point.qualifier() == mscl::MipTypes::CH_X)
       {
         curr_ahrs_mag_x = point.as_float();
+        mag_msg_.magnetic_field.x = point.as_float();
       }
       else if (point.qualifier() == mscl::MipTypes::CH_Y)
       {
         curr_ahrs_mag_y = point.as_float();
+        mag_msg_.magnetic_field.y = point.as_float();
       }
       else if (point.qualifier() == mscl::MipTypes::CH_Z)
       {
         curr_ahrs_mag_z = point.as_float();
+        mag_msg_.magnetic_field.z = point.as_float();
       }
     }
     break;
@@ -2065,6 +2086,7 @@ void Microstrain::parseSensorPacket(const mscl::MipDataPacket &packet)
 
   // Publish
   imu_pub_.publish(imu_msg_);
+  mag_pub_.publish(mag_msg_);
 }
 
 void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
@@ -2086,8 +2108,6 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
   nav_msg_.header.seq = filter_valid_packet_count_;
   nav_msg_.header.stamp = ros::Time().fromNSec ( time );
   nav_msg_.header.frame_id = odom_frame_id_;
-  std_msgs::Int16MultiArray nav_status;
-  nav_status.data = {0, 0, 0};
 
   bool hasNedVelocity = false;
 
@@ -2100,14 +2120,15 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
     {
       if (point.qualifier() == mscl::MipTypes::CH_FILTER_STATE) 
       {
-        nav_status.data[0] = point.as_uint16();
+        nav_status_msg_.filter_state = point.as_uint16();
       } 
-      else if (point.qualifier() == mscl::MipTypes::CH_DYNAMICS_MODE){
-        nav_status.data[1] = point.as_uint16();
+      else if (point.qualifier() == mscl::MipTypes::CH_DYNAMICS_MODE)
+      {
+        nav_status_msg_.dynamics_mode = point.as_uint16();
       }
       else if (point.qualifier() == mscl::MipTypes::CH_FLAGS)
       {
-        nav_status.data[2] = point.as_uint16();
+        nav_status_msg_.status_flags = point.as_uint16();
       }
     }
     break;  
@@ -2119,23 +2140,19 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
 
       if (point.qualifier() == mscl::MipTypes::CH_LATITUDE)
       {
-        curr_filter_posLat = point.as_float();
+        curr_filter_posLat = point.as_double();
         nav_msg_.pose.pose.position.y = curr_filter_posLat;
       }
       else if (point.qualifier() == mscl::MipTypes::CH_LONGITUDE)
       {
-        curr_filter_posLong = point.as_float();
+        curr_filter_posLong = point.as_double();
         nav_msg_.pose.pose.position.x = curr_filter_posLong;
       }
       else if (point.qualifier() == mscl::MipTypes::CH_HEIGHT_ABOVE_ELLIPSOID)
       {
-        curr_filter_posHeight = point.as_float();
+        curr_filter_posHeight = point.as_double();
         nav_msg_.pose.pose.position.z = curr_filter_posHeight;
       }
-      
-      filtered_imu_msg_.linear_acceleration.x = curr_filter_posLong;
-      filtered_imu_msg_.linear_acceleration.y = curr_filter_posLat;
-      filtered_imu_msg_.linear_acceleration.z = curr_filter_posHeight;
     }
     break;
 
@@ -2155,6 +2172,7 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
         curr_filter_velDown = point.as_float();
       }
       
+      hasNedVelocity = true;
     }
     break;
 
@@ -2208,6 +2226,26 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
         curr_filter_angularRate_z = point.as_float();
         nav_msg_.twist.twist.angular.z = curr_filter_angularRate_z;
         filtered_imu_msg_.angular_velocity.z = curr_filter_angularRate_z;
+      }
+    }
+    break;
+    
+    case mscl::MipTypes::CH_FIELD_ESTFILTER_ESTIMATED_LINEAR_ACCEL:
+    {
+      if (point.qualifier() == mscl::MipTypes::CH_X)
+      {
+        nav_msg_.twist.twist.angular.x = point.as_float();
+        filtered_imu_msg_.linear_acceleration.x = nav_msg_.twist.twist.angular.x;
+      }
+      else if (point.qualifier() == mscl::MipTypes::CH_Y)
+      {
+        nav_msg_.twist.twist.angular.y = point.as_float();
+        filtered_imu_msg_.linear_acceleration.y = nav_msg_.twist.twist.angular.y;
+      }
+      else if (point.qualifier() == mscl::MipTypes::CH_Z)
+      {
+        nav_msg_.twist.twist.angular.z = point.as_float();
+        filtered_imu_msg_.linear_acceleration.z = nav_msg_.twist.twist.angular.z;
       }
     }
     break;
@@ -2293,7 +2331,7 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
   // Publish
   filtered_imu_pub_.publish(filtered_imu_msg_);
   nav_pub_.publish(nav_msg_);
-  nav_status_pub_.publish(nav_status);
+  nav_status_pub_.publish(nav_status_msg_);
 }
 
 void Microstrain::parseGnssPacket(const mscl::MipDataPacket &packet)
@@ -2312,6 +2350,10 @@ void Microstrain::parseGnssPacket(const mscl::MipDataPacket &packet)
   gps_msg_.header.seq = gps_valid_packet_count_;
   gps_msg_.header.stamp = ros::Time().fromNSec ( time );
   gps_msg_.header.frame_id = gps_frame_id_;
+  
+  gps_odom_msg_.header.seq = gps_valid_packet_count_;
+  gps_odom_msg_.header.stamp = ros::Time().fromNSec ( time );
+  gps_odom_msg_.header.frame_id = gps_frame_id_;
 
   for (mscl::MipDataPoint point : points)
   {
@@ -2347,18 +2389,55 @@ void Microstrain::parseGnssPacket(const mscl::MipDataPacket &packet)
         gps_msg_.position_covariance[8] = point.as_float();
         gps_msg_.position_covariance[8] *= gps_msg_.position_covariance[8];
       }
+    }//gps_msg_.status.status = curr_llh_pos_.valid_flags - 1;
+    
+    gps_msg_.status.service = 1;
+    gps_msg_.position_covariance_type = 2;
+
+    break;
+    
+    case mscl::MipTypes::ChannelField::CH_FIELD_GNSS_ECEF_VELOCITY:
+    {
+      if (point.qualifier() == mscl::MipTypes::CH_X)
+      {
+        gps_odom_msg_.twist.twist.linear.x = point.as_float();
+      }
+      else if (point.qualifier() == mscl::MipTypes::CH_Y)
+      {
+        gps_odom_msg_.twist.twist.linear.y = point.as_float();
+      }
+      else if (point.qualifier() == mscl::MipTypes::CH_Z)
+      {
+        gps_odom_msg_.twist.twist.linear.z = point.as_float();
+      }
     }
+    
+    break;
+    
+    case mscl::MipTypes::ChannelField::CH_FIELD_GNSS_ECEF_POSITION:
+    {
+      if (point.qualifier() == mscl::MipTypes::CH_X)
+      {
+        gps_odom_msg_.pose.pose.position.x = point.as_float();
+      }
+      else if (point.qualifier() == mscl::MipTypes::CH_Y)
+      {
+        gps_odom_msg_.pose.pose.position.y = point.as_float();
+      }
+      else if (point.qualifier() == mscl::MipTypes::CH_Z)
+      {
+        gps_odom_msg_.pose.pose.position.z = point.as_float();
+      }
+    }
+    
 
-      //gps_msg_.status.status = curr_llh_pos_.valid_flags - 1;
-      gps_msg_.status.service = 1;
-      gps_msg_.position_covariance_type = 2;
-
-      break;
+      
     }
   }
 
   // Publish
   gps_pub_.publish(gps_msg_);
+  gps_odom_pub_.publish(gps_odom_msg_);
 }
 
 // Send diagnostic information to device status topic and diagnostic aggregator
