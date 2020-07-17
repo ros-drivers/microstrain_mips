@@ -32,6 +32,7 @@ set(CMAKE_C_FLAGS "-Wno-implicit-function-declaration -Wno-incompatible-pointer-
 add_message_files(
   FILES
   status_msg.msg
+  nav_status_msg.msg
 )
 
 add_service_files(
