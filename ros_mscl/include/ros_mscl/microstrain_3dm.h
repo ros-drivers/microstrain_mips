@@ -23,6 +23,7 @@ This code is licensed under MIT license (see LICENSE file for details)
 #include "sensor_msgs/Imu.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 #include "geometry_msgs/Vector3.h"
+#include "sensor_msgs/MagneticField.h"
 #include "nav_msgs/Odometry.h"
 #include "std_msgs/Int8.h"
 #include "std_msgs/Int16MultiArray.h"
@@ -31,6 +32,7 @@ This code is licensed under MIT license (see LICENSE file for details)
 #include "std_srvs/Trigger.h"
 #include "std_msgs/String.h"
 #include "ros_mscl/status_msg.h"
+#include "ros_mscl/nav_status_msg.h"
 
 #include "mscl/mscl.h"
 
@@ -247,9 +249,9 @@ namespace Microstrain
   float curr_filter_velNorth;
   float curr_filter_velEast;
   float curr_filter_velDown;
-  float curr_filter_posLat;
-  float curr_filter_posLong;
-  float curr_filter_posHeight;
+  double curr_filter_posLat;
+  double curr_filter_posLong;
+  double curr_filter_posHeight;
   float curr_filter_roll;
   float curr_filter_pitch;
   float curr_filter_yaw;
@@ -270,22 +272,26 @@ namespace Microstrain
   // ROS
   ros::Publisher gps_pub_;
   ros::Publisher imu_pub_;
+  ros::Publisher mag_pub_;
   ros::Publisher filtered_imu_pub_;
   ros::Publisher nav_pub_;
+  ros::Publisher gps_odom_pub_;
   ros::Publisher nav_status_pub_;
   ros::Publisher bias_pub_;
   ros::Publisher device_status_pub_;
   sensor_msgs::NavSatFix gps_msg_;
+  sensor_msgs::MagneticField mag_msg_;
+  nav_msgs::Odometry gps_odom_msg_;
   sensor_msgs::Imu imu_msg_;
   sensor_msgs::Imu filtered_imu_msg_;
   nav_msgs::Odometry nav_msg_;
-  std_msgs::Int16MultiArray nav_status_msg_;
   geometry_msgs::Vector3 bias_msg_;
   std::string gps_frame_id_;
   std::string imu_frame_id_;
   std::string odom_frame_id_;
   std::string odom_child_frame_id_;
   ros_mscl::status_msg device_status_msg_;
+  ros_mscl::nav_status_msg nav_status_msg_;
   bool publish_gps_;
   bool publish_imu_;
   bool publish_odom_;
