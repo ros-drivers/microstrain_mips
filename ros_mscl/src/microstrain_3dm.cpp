@@ -1974,6 +1974,10 @@ void Microstrain::parseSensorPacket(const mscl::MipDataPacket &packet)
   imu_msg_.header.seq = ahrs_valid_packet_count_;
   imu_msg_.header.stamp = ros::Time().fromNSec ( time );
   imu_msg_.header.frame_id = imu_frame_id_;
+  
+  mag_msg_.header.seq = imu_msg_.header.seq;
+  mag_msg_.header.stamp = imu_msg_.header.stamp;
+  mag_msg_.header.frame_id = imu_msg_.header.frame_id;
 
   bool hasScaledAccel = false;
   bool hasScaledGyro = false;
