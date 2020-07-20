@@ -404,9 +404,8 @@ void Microstrain::run()
 
         mscl::MipTypes::MipChannelFields gnssChannels{
             mscl::MipTypes::ChannelField::CH_FIELD_GNSS_LLH_POSITION,
-            mscl::MipTypes::ChannelField::CH_FIELD_GNSS_ECEF_VELOCITY,
-            mscl::MipTypes::ChannelField::CH_FIELD_GNSS_GPS_TIME,
-            mscl::MipTypes::ChannelField::CH_FIELD_GNSS_ECEF_POSITION};
+            mscl::MipTypes::ChannelField::CH_FIELD_GNSS_NED_VELOCITY,
+            mscl::MipTypes::ChannelField::CH_FIELD_GNSS_GPS_TIME};
 
         mscl::MipChannels supportedChannels;
         for (mscl::MipTypes::ChannelField channel : msclInertialNode->features().supportedChannelFields(mscl::MipTypes::DataClass::CLASS_GNSS))
@@ -2166,14 +2165,17 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
       if (point.qualifier() == mscl::MipTypes::CH_NORTH)
       {
         curr_filter_velNorth = point.as_float();
+        nav_msg_.twist.twist.linear.x = point.as_float();
       }
       else if (point.qualifier() == mscl::MipTypes::CH_EAST)
       {
         curr_filter_velEast = point.as_float();
+        nav_msg_.twist.twist.linear.y = point.as_float();
       }
       else if (point.qualifier() == mscl::MipTypes::CH_DOWN)
       {
         curr_filter_velDown = point.as_float();
+        nav_msg_.twist.twist.linear.z = point.as_float();
       }
       
       hasNedVelocity = true;
@@ -2238,18 +2240,15 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
     {
       if (point.qualifier() == mscl::MipTypes::CH_X)
       {
-        nav_msg_.twist.twist.angular.x = point.as_float();
-        filtered_imu_msg_.linear_acceleration.x = nav_msg_.twist.twist.angular.x;
+        filtered_imu_msg_.linear_acceleration.x = point.as_float();
       }
       else if (point.qualifier() == mscl::MipTypes::CH_Y)
       {
-        nav_msg_.twist.twist.angular.y = point.as_float();
-        filtered_imu_msg_.linear_acceleration.y = nav_msg_.twist.twist.angular.y;
+        filtered_imu_msg_.linear_acceleration.y = point.as_float();
       }
       else if (point.qualifier() == mscl::MipTypes::CH_Z)
       {
-        nav_msg_.twist.twist.angular.z = point.as_float();
-        filtered_imu_msg_.linear_acceleration.z = nav_msg_.twist.twist.angular.z;
+        filtered_imu_msg_.linear_acceleration.z = point.as_float();
       }
     }
     break;
@@ -2357,7 +2356,8 @@ void Microstrain::parseGnssPacket(const mscl::MipDataPacket &packet)
   
   gps_odom_msg_.header.seq = gps_valid_packet_count_;
   gps_odom_msg_.header.stamp = ros::Time().fromNSec ( time );
-  gps_odom_msg_.header.frame_id = gps_frame_id_;
+  gps_odom_msg_.header.frame_id = odom_frame_id_;
+  gps_odom_msg_.child_frame_id = odom_child_frame_id_;
 
   for (mscl::MipDataPoint point : points)
   {
@@ -2369,14 +2369,17 @@ void Microstrain::parseGnssPacket(const mscl::MipDataPacket &packet)
       if (point.qualifier() == mscl::MipTypes::CH_LATITUDE)
       {
         gps_msg_.latitude = point.as_double();
+        gps_odom_msg_.pose.pose.position.y = point.as_double();
       }
       else if (point.qualifier() == mscl::MipTypes::CH_LONGITUDE)
       {
         gps_msg_.longitude = point.as_double();
+        gps_odom_msg_.pose.pose.position.x = point.as_double();
       }
       else if (point.qualifier() == mscl::MipTypes::CH_HEIGHT_ABOVE_ELLIPSOID)
       {
         gps_msg_.altitude = point.as_double();
+        gps_odom_msg_.pose.pose.position.z = point.as_double();
       }
       else if (point.qualifier() == mscl::MipTypes::CH_HEIGHT_ABOVE_MSL)
       {
@@ -2400,41 +2403,23 @@ void Microstrain::parseGnssPacket(const mscl::MipDataPacket &packet)
 
     break;
     
-    case mscl::MipTypes::ChannelField::CH_FIELD_GNSS_ECEF_VELOCITY:
+    case mscl::MipTypes::ChannelField::CH_FIELD_GNSS_NED_VELOCITY:
     {
-      if (point.qualifier() == mscl::MipTypes::CH_X)
+      if (point.qualifier() == mscl::MipTypes::CH_NORTH)
       {
         gps_odom_msg_.twist.twist.linear.x = point.as_float();
       }
-      else if (point.qualifier() == mscl::MipTypes::CH_Y)
+      else if (point.qualifier() == mscl::MipTypes::CH_EAST)
       {
         gps_odom_msg_.twist.twist.linear.y = point.as_float();
       }
-      else if (point.qualifier() == mscl::MipTypes::CH_Z)
+      else if (point.qualifier() == mscl::MipTypes::CH_DOWN)
       {
         gps_odom_msg_.twist.twist.linear.z = point.as_float();
       }
     }
     
     break;
-    
-    case mscl::MipTypes::ChannelField::CH_FIELD_GNSS_ECEF_POSITION:
-    {
-      if (point.qualifier() == mscl::MipTypes::CH_X)
-      {
-        gps_odom_msg_.pose.pose.position.x = point.as_float();
-      }
-      else if (point.qualifier() == mscl::MipTypes::CH_Y)
-      {
-        gps_odom_msg_.pose.pose.position.y = point.as_float();
-      }
-      else if (point.qualifier() == mscl::MipTypes::CH_Z)
-      {
-        gps_odom_msg_.pose.pose.position.z = point.as_float();
-      }
-    }
-    
-
       
     }
   }
