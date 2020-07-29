@@ -55,6 +55,11 @@
     <param name="dynamics_mode" value="1" type="int" />
     <param name="odom_frame_id" value="wgs84_odom_link" type="str" />
     <param name="odom_child_frame_id" value="base_link" type="str" />
+    
+    <param name="velocity_zupt_topic" value="/moving_vel" type="str" />
+    <param name="angular_zupt_topic" value="/moving_ang" type="str" />
+    <param name="velocity_zupt" value="true" type="bool" />
+    <param name="angular_zupt" value="true" type="bool" />
   </node>
 
   <!-- Diagnostics -->

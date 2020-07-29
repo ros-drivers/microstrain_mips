@@ -37,6 +37,7 @@ add_message_files(
 
 add_service_files(
   FILES
+  InitFilterEuler.srv
   SetAccelBias.srv
   SetGyroBias.srv
   SetHardIronValues.srv
@@ -53,6 +54,7 @@ add_service_files(
   SetEstimationControlFlags.srv
   SetDynamicsMode.srv
   SetZeroAngleUpdateThreshold.srv
+  SetZeroVelocityUpdateThreshold.srv
   SetTareOrientation.srv
   SetAccelNoise.srv
   SetGyroNoise.srv
@@ -61,6 +63,7 @@ add_service_files(
   SetAccelAdaptiveVals.srv
   SetMagAdaptiveVals.srv
   SetMagDipAdaptiveVals.srv
+  SetHeadingSource.srv
 )
 
 ###################################
@@ -183,6 +186,10 @@ add_executable(set_zero_angle_update_threshold_client src/set_zero_angle_update_
 
 add_executable(get_zero_angle_update_threshold_client src/get_zero_angle_update_threshold_client.cpp)
 
+add_executable(set_zero_velocity_update_threshold_client src/set_zero_velocity_update_threshold_client.cpp)
+
+add_executable(get_zero_velocity_update_threshold_client src/get_zero_velocity_update_threshold_client.cpp)
+
 add_executable(set_tare_orientation_client src/set_tare_orientation_client.cpp)
 
 add_executable(set_accel_noise_client src/set_accel_noise_client.cpp)
@@ -212,6 +219,12 @@ add_executable(set_mag_dip_adaptive_vals_client src/set_mag_dip_adaptive_vals_cl
 add_executable(get_mag_dip_adaptive_vals_client src/get_mag_dip_adaptive_vals_client.cpp)
 
 add_executable(get_accel_bias_model_client src/get_accel_bias_model_client.cpp)
+
+add_executable(cmded_vel_zupt_client src/cmded_vel_zupt_client.cpp)
+
+add_executable(cmded_ang_rate_zupt_client src/cmded_ang_rate_zupt_client.cpp)
+
+add_executable(set_heading_source_client src/set_heading_source_client.cpp)
 
 add_dependencies(set_accel_bias_client ros_mscl_gencpp)
 
@@ -277,6 +290,10 @@ add_dependencies(set_zero_angle_update_threshold_client ros_mscl_gencpp)
 
 add_dependencies(get_zero_angle_update_threshold_client ros_mscl_gencpp)
 
+add_dependencies(set_zero_velocity_update_threshold_client ros_mscl_gencpp)
+
+add_dependencies(get_zero_velocity_update_threshold_client ros_mscl_gencpp)
+
 add_dependencies(set_tare_orientation_client ros_mscl_gencpp)
 
 add_dependencies(set_accel_noise_client ros_mscl_gencpp)
@@ -307,6 +324,12 @@ add_dependencies(get_mag_dip_adaptive_vals_client ros_mscl_gencpp)
 
 add_dependencies(get_accel_bias_model_client ros_mscl_gencpp)
 
+add_dependencies(cmded_vel_zupt_client ros_mscl_gencpp)
+
+add_dependencies(cmded_ang_rate_zupt_client ros_mscl_gencpp)
+
+add_dependencies(set_heading_source_client ros_mscl_gencpp)
+
 
 # Linking
 
@@ -319,6 +342,11 @@ target_link_libraries(ros_mscl_node
   ${catkin_LIBRARIES}
 )
 
+target_link_libraries(cmded_vel_zupt_client ${catkin_LIBRARIES})
+
+target_link_libraries(cmded_ang_rate_zupt_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_heading_source_client ${catkin_LIBRARIES})
 
 target_link_libraries(set_accel_bias_client ${catkin_LIBRARIES})
 
@@ -383,6 +411,10 @@ target_link_libraries(get_diagnostic_report_client ${catkin_LIBRARIES})
 target_link_libraries(set_zero_angle_update_threshold_client ${catkin_LIBRARIES})
 
 target_link_libraries(get_zero_angle_update_threshold_client ${catkin_LIBRARIES})
+
+target_link_libraries(set_zero_velocity_update_threshold_client ${catkin_LIBRARIES})
+
+target_link_libraries(get_zero_velocity_update_threshold_client ${catkin_LIBRARIES})
 
 target_link_libraries(set_tare_orientation_client ${catkin_LIBRARIES})
 

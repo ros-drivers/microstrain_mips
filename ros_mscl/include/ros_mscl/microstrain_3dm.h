@@ -30,6 +30,7 @@ This code is licensed under MIT license (see LICENSE file for details)
 #include "std_msgs/MultiArrayLayout.h"
 #include "std_srvs/Empty.h"
 #include "std_srvs/Trigger.h"
+#include "std_msgs/Bool.h"
 #include "std_msgs/String.h"
 #include "ros_mscl/status_msg.h"
 #include "ros_mscl/nav_status_msg.h"
@@ -52,6 +53,7 @@ This code is licensed under MIT license (see LICENSE file for details)
 #include "ros_mscl/SetEstimationControlFlags.h"
 #include "ros_mscl/SetDynamicsMode.h"
 #include "ros_mscl/SetZeroAngleUpdateThreshold.h"
+#include "ros_mscl/SetZeroVelocityUpdateThreshold.h"
 #include "ros_mscl/SetTareOrientation.h"
 #include "ros_mscl/SetAccelNoise.h"
 #include "ros_mscl/SetGyroNoise.h"
@@ -59,6 +61,7 @@ This code is licensed under MIT license (see LICENSE file for details)
 #include "ros_mscl/SetGyroBiasModel.h"
 #include "ros_mscl/SetMagAdaptiveVals.h"
 #include "ros_mscl/SetMagDipAdaptiveVals.h"
+#include "ros_mscl/SetHeadingSource.h"
 
 
 #define MIP_SDK_GX4_45_IMU_STANDARD_MODE  0x01
@@ -109,6 +112,14 @@ namespace Microstrain
     void parseGnssPacket(const mscl::MipDataPacket& packet);
 
     void device_status_callback();
+    
+    void velocity_zupt_callback(const std_msgs::Bool& state);
+    
+    void velZupt();
+    
+    void ang_zupt_callback(const std_msgs::Bool& state);
+    
+    void angZupt();
 
     bool set_accel_bias(ros_mscl::SetAccelBias::Request &req, ros_mscl::SetAccelBias::Response &res);
 
@@ -137,6 +148,12 @@ namespace Microstrain
     bool set_filter_euler(ros_mscl::SetFilterEuler::Request &req, ros_mscl::SetFilterEuler::Response &res);
 
     bool set_filter_heading(ros_mscl::SetFilterHeading::Request &req, ros_mscl::SetFilterHeading::Response &res);
+    
+    bool cmded_vel_zupt(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    
+    bool cmded_ang_rate_zupt(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    
+    bool set_heading_source(ros_mscl::SetHeadingSource::Request &req, ros_mscl::SetHeadingSource::Response &res);
 
     bool set_accel_bias_model(ros_mscl::SetAccelBiasModel::Request &req, ros_mscl::SetAccelBiasModel::Response &res);
 
@@ -173,6 +190,10 @@ namespace Microstrain
     bool set_zero_angle_update_threshold(ros_mscl::SetZeroAngleUpdateThreshold::Request &req, ros_mscl::SetZeroAngleUpdateThreshold::Response &res);
 
     bool get_zero_angle_update_threshold(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    
+    bool set_zero_velocity_update_threshold(ros_mscl::SetZeroVelocityUpdateThreshold::Request &req, ros_mscl::SetZeroVelocityUpdateThreshold::Response &res);
+    
+    bool get_zero_velocity_update_threshold(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_tare_orientation(ros_mscl::SetTareOrientation::Request &req, ros_mscl::SetTareOrientation::Response &res);
 
@@ -203,6 +224,8 @@ namespace Microstrain
     bool get_mag_dip_adaptive_vals(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res );
 
     bool get_accel_bias_model(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    
+    
 
     bool get_model_gps()
     {
@@ -279,6 +302,8 @@ namespace Microstrain
   ros::Publisher nav_status_pub_;
   ros::Publisher bias_pub_;
   ros::Publisher device_status_pub_;
+  ros::Subscriber vel_state_sub_;
+  ros::Subscriber ang_state_sub_;
   sensor_msgs::NavSatFix gps_msg_;
   sensor_msgs::MagneticField mag_msg_;
   nav_msgs::Odometry gps_odom_msg_;
@@ -290,12 +315,22 @@ namespace Microstrain
   std::string imu_frame_id_;
   std::string odom_frame_id_;
   std::string odom_child_frame_id_;
+  std::string velocity_zupt_topic;
+  std::string angular_zupt_topic;
+  
   ros_mscl::status_msg device_status_msg_;
   ros_mscl::nav_status_msg nav_status_msg_;
   bool publish_gps_;
   bool publish_imu_;
   bool publish_odom_;
   bool publish_bias_;
+  
+  bool angular_zupt;
+  bool velocity_zupt;
+  
+  bool vel_still;
+  bool ang_still;
+  
   std::vector<double> imu_linear_cov_;
   std::vector<double> imu_angular_cov_;
   std::vector<double> imu_orientation_cov_;
