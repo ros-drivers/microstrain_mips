@@ -237,7 +237,7 @@ void Microstrain::run()
 
     ros::ServiceServer set_sensor_vehicle_frame_trans_service;
     ros::ServiceServer get_sensor_vehicle_frame_trans_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_TRANSFORM_EULER))
+    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_EULER))
     {
       set_sensor_vehicle_frame_trans_service = node.advertiseService("set_sensor_vehicle_frame_trans", &Microstrain::set_sensor_vehicle_frame_trans, this);
       get_sensor_vehicle_frame_trans_service = node.advertiseService("get_sensor_vehicle_frame_trans", &Microstrain::get_sensor_vehicle_frame_trans, this);
@@ -1136,9 +1136,9 @@ bool Microstrain::set_sensor_vehicle_frame_trans(ros_mscl::SetSensorVehicleFrame
     {
       ROS_INFO("Setting the sensor to vehicle frame transformation\n");
       mscl::EulerAngles angles(req.angle.x, req.angle.y, req.angle.z);
-      msclInertialNode->setSensorToVehicleTransform_eulerAngles(angles);
+      msclInertialNode->setSensorToVehicleRotation_eulerAngles(angles);
 
-      angles = msclInertialNode->getSensorToVehicleTransform_eulerAngles();
+      angles = msclInertialNode->getSensorToVehicleRotation_eulerAngles();
       ROS_INFO("Transformation successfully set.\n");
       ROS_INFO("New angles: %f roll %f pitch %f yaw\n",
                angles.roll(), angles.pitch(), angles.yaw());
@@ -1162,7 +1162,7 @@ bool Microstrain::get_sensor_vehicle_frame_trans(std_srvs::Trigger::Request &req
   {
     try
     {
-      mscl::EulerAngles angles = msclInertialNode->getSensorToVehicleTransform_eulerAngles();
+      mscl::EulerAngles angles = msclInertialNode->getSensorToVehicleRotation_eulerAngles();
       ROS_INFO("Sensor Vehicle Frame Transformation Angles: %f roll %f pitch %f yaw\n",
                angles.roll(), angles.pitch(), angles.yaw());
       res.success = true;
