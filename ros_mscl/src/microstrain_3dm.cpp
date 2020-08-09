@@ -44,10 +44,7 @@ Microstrain::Microstrain() : // Initialization list
 {
   // pass
 }
-Microstrain::~Microstrain()
-{
-  // pass
-}
+
 void Microstrain::run()
 {
   // Variables for device configuration, ROS parameters, etc.

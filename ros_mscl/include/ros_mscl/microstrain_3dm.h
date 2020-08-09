@@ -99,7 +99,7 @@ namespace Microstrain
     Microstrain();
 
     /** Destructor */
-    ~Microstrain();
+    ~Microstrain() = default;
 
     /**
      * Main run loop
