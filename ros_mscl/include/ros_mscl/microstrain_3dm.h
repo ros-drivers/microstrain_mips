@@ -46,8 +46,8 @@ This code is licensed under MIT license (see LICENSE file for details)
 #include "ros_mscl/SetFilterHeading.h"
 #include "ros_mscl/SetAccelBiasModel.h"
 #include "ros_mscl/SetAccelAdaptiveVals.h"
-#include "ros_mscl/SetSensorVehicleFrameTrans.h"
-#include "ros_mscl/SetSensorVehicleFrameOffset.h"
+#include "ros_mscl/SetSensorToVehicleRotation.h"
+#include "ros_mscl/SetSensorToVehicleTranslation.h"
 #include "ros_mscl/SetReferencePosition.h"
 #include "ros_mscl/SetConingScullingComp.h"
 #include "ros_mscl/SetEstimationControlFlags.h"
@@ -159,11 +159,11 @@ namespace Microstrain
 
     bool set_accel_adaptive_vals(ros_mscl::SetAccelAdaptiveVals::Request &req, ros_mscl::SetAccelAdaptiveVals::Response &res);
 
-    bool set_sensor_vehicle_frame_trans(ros_mscl::SetSensorVehicleFrameTrans::Request &req, ros_mscl::SetSensorVehicleFrameTrans::Response &res);
+    bool set_sensor_to_vehicle_rotation(ros_mscl::SetSensorToVehicleRotation::Request &req, ros_mscl::SetSensorToVehicleRotation::Response &res);
 
     bool get_sensor_vehicle_frame_trans(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
-    bool set_sensor_vehicle_frame_offset(ros_mscl::SetSensorVehicleFrameOffset::Request &req, ros_mscl::SetSensorVehicleFrameOffset::Response &res);
+    bool set_sensor_to_vehicle_translation(ros_mscl::SetSensorToVehicleTranslation::Request &req, ros_mscl::SetSensorToVehicleTranslation::Response &res);
 
     bool get_sensor_vehicle_frame_offset(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 

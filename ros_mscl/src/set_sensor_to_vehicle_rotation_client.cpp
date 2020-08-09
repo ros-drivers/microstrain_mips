@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "ros_mscl/SetSensorVehicleFrameTrans.h"
+#include "ros_mscl/SetSensorToVehicleRotation.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_bias_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<ros_mscl::SetSensorVehicleFrameTrans>("SetSensorVehicleFrameTrans");
-  ros_mscl::SetSensorVehicleFrameTrans srv;
+  ros::ServiceClient client = n.serviceClient<ros_mscl::SetSensorToVehicleRotation>("SetSensorToVehicleRotation");
+  ros_mscl::SetSensorToVehicleRotation srv;
 
   srv.request.angle.x = atoll(argv[1]);
   srv.request.angle.y = atoll(argv[2]);
