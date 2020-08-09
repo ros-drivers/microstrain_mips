@@ -64,6 +64,7 @@ add_service_files(
   SetMagAdaptiveVals.srv
   SetMagDipAdaptiveVals.srv
   SetHeadingSource.srv
+  GetSensorToVehicleTransform.srv
 )
 
 ###################################

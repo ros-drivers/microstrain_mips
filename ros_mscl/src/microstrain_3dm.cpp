@@ -256,6 +256,13 @@ void Microstrain::run()
       get_accel_bias_service = node.advertiseService("get_accel_bias", &Microstrain::get_accel_bias, this);
     }
 
+    ros::ServiceServer get_sensor_to_vehicle_transform_service;
+    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_OFFSET) &&
+        inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_EULER))
+    {
+      get_sensor_to_vehicle_transform_service = node.advertiseService("get_sensor_to_vehicle_transform", &Microstrain::get_sensor_to_vehicle_transform, this);
+    }
+
     ros::ServiceServer set_gyro_bias_service;
     ros::ServiceServer get_gyro_bias_service;
     if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_GYRO_BIAS))
@@ -2136,7 +2143,37 @@ bool Microstrain::get_sensor_vehicle_frame_offset(std_srvs::Trigger::Request &re
   }
 
   return res.success;
-} 
+}
+
+bool Microstrain::get_sensor_to_vehicle_transform(ros_mscl::GetSensorToVehicleTransform::Request &req, ros_mscl::GetSensorToVehicleTransform::Response &res)
+{
+  res.success = false;
+  if (!msclInertialNode)
+  {
+    return res.success;
+  }
+
+  try
+  {
+    ROS_INFO("Getting transform from sensor frame to vehicle frame");
+    const mscl::PositionOffset translation = msclInertialNode->getSensorToVehicleOffset();
+    const mscl::EulerAngles rotation = msclInertialNode->getSensorToVehicleRotation_eulerAngles();
+    /* set translational components from the device-stored values */
+    res.translation.x = translation.x();
+    res.translation.y = translation.y();
+    res.translation.z = translation.z();
+    /* set rotational components from the device-stored values */
+    tf2::Quaternion quat;
+    quat.setRPY(rotation.roll(), rotation.pitch(), rotation.yaw());
+    tf2::convert(quat, res.rotation);
+    res.success = true;
+  }
+  catch (mscl::Error &e)
+  {
+    ROS_ERROR("Error getting sensor to vehicle transform: '%s'", e.what());
+  }
+  return res.success;
+}
   
 bool Microstrain::cmded_vel_zupt(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
 {

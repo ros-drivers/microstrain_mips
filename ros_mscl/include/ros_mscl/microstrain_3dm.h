@@ -35,6 +35,8 @@ This code is licensed under MIT license (see LICENSE file for details)
 #include "ros_mscl/status_msg.h"
 #include "ros_mscl/nav_status_msg.h"
 
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
+
 #include "mscl/mscl.h"
 
 #include "ros_mscl/SetAccelBias.h"
@@ -62,6 +64,8 @@ This code is licensed under MIT license (see LICENSE file for details)
 #include "ros_mscl/SetMagAdaptiveVals.h"
 #include "ros_mscl/SetMagDipAdaptiveVals.h"
 #include "ros_mscl/SetHeadingSource.h"
+
+#include "ros_mscl/GetSensorToVehicleTransform.h"
 
 
 #define MIP_SDK_GX4_45_IMU_STANDARD_MODE  0x01
@@ -166,6 +170,8 @@ namespace Microstrain
     bool set_sensor_to_vehicle_translation(ros_mscl::SetSensorToVehicleTranslation::Request &req, ros_mscl::SetSensorToVehicleTranslation::Response &res);
 
     bool get_sensor_vehicle_frame_offset(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+
+    bool get_sensor_to_vehicle_transform(ros_mscl::GetSensorToVehicleTransform::Request &req, ros_mscl::GetSensorToVehicleTransform::Response &res);
 
     bool set_reference_position(ros_mscl::SetReferencePosition::Request &req, ros_mscl::SetReferencePosition::Response &res);
 
