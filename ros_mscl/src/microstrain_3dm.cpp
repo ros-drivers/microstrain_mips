@@ -257,8 +257,8 @@ void Microstrain::run()
     }
 
     ros::ServiceServer get_sensor_to_vehicle_transform_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_OFFSET) &&
-        inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_EULER))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_OFFSET) &&
+        msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_EULER))
     {
       get_sensor_to_vehicle_transform_service = node.advertiseService("get_sensor_to_vehicle_transform", &Microstrain::get_sensor_to_vehicle_transform, this);
     }
