@@ -139,9 +139,7 @@ void Microstrain::run()
   {
     ROS_INFO("Attempting to open serial port <%s> at <%d> \n", port.c_str(), baudrate);
     mscl::Connection connection = mscl::Connection::Serial(realpath(port.c_str(), 0), baudrate);
-    mscl::InertialNode inertialNode(connection);
-    msclInertialNode = &inertialNode;
-    const mscl::MipNodeFeatures &features = inertialNode.features();
+    msclInertialNode = std::unique_ptr<mscl::InertialNode>(new mscl::InertialNode(connection));
 
     if (publish_imu_)
       imu_pub_ = node.advertise<sensor_msgs::Imu>("imu/data", 100);
@@ -157,14 +155,14 @@ void Microstrain::run()
     ros::ServiceServer reset_filter = node.advertiseService("reset_kf", &Microstrain::reset_callback, this);
 
     ros::ServiceServer gyro_bias_capture_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_CAP_GYRO_BIAS))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_CAP_GYRO_BIAS))
     {
       gyro_bias_capture_service = node.advertiseService("gyro_bias_capture", &Microstrain::gyro_bias_capture, this);
     }
 
     ros::ServiceServer get_soft_iron_matrix_service;
     ros::ServiceServer set_soft_iron_matrix_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_MAG_SOFT_IRON_MATRIX))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_MAG_SOFT_IRON_MATRIX))
     {
       set_soft_iron_matrix_service = node.advertiseService("set_soft_iron_matrix", &Microstrain::set_soft_iron_matrix, this);
       get_soft_iron_matrix_service = node.advertiseService("get_soft_iron_matrix", &Microstrain::get_soft_iron_matrix, this);
@@ -172,39 +170,39 @@ void Microstrain::run()
 
     ros::ServiceServer set_complementary_filter_service;
     ros::ServiceServer get_complementary_filter_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_COMPLEMENTARY_FILTER_SETTINGS))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_COMPLEMENTARY_FILTER_SETTINGS))
     {
       set_complementary_filter_service = node.advertiseService("set_complementary_filter", &Microstrain::set_complementary_filter, this);
       get_complementary_filter_service = node.advertiseService("get_complementary_filter", &Microstrain::get_complementary_filter, this);
     }
     
     ros::ServiceServer cmded_vel_zupt_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_CMDED_ZERO_VEL_UPDATE))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_CMDED_ZERO_VEL_UPDATE))
     {
       cmded_vel_zupt_service = node.advertiseService("cmded_vel_zupt", &Microstrain::cmded_vel_zupt, this);
     }
     
     ros::ServiceServer cmded_ang_rate_zupt_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_CMDED_ZERO_ANG_RATE_UPDATE))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_CMDED_ZERO_ANG_RATE_UPDATE))
     {
       cmded_ang_rate_zupt_service = node.advertiseService("cmded_ang_rate_zupt", &Microstrain::cmded_ang_rate_zupt, this);
     }
     
     ros::ServiceServer set_filter_euler_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_COMPLEMENTARY_FILTER_SETTINGS))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_COMPLEMENTARY_FILTER_SETTINGS))
     {
       set_filter_euler_service = node.advertiseService("set_filter_euler", &Microstrain::set_filter_euler, this);
     }
 
     ros::ServiceServer set_filter_heading_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_INIT_HEADING))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_INIT_HEADING))
     {
       set_filter_heading_service = node.advertiseService("set_filter_heading", &Microstrain::set_filter_heading, this);
     }
 
     ros::ServiceServer set_accel_bias_model_service;
     ros::ServiceServer get_gyro_bias_model_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_ACCEL_BIAS_MODEL_PARAMS))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_ACCEL_BIAS_MODEL_PARAMS))
     {
       set_accel_bias_model_service = node.advertiseService("set_accel_bias_model", &Microstrain::set_accel_bias_model, this);
       get_gyro_bias_model_service = node.advertiseService("get_gyro_bias_model", &Microstrain::get_gyro_bias_model, this);
@@ -212,7 +210,7 @@ void Microstrain::run()
 
     ros::ServiceServer set_accel_adaptive_vals_service;
     ros::ServiceServer get_accel_adaptive_vals_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_GRAV_MAGNITUDE_ERR_ADAPT_MEASURE))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_GRAV_MAGNITUDE_ERR_ADAPT_MEASURE))
     {
       set_accel_adaptive_vals_service = node.advertiseService("set_accel_adaptive_vals", &Microstrain::set_accel_adaptive_vals, this);
       get_accel_adaptive_vals_service = node.advertiseService("get_accel_adaptive_vals", &Microstrain::get_accel_adaptive_vals, this);
@@ -220,7 +218,7 @@ void Microstrain::run()
     
     ros::ServiceServer set_zero_angle_update_threshold_service;
     ros::ServiceServer get_zero_angle_update_threshold_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_ZERO_ANG_RATE_UPDATE_CTRL))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_ZERO_ANG_RATE_UPDATE_CTRL))
     {
       set_zero_angle_update_threshold_service = node.advertiseService("set_zero_angle_update_threshold", &Microstrain::set_zero_angle_update_threshold, this);
       get_zero_angle_update_threshold_service = node.advertiseService("get_zero_angle_update_threshold", &Microstrain::get_zero_angle_update_threshold, this);
@@ -229,7 +227,7 @@ void Microstrain::run()
     ros::ServiceServer set_zero_velocity_update_threshold_service;
     ros::ServiceServer get_zero_velocity_update_threshold_service;
     
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_ZERO_VEL_UPDATE_CTRL))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_ZERO_VEL_UPDATE_CTRL))
     {
       set_zero_velocity_update_threshold_service = node.advertiseService("set_zero_velocity_update_threshold", &Microstrain::set_zero_velocity_update_threshold, this);
       get_zero_velocity_update_threshold_service = node.advertiseService("get_zero_velocity_update_threshold", &Microstrain::get_zero_velocity_update_threshold, this);
@@ -237,7 +235,7 @@ void Microstrain::run()
 
     ros::ServiceServer set_sensor_vehicle_frame_trans_service;
     ros::ServiceServer get_sensor_vehicle_frame_trans_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_EULER))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_EULER))
     {
       set_sensor_vehicle_frame_trans_service = node.advertiseService("set_sensor_vehicle_frame_trans", &Microstrain::set_sensor_vehicle_frame_trans, this);
       get_sensor_vehicle_frame_trans_service = node.advertiseService("get_sensor_vehicle_frame_trans", &Microstrain::get_sensor_vehicle_frame_trans, this);
@@ -245,7 +243,7 @@ void Microstrain::run()
 
     ros::ServiceServer set_sensor_vehicle_frame_offset_service;
     ros::ServiceServer get_sensor_vehicle_frame_offset_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_OFFSET))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_OFFSET))
     {
       set_sensor_vehicle_frame_offset_service = node.advertiseService("set_sensor_vehicle_frame_offset", &Microstrain::set_sensor_vehicle_frame_offset, this);
       get_sensor_vehicle_frame_offset_service = node.advertiseService("get_sensor_vehicle_frame_offset", &Microstrain::get_sensor_vehicle_frame_offset, this);
@@ -253,7 +251,7 @@ void Microstrain::run()
 
     ros::ServiceServer set_accel_bias_service;
     ros::ServiceServer get_accel_bias_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_ACCEL_BIAS))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_ACCEL_BIAS))
     {
       set_accel_bias_service = node.advertiseService("set_accel_bias", &Microstrain::set_accel_bias, this);
       get_accel_bias_service = node.advertiseService("get_accel_bias", &Microstrain::get_accel_bias, this);
@@ -261,7 +259,7 @@ void Microstrain::run()
 
     ros::ServiceServer set_gyro_bias_service;
     ros::ServiceServer get_gyro_bias_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_GYRO_BIAS))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_GYRO_BIAS))
     {
       set_gyro_bias_service = node.advertiseService("set_gyro_bias", &Microstrain::set_gyro_bias, this);
       get_gyro_bias_service = node.advertiseService("get_gyro_bias", &Microstrain::get_gyro_bias, this);
@@ -269,7 +267,7 @@ void Microstrain::run()
 
     ros::ServiceServer set_hard_iron_values_service;
     ros::ServiceServer get_hard_iron_values_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_MAG_HARD_IRON_OFFSET))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_MAG_HARD_IRON_OFFSET))
     {
       set_hard_iron_values_service = node.advertiseService("set_hard_iron_values", &Microstrain::set_hard_iron_values, this);
       get_hard_iron_values_service = node.advertiseService("get_hard_iron_values", &Microstrain::get_hard_iron_values, this);
@@ -277,7 +275,7 @@ void Microstrain::run()
 
     ros::ServiceServer set_reference_position_service;
     ros::ServiceServer get_reference_position_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SET_REF_POSITION))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SET_REF_POSITION))
     {
       set_reference_position_service = node.advertiseService("set_reference_position", &Microstrain::set_reference_position, this);
       get_reference_position_service = node.advertiseService("get_reference_position", &Microstrain::get_reference_position, this);
@@ -285,7 +283,7 @@ void Microstrain::run()
 
     ros::ServiceServer set_coning_sculling_comp_service;
     ros::ServiceServer get_coning_sculling_comp_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_CONING_SCULLING))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_CONING_SCULLING))
     {
       set_coning_sculling_comp_service = node.advertiseService("set_coning_sculling_comp", &Microstrain::set_coning_sculling_comp, this);
       get_coning_sculling_comp_service = node.advertiseService("get_coning_sculling_comp", &Microstrain::get_coning_sculling_comp, this);
@@ -293,7 +291,7 @@ void Microstrain::run()
 
     ros::ServiceServer set_estimation_control_flags_service;
     ros::ServiceServer get_estimation_control_flags_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_BIAS_EST_CTRL))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_BIAS_EST_CTRL))
     {
       set_estimation_control_flags_service = node.advertiseService("set_estimation_control_flags", &Microstrain::set_estimation_control_flags, this);
       get_estimation_control_flags_service = node.advertiseService("get_estimation_control_flags", &Microstrain::get_estimation_control_flags, this);
@@ -301,7 +299,7 @@ void Microstrain::run()
 
     ros::ServiceServer set_dynamics_mode_service;
     ros::ServiceServer get_dynamics_mode_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_VEHIC_DYNAMICS_MODE))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_VEHIC_DYNAMICS_MODE))
     {
       set_dynamics_mode_service = node.advertiseService("set_dynamics_mode", &Microstrain::set_dynamics_mode, this);
       get_dynamics_mode_service = node.advertiseService("get_dynamics_mode", &Microstrain::get_dynamics_mode, this);
@@ -309,21 +307,21 @@ void Microstrain::run()
 
 /*    ros::ServiceServer set_zero_angle_update_threshold_service;
     ros::ServiceServer get_zero_angle_update_threshold_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_ZERO_ANG_RATE_UPDATE_CTRL))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_ZERO_ANG_RATE_UPDATE_CTRL))
     {
       set_zero_angle_update_threshold_service = node.advertiseService("set_zero_angle_update_threshold", &Microstrain::set_zero_angle_update_threshold, this);
       get_zero_angle_update_threshold_service = node.advertiseService("get_zero_angle_update_threshold", &Microstrain::get_zero_angle_update_threshold, this);
     }  */
 
     ros::ServiceServer set_tare_orientation_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_TARE_ORIENT))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_TARE_ORIENT))
     {
       set_tare_orientation_service = node.advertiseService("set_tare_orientation", &Microstrain::set_tare_orientation, this);
     }
 
     ros::ServiceServer set_accel_noise_service;
     ros::ServiceServer get_accel_noise_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_ACCEL_WHT_NSE_STD_DEV))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_ACCEL_WHT_NSE_STD_DEV))
     {
       set_accel_noise_service = node.advertiseService("set_accel_noise", &Microstrain::set_accel_noise, this);
       get_accel_noise_service = node.advertiseService("get_accel_noise", &Microstrain::get_accel_noise, this);
@@ -331,7 +329,7 @@ void Microstrain::run()
 
     ros::ServiceServer set_gyro_noise_service;
     ros::ServiceServer get_gyro_noise_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_GYRO_WHT_NSE_STD_DEV))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_GYRO_WHT_NSE_STD_DEV))
     {
       set_gyro_noise_service = node.advertiseService("set_gyro_noise", &Microstrain::set_gyro_noise, this);
       get_gyro_noise_service = node.advertiseService("get_gyro_noise", &Microstrain::get_gyro_noise, this);
@@ -339,7 +337,7 @@ void Microstrain::run()
 
     ros::ServiceServer set_mag_noise_service;
     ros::ServiceServer get_mag_noise_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_HARD_IRON_OFFSET_PROCESS_NOISE))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_HARD_IRON_OFFSET_PROCESS_NOISE))
     {
       set_mag_noise_service = node.advertiseService("set_mag_noise", &Microstrain::set_mag_noise, this);
       get_mag_noise_service = node.advertiseService("get_mag_noise", &Microstrain::get_mag_noise, this);
@@ -347,7 +345,7 @@ void Microstrain::run()
 
     ros::ServiceServer set_mag_adaptive_vals_service;
     ros::ServiceServer get_mag_adaptive_vals_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_MAG_MAGNITUDE_ERR_ADAPT_MEASURE))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_MAG_MAGNITUDE_ERR_ADAPT_MEASURE))
     {
       set_mag_adaptive_vals_service = node.advertiseService("set_mag_adaptive_vals", &Microstrain::set_mag_adaptive_vals, this);
       get_mag_adaptive_vals_service = node.advertiseService("get_mag_adaptive_vals", &Microstrain::get_mag_adaptive_vals, this);
@@ -355,27 +353,27 @@ void Microstrain::run()
 
     ros::ServiceServer set_mag_dip_adaptive_vals_service;
     ros::ServiceServer get_mag_dip_adaptive_vals_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_MAG_DIP_ANGLE_ERR_ADAPT_MEASURE))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_MAG_DIP_ANGLE_ERR_ADAPT_MEASURE))
     {
       set_mag_dip_adaptive_vals_service = node.advertiseService("set_mag_dip_adaptive_vals", &Microstrain::set_mag_dip_adaptive_vals, this);
       get_mag_dip_adaptive_vals_service = node.advertiseService("get_mag_dip_adaptive_vals", &Microstrain::get_mag_dip_adaptive_vals, this);
     }
     
     ros::ServiceServer set_heading_source_service;
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_HEADING_UPDATE_CTRL))
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_HEADING_UPDATE_CTRL))
     {
       set_heading_source_service = node.advertiseService("set_heading_source", &Microstrain::set_heading_source, this);
     }
 
     //print the device info
-    ROS_INFO("Model Name: %s\n", inertialNode.modelName().c_str());
-    ROS_INFO("Serial Number: %s\n", inertialNode.serialNumber().c_str());
+    ROS_INFO("Model Name: %s\n", msclInertialNode->modelName().c_str());
+    ROS_INFO("Serial Number: %s\n", msclInertialNode->serialNumber().c_str());
 
     //enable publishing of fields depending on what the device supports
-    bool supportsGNSS = inertialNode.features().supportsCategory(mscl::MipTypes::DataClass::CLASS_GNSS);
-    bool supportsFilter = inertialNode.features().supportsCategory(mscl::MipTypes::DataClass::CLASS_ESTFILTER);
-    mscl::HeadingUpdateOptionsList options = inertialNode.features().supportedHeadingUpdateOptions();
-    if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_MAG_HARD_IRON_OFFSET))
+    bool supportsGNSS = msclInertialNode->features().supportsCategory(mscl::MipTypes::DataClass::CLASS_GNSS);
+    bool supportsFilter = msclInertialNode->features().supportsCategory(mscl::MipTypes::DataClass::CLASS_ESTFILTER);
+    mscl::HeadingUpdateOptionsList options = msclInertialNode->features().supportedHeadingUpdateOptions();
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_MAG_HARD_IRON_OFFSET))
     {
       mag_pub_ = node.advertise<sensor_msgs::MagneticField>("mag", 100);
     }
@@ -401,7 +399,7 @@ void Microstrain::run()
     {
       // Put into idle mode
       ROS_INFO("Setting to Idle: Stopping data streams and/or waking from sleep");
-      inertialNode.setToIdle();
+      msclInertialNode->setToIdle();
 
       // AHRS Setup
       if (publish_imu_)
@@ -424,15 +422,15 @@ void Microstrain::run()
           }
         }
 
-        inertialNode.setActiveChannelFields(mscl::MipTypes::DataClass::CLASS_AHRS_IMU, supportedChannels);
+        msclInertialNode->setActiveChannelFields(mscl::MipTypes::DataClass::CLASS_AHRS_IMU, supportedChannels);
 
-        if (features.supportsCommand(mscl::MipTypes::Command::CMD_EF_DECLINATION_SRC ) && device_setup)
+        if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_DECLINATION_SRC ) && device_setup)
         {
           ROS_INFO("Setting Declination Source");
-          inertialNode.setDeclinationSource(mscl::GeographicSourceOptions(static_cast<mscl::InertialTypes::GeographicSourceOption>(declination_source_u8), declination));
+          msclInertialNode->setDeclinationSource(mscl::GeographicSourceOptions(static_cast<mscl::InertialTypes::GeographicSourceOption>(declination_source_u8), declination));
         }
 
-        inertialNode.enableDataStream(mscl::MipTypes::DataClass::CLASS_AHRS_IMU);
+        msclInertialNode->enableDataStream(mscl::MipTypes::DataClass::CLASS_AHRS_IMU);
       }
 
       //GNSS setup
@@ -456,9 +454,9 @@ void Microstrain::run()
         }
 
         //set the GNSS channel fields
-        inertialNode.setActiveChannelFields(mscl::MipTypes::DataClass::CLASS_GNSS, supportedChannels);
+        msclInertialNode->setActiveChannelFields(mscl::MipTypes::DataClass::CLASS_GNSS, supportedChannels);
 
-        inertialNode.enableDataStream(mscl::MipTypes::DataClass::CLASS_GNSS);
+        msclInertialNode->enableDataStream(mscl::MipTypes::DataClass::CLASS_GNSS);
       }
 
       // Filter setup
@@ -490,48 +488,48 @@ void Microstrain::run()
           }
         }
 
-        inertialNode.setActiveChannelFields(mscl::MipTypes::DataClass::CLASS_ESTFILTER, supportedChannels);
+        msclInertialNode->setActiveChannelFields(mscl::MipTypes::DataClass::CLASS_ESTFILTER, supportedChannels);
 
         //set dynamics mode
-        if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_VEHIC_DYNAMICS_MODE) && device_setup)
+        if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_VEHIC_DYNAMICS_MODE) && device_setup)
         {
-          mscl::VehicleModeTypes modes = inertialNode.features().supportedVehicleModeTypes();
+          mscl::VehicleModeTypes modes = msclInertialNode->features().supportedVehicleModeTypes();
           if (std::find(modes.begin(), modes.end(), static_cast<mscl::InertialTypes::VehicleModeType>(dynamics_mode)) != modes.end())
           {
             ROS_INFO("Setting dynamics mode to %#04X", static_cast<mscl::InertialTypes::VehicleModeType>(dynamics_mode));
-            inertialNode.setVehicleDynamicsMode(static_cast<mscl::InertialTypes::VehicleModeType>(dynamics_mode));
+            msclInertialNode->setVehicleDynamicsMode(static_cast<mscl::InertialTypes::VehicleModeType>(dynamics_mode));
           }
         }
 
         // Set heading Source
-        if (inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_HEADING_UPDATE_CTRL) && device_setup)
+        if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_HEADING_UPDATE_CTRL) && device_setup)
         {
-          for (mscl::HeadingUpdateOptions headingSources : inertialNode.features().supportedHeadingUpdateOptions())
+          for (mscl::HeadingUpdateOptions headingSources : msclInertialNode->features().supportedHeadingUpdateOptions())
           {
             if (headingSources.AsOptionId() == static_cast<mscl::InertialTypes::HeadingUpdateEnableOption>(heading_source))
             {
               ROS_INFO("Setting heading source to %#04X", heading_source);
-              inertialNode.setHeadingUpdateControl(mscl::HeadingUpdateOptions(static_cast<mscl::InertialTypes::HeadingUpdateEnableOption>(heading_source)));
+              msclInertialNode->setHeadingUpdateControl(mscl::HeadingUpdateOptions(static_cast<mscl::InertialTypes::HeadingUpdateEnableOption>(heading_source)));
               break;
             }
           }
 
-          inertialNode.setAutoInitialization(true);
+          msclInertialNode->setAutoInitialization(true);
 
           if (heading_source == 0) 
           {
             ROS_INFO("Setting initial heading to %f", initial_heading);
-            inertialNode.setInitialHeading(initial_heading);
+            msclInertialNode->setInitialHeading(initial_heading);
           }
         }
 
-        inertialNode.enableDataStream(mscl::MipTypes::DataClass::CLASS_ESTFILTER);
+        msclInertialNode->enableDataStream(mscl::MipTypes::DataClass::CLASS_ESTFILTER);
       }
 
       if (save_settings)
       {
         //save the current settings as startup settings
-        inertialNode.saveSettingsAsStartup();
+        msclInertialNode->saveSettingsAsStartup();
       }
     }
 
@@ -545,19 +543,19 @@ void Microstrain::run()
     ROS_INFO("Setting spin rate to <%d>", spin_rate);
     ros::Rate r(spin_rate); // Rate in Hz
 
-    ros_mscl::RosDiagnosticUpdater ros_diagnostic_updater(msclInertialNode);
+    ros_mscl::RosDiagnosticUpdater ros_diagnostic_updater;
     
     ros::AsyncSpinner spinner(4);
     spinner.start();
     vel_still = false;
     ang_still = false;
     
-    if (velocity_zupt == 1 && inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_CMDED_ZERO_VEL_UPDATE))
+    if (velocity_zupt == 1 && msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_CMDED_ZERO_VEL_UPDATE))
     {
       vel_state_sub_ = node.subscribe(velocity_zupt_topic.c_str(), 1000, &Microstrain::velocity_zupt_callback, this);
     }
     
-    if (angular_zupt == 1 && inertialNode.features().supportsCommand(mscl::MipTypes::Command::CMD_EF_CMDED_ZERO_ANG_RATE_UPDATE))
+    if (angular_zupt == 1 && msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_CMDED_ZERO_ANG_RATE_UPDATE))
     {
       ang_state_sub_ = node.subscribe(angular_zupt_topic.c_str(), 1000, &Microstrain::ang_zupt_callback, this);
     }
@@ -566,7 +564,7 @@ void Microstrain::run()
     while (ros::ok())
     {
       //spinner.start();
-      mscl::MipDataPackets packets = inertialNode.getDataPackets(1000);
+      mscl::MipDataPackets packets = msclInertialNode->getDataPackets(1000);
 
       for (mscl::MipDataPacket packet : packets)
       {

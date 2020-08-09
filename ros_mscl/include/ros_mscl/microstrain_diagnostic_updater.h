@@ -12,7 +12,7 @@ namespace ros_mscl
   class RosDiagnosticUpdater : private diagnostic_updater::Updater
   {
   public:
-    RosDiagnosticUpdater(mscl::InertialNode *device);
+    RosDiagnosticUpdater();
 
     void generalDiagnostics(diagnostic_updater::DiagnosticStatusWrapper &stat);
     void packetDiagnostics(diagnostic_updater::DiagnosticStatusWrapper &stat);

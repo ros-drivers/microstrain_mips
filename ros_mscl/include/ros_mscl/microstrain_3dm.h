@@ -244,7 +244,7 @@ namespace Microstrain
   void print_packet_stats();
 
   // Variables/fields
-  mscl::InertialNode *msclInertialNode;
+  std::unique_ptr<mscl::InertialNode> msclInertialNode;
 
   //Packet Counters (valid, timeout, and checksum errors)
   uint32_t filter_valid_packet_count_;
