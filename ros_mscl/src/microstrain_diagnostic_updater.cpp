@@ -9,7 +9,7 @@
 namespace ros_mscl
 {
 
-RosDiagnosticUpdater::RosDiagnosticUpdater(mscl::InertialNode *device)
+RosDiagnosticUpdater::RosDiagnosticUpdater()
 {
   setHardwareID("unknown");
   add("general", this, &RosDiagnosticUpdater::generalDiagnostics);
