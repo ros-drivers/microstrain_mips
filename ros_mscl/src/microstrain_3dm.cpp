@@ -44,10 +44,7 @@ Microstrain::Microstrain() : // Initialization list
 {
   // pass
 }
-Microstrain::~Microstrain()
-{
-  // pass
-}
+
 void Microstrain::run()
 {
   // Variables for device configuration, ROS parameters, etc.
@@ -233,19 +230,19 @@ void Microstrain::run()
       get_zero_velocity_update_threshold_service = node.advertiseService("get_zero_velocity_update_threshold", &Microstrain::get_zero_velocity_update_threshold, this);
     }
 
-    ros::ServiceServer set_sensor_vehicle_frame_trans_service;
+    ros::ServiceServer set_sensor_to_vehicle_rotation_service;
     ros::ServiceServer get_sensor_vehicle_frame_trans_service;
     if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_EULER))
     {
-      set_sensor_vehicle_frame_trans_service = node.advertiseService("set_sensor_vehicle_frame_trans", &Microstrain::set_sensor_vehicle_frame_trans, this);
+      set_sensor_to_vehicle_rotation_service = node.advertiseService("set_sensor_to_vehicle_rotation", &Microstrain::set_sensor_to_vehicle_rotation, this);
       get_sensor_vehicle_frame_trans_service = node.advertiseService("get_sensor_vehicle_frame_trans", &Microstrain::get_sensor_vehicle_frame_trans, this);
     }
 
-    ros::ServiceServer set_sensor_vehicle_frame_offset_service;
+    ros::ServiceServer set_sensor_to_vehicle_translation_service;
     ros::ServiceServer get_sensor_vehicle_frame_offset_service;
     if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_OFFSET))
     {
-      set_sensor_vehicle_frame_offset_service = node.advertiseService("set_sensor_vehicle_frame_offset", &Microstrain::set_sensor_vehicle_frame_offset, this);
+      set_sensor_to_vehicle_translation_service = node.advertiseService("set_sensor_to_vehicle_translation", &Microstrain::set_sensor_to_vehicle_translation, this);
       get_sensor_vehicle_frame_offset_service = node.advertiseService("get_sensor_vehicle_frame_offset", &Microstrain::get_sensor_vehicle_frame_offset, this);
     }
 
@@ -255,6 +252,13 @@ void Microstrain::run()
     {
       set_accel_bias_service = node.advertiseService("set_accel_bias", &Microstrain::set_accel_bias, this);
       get_accel_bias_service = node.advertiseService("get_accel_bias", &Microstrain::get_accel_bias, this);
+    }
+
+    ros::ServiceServer get_sensor_to_vehicle_transform_service;
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_OFFSET) &&
+        msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_EULER))
+    {
+      get_sensor_to_vehicle_transform_service = node.advertiseService("get_sensor_to_vehicle_transform", &Microstrain::get_sensor_to_vehicle_transform, this);
     }
 
     ros::ServiceServer set_gyro_bias_service;
@@ -1124,8 +1128,8 @@ bool Microstrain::set_filter_heading(ros_mscl::SetFilterHeading::Request &req,
 }
 
 // Set sensor to vehicle frame transformation
-bool Microstrain::set_sensor_vehicle_frame_trans(ros_mscl::SetSensorVehicleFrameTrans::Request &req,
-                                                 ros_mscl::SetSensorVehicleFrameTrans::Response &res)
+bool Microstrain::set_sensor_to_vehicle_rotation(ros_mscl::SetSensorToVehicleRotation::Request &req,
+                                                 ros_mscl::SetSensorToVehicleRotation::Response &res)
 {
   res.success = false;
   if (msclInertialNode)
@@ -2089,8 +2093,8 @@ bool Microstrain::set_dynamics_mode(ros_mscl::SetDynamicsMode::Request &req,
 }
 
 // Set sensor to vehicle frame offset. Only in 45
-bool Microstrain::set_sensor_vehicle_frame_offset(ros_mscl::SetSensorVehicleFrameOffset::Request &req,
-                                                  ros_mscl::SetSensorVehicleFrameOffset::Response &res)
+bool Microstrain::set_sensor_to_vehicle_translation(ros_mscl::SetSensorToVehicleTranslation::Request &req,
+                                                    ros_mscl::SetSensorToVehicleTranslation::Response &res)
 {
   res.success = false;
   if (msclInertialNode)
@@ -2137,7 +2141,37 @@ bool Microstrain::get_sensor_vehicle_frame_offset(std_srvs::Trigger::Request &re
   }
 
   return res.success;
-} 
+}
+
+bool Microstrain::get_sensor_to_vehicle_transform(ros_mscl::GetSensorToVehicleTransform::Request &req, ros_mscl::GetSensorToVehicleTransform::Response &res)
+{
+  res.success = false;
+  if (!msclInertialNode)
+  {
+    return res.success;
+  }
+
+  try
+  {
+    ROS_INFO("Getting transform from sensor frame to vehicle frame");
+    const mscl::PositionOffset translation = msclInertialNode->getSensorToVehicleOffset();
+    const mscl::EulerAngles rotation = msclInertialNode->getSensorToVehicleRotation_eulerAngles();
+    /* set translational components from the device-stored values */
+    res.translation.x = translation.x();
+    res.translation.y = translation.y();
+    res.translation.z = translation.z();
+    /* set rotational components from the device-stored values */
+    tf2::Quaternion quat;
+    quat.setRPY(rotation.roll(), rotation.pitch(), rotation.yaw());
+    tf2::convert(quat, res.rotation);
+    res.success = true;
+  }
+  catch (mscl::Error &e)
+  {
+    ROS_ERROR("Error getting sensor to vehicle transform: '%s'", e.what());
+  }
+  return res.success;
+}
   
 bool Microstrain::cmded_vel_zupt(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
 {

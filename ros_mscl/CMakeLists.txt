@@ -47,8 +47,8 @@ add_service_files(
   SetFilterHeading.srv
   SetAccelBiasModel.srv
   SetAccelAdaptiveVals.srv
-  SetSensorVehicleFrameTrans.srv
-  SetSensorVehicleFrameOffset.srv
+  SetSensorToVehicleRotation.srv
+  SetSensorToVehicleTranslation.srv
   SetReferencePosition.srv
   SetConingScullingComp.srv
   SetEstimationControlFlags.srv
@@ -64,6 +64,7 @@ add_service_files(
   SetMagAdaptiveVals.srv
   SetMagDipAdaptiveVals.srv
   SetHeadingSource.srv
+  GetSensorToVehicleTransform.srv
 )
 
 ###################################
@@ -154,11 +155,11 @@ add_executable(set_accel_bias_model_client src/set_accel_bias_model_client.cpp)
 
 add_executable(set_accel_adaptive_vals_client src/set_accel_adaptive_vals_client.cpp)
 
-add_executable(set_sensor_vehicle_frame_trans_client src/set_sensor_vehicle_frame_trans_client.cpp)
+add_executable(set_sensor_to_vehicle_rotation_client src/set_sensor_to_vehicle_rotation_client.cpp)
 
 add_executable(get_sensor_vehicle_frame_trans_client src/get_sensor_vehicle_frame_trans_client.cpp)
 
-add_executable(set_sensor_vehicle_frame_offset_client src/set_sensor_vehicle_frame_offset_client.cpp)
+add_executable(set_sensor_to_vehicle_translation_client src/set_sensor_to_vehicle_translation_client.cpp)
 
 add_executable(get_sensor_vehicle_frame_offset_client src/get_sensor_vehicle_frame_offset_client.cpp)
 
@@ -258,11 +259,11 @@ add_dependencies(set_accel_bias_model_client ros_mscl_gencpp)
 
 add_dependencies(set_accel_adaptive_vals_client ros_mscl_gencpp)
 
-add_dependencies(set_sensor_vehicle_frame_trans_client ros_mscl_gencpp)
+add_dependencies(set_sensor_to_vehicle_rotation_client ros_mscl_gencpp)
 
 add_dependencies(get_sensor_vehicle_frame_trans_client ros_mscl_gencpp)
 
-add_dependencies(set_sensor_vehicle_frame_offset_client ros_mscl_gencpp)
+add_dependencies(set_sensor_to_vehicle_translation_client ros_mscl_gencpp)
 
 add_dependencies(get_sensor_vehicle_frame_offset_client ros_mscl_gencpp)
 
@@ -380,11 +381,11 @@ target_link_libraries(set_accel_bias_model_client ${catkin_LIBRARIES})
 
 target_link_libraries(set_accel_adaptive_vals_client ${catkin_LIBRARIES})
 
-target_link_libraries(set_sensor_vehicle_frame_trans_client ${catkin_LIBRARIES})
+target_link_libraries(set_sensor_to_vehicle_rotation_client ${catkin_LIBRARIES})
 
 target_link_libraries(get_sensor_vehicle_frame_trans_client ${catkin_LIBRARIES})
 
-target_link_libraries(set_sensor_vehicle_frame_offset_client ${catkin_LIBRARIES})
+target_link_libraries(set_sensor_to_vehicle_translation_client ${catkin_LIBRARIES})
 
 target_link_libraries(get_sensor_vehicle_frame_offset_client ${catkin_LIBRARIES})
 
