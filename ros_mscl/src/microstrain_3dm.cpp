@@ -2391,8 +2391,6 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
   nav_msg_.header.stamp = ros::Time().fromNSec ( time );
   nav_msg_.header.frame_id = odom_frame_id_;
 
-  bool hasNedVelocity = false;
-
   for (mscl::MipDataPoint point : points)
   {
     //ROS_INFO("Parsing Points...");
@@ -2456,8 +2454,6 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
         curr_filter_velDown = point.as_float();
         nav_msg_.twist.twist.linear.z = point.as_float();
       }
-      
-      hasNedVelocity = true;
     }
     break;
 
@@ -2578,31 +2574,6 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
     default:
       break;
     }
-  }
-
-  //TODO: only do these if all the required fields are enabled/collected?
-  if (hasNedVelocity)
-  {
-    // rotate velocities from NED to sensor coordinates
-    // Constructor takes x, y, z, w
-    tf2::Quaternion nav_quat(curr_filter_quaternion_.as_floatAt(2),
-                             curr_filter_quaternion_.as_floatAt(1),
-                             curr_filter_quaternion_.as_floatAt(3) * -1.0,
-                             curr_filter_quaternion_.as_floatAt(0));
-
-    tf2::Vector3 vel_enu(curr_filter_velEast,
-                         curr_filter_velNorth,
-                         curr_filter_velDown * -1.0);
-
-    tf2::Vector3 vel_in_sensor_frame = tf2::quatRotate(nav_quat.inverse(), vel_enu);
-
-    nav_msg_.twist.twist.linear.x = vel_in_sensor_frame[0];
-    nav_msg_.twist.twist.linear.y = vel_in_sensor_frame[1];
-    nav_msg_.twist.twist.linear.z = vel_in_sensor_frame[2];
-    
-    //filtered_imu_msg_.linear_acceleration.x = nav_msg_.twist.twist.linear.x;
-    //filtered_imu_msg_.linear_acceleration.y = nav_msg_.twist.twist.linear.y;
-    //filtered_imu_msg_.linear_acceleration.z = nav_msg_.twist.twist.linear.z;
   }
   
   std::copy(imu_linear_cov_.begin(), imu_linear_cov_.end(),
