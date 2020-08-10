@@ -888,13 +888,13 @@ void Microstrain::angZupt() {
 bool Microstrain::gyro_bias_capture(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
 {
   res.success = false;
-  ROS_INFO("Performing Gyro Bias capture.\nPlease keep device stationary during the 5 second gyro bias capture interval\n");
+  ROS_INFO("Performing Gyro Bias capture.\nPlease keep device stationary during the 10 second gyro bias capture interval\n");
 
   if (msclInertialNode)
   {
     try
     {
-      mscl::GeometricVector biasVector = msclInertialNode->captureGyroBias(30000);
+      mscl::GeometricVector biasVector = msclInertialNode->captureGyroBias(10000);
 
       ROS_INFO("Gyro Bias Captured:\nbias_vector[0] = %f\nbias_vector[1] = %f\nbias_vector[2] = %f\n\n",
                biasVector.x(), biasVector.y(), biasVector.z());
