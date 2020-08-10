@@ -2600,9 +2600,9 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
     nav_msg_.twist.twist.linear.y = vel_in_sensor_frame[1];
     nav_msg_.twist.twist.linear.z = vel_in_sensor_frame[2];
     
-    filtered_imu_msg_.linear_acceleration.x = nav_msg_.twist.twist.linear.x;
-    filtered_imu_msg_.linear_acceleration.y = nav_msg_.twist.twist.linear.y;
-    filtered_imu_msg_.linear_acceleration.z = nav_msg_.twist.twist.linear.z;
+    //filtered_imu_msg_.linear_acceleration.x = nav_msg_.twist.twist.linear.x;
+    //filtered_imu_msg_.linear_acceleration.y = nav_msg_.twist.twist.linear.y;
+    //filtered_imu_msg_.linear_acceleration.z = nav_msg_.twist.twist.linear.z;
   }
   
   std::copy(imu_linear_cov_.begin(), imu_linear_cov_.end(),
