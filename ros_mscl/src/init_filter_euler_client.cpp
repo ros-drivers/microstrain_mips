@@ -1,20 +1,19 @@
 #include "ros/ros.h"
-#include "ros_mscl/SetBias.h"
+#include "ros_mscl/InitFilterEuler.h"
 #include <cstdlib>
 
 
 int main(int argc, char **argv){
 
-  ros::init(argc, argv, "set_bias_client");
+  ros::init(argc, argv, "init_filter_euler_client");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<ros_mscl::SetBias>("SetBias");
-  ros_mscl::SetBias srv;
+  ros::ServiceClient client = n.serviceClient<ros_mscl::InitFilterEuler>("InitFilterEuler");
+  ros_mscl::InitFilterEuler srv;
 
-  srv.request.code = atoll(argv[1]);
-  srv.request.bias_data_vector_1.x = atoll(argv[2]);
-  srv.request.bias_data_vector_1.y = atoll(argv[3]);
-  srv.request.bias_data_vector_1.z = atoll(argv[4]);
+  srv.request.angle.x = atoll(argv[1]);
+  srv.request.angle.y = atoll(argv[2]);
+  srv.request.angle.z = atoll(argv[3]);
 
 
   if (client.call(srv))
