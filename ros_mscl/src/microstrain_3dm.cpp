@@ -303,9 +303,11 @@ void Microstrain::run()
 
     //Kalman filter heading source service
     ros::ServiceServer set_heading_source_service;
+    ros::ServiceServer get_heading_source_service;
     if(msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_HEADING_UPDATE_CTRL))
     {
       set_heading_source_service = node.advertiseService("set_heading_source", &Microstrain::set_heading_source, this);
+      get_heading_source_service = node.advertiseService("get_heading_source", &Microstrain::get_heading_source, this);
     }
 
     //Kalman filter commanded ZUPT service
@@ -1329,6 +1331,36 @@ bool Microstrain::set_heading_source(ros_mscl::SetHeadingSource::Request &req,
           break;
         }
       }
+    }
+    catch(mscl::Error &e)
+    {
+      ROS_ERROR("Error: %s", e.what());
+    }
+  }
+
+  return res.success;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// Get Heading Source Service
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool Microstrain::get_heading_source(std_srvs::Trigger::Request &req,
+                                     std_srvs::Trigger::Response &res)
+{
+  res.success = false;
+  ROS_INFO("Getting the heading source\n");
+
+  if(msclInertialNode)
+  {
+    try
+    {
+      mscl::HeadingUpdateOptions source = msclInertialNode->getHeadingUpdateControl();
+
+      ROS_INFO("Current heading source is %#04X", source);
+
+      res.success = true;
     }
     catch(mscl::Error &e)
     {
@@ -3026,17 +3058,17 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
 
     case mscl::MipTypes::CH_FIELD_ESTFILTER_ESTIMATED_LLH_UNCERT:
     {
-      if (point.qualifier() == mscl::MipTypes::CH_NORTH)
+      if(point.qualifier() == mscl::MipTypes::CH_NORTH)
       {
         curr_filter_pos_uncert_north = point.as_float();
         nav_msg_.pose.covariance[0]  = pow(curr_filter_pos_uncert_north, 2);
       }
-      else if (point.qualifier() == mscl::MipTypes::CH_EAST)
+      else if(point.qualifier() == mscl::MipTypes::CH_EAST)
       {
         curr_filter_pos_uncert_east = point.as_float();
         nav_msg_.pose.covariance[7] = pow(curr_filter_pos_uncert_east, 2);
       }
-      else if (point.qualifier() == mscl::MipTypes::CH_DOWN)
+      else if(point.qualifier() == mscl::MipTypes::CH_DOWN)
       {
         curr_filter_pos_uncert_down  = point.as_float();
         nav_msg_.pose.covariance[14] = pow(curr_filter_pos_uncert_down, 2);
@@ -3046,17 +3078,17 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
 
     case mscl::MipTypes::CH_FIELD_ESTFILTER_ESTIMATED_NED_UNCERT:
     {
-      if (point.qualifier() == mscl::MipTypes::CH_NORTH)
+      if(point.qualifier() == mscl::MipTypes::CH_NORTH)
       {
         curr_filter_vel_uncert_north  = point.as_float();
         nav_msg_.twist.covariance[0]  = pow(curr_filter_vel_uncert_north, 2);
       }
-      else if (point.qualifier() == mscl::MipTypes::CH_EAST)
+      else if(point.qualifier() == mscl::MipTypes::CH_EAST)
       {
         curr_filter_vel_uncert_east  = point.as_float();
         nav_msg_.twist.covariance[7] = pow(curr_filter_vel_uncert_east, 2);
       }
-      else if (point.qualifier() == mscl::MipTypes::CH_DOWN)
+      else if(point.qualifier() == mscl::MipTypes::CH_DOWN)
       {
         curr_filter_vel_uncert_down   = point.as_float();
         nav_msg_.twist.covariance[14] = pow(curr_filter_vel_uncert_down, 2);
@@ -3066,19 +3098,19 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
 
     case mscl::MipTypes::CH_FIELD_ESTFILTER_ESTIMATED_ATT_UNCERT_EULER:
     {
-      if (point.qualifier() == mscl::MipTypes::CH_ROLL)
+      if(point.qualifier() == mscl::MipTypes::CH_ROLL)
       {
         curr_filter_att_uncert_roll                 = point.as_float();
         nav_msg_.pose.covariance[21]                = pow(curr_filter_att_uncert_roll, 2);
         filtered_imu_msg_.orientation_covariance[0] = nav_msg_.pose.covariance[21];
       }
-      else if (point.qualifier() == mscl::MipTypes::CH_PITCH)
+      else if(point.qualifier() == mscl::MipTypes::CH_PITCH)
       {
         curr_filter_att_uncert_pitch                = point.as_float();
         nav_msg_.pose.covariance[28]                = pow(curr_filter_att_uncert_pitch, 2);
         filtered_imu_msg_.orientation_covariance[4] = nav_msg_.pose.covariance[28];
       }
-      else if (point.qualifier() == mscl::MipTypes::CH_YAW)
+      else if(point.qualifier() == mscl::MipTypes::CH_YAW)
       {
         curr_filter_att_uncert_yaw                  = point.as_float();
         nav_msg_.pose.covariance[35]                = pow(curr_filter_att_uncert_yaw, 2);

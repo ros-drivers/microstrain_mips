@@ -157,6 +157,7 @@ namespace Microstrain
     bool init_filter_heading(ros_mscl::SetFilterHeading::Request &req, ros_mscl::SetFilterHeading::Response &res);
   
     bool set_heading_source(ros_mscl::SetHeadingSource::Request &req, ros_mscl::SetHeadingSource::Response &res);
+    bool get_heading_source(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_reference_position(ros_mscl::SetReferencePosition::Request &req, ros_mscl::SetReferencePosition::Response &res);
     bool get_reference_position(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
