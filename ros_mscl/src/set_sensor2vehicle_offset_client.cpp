@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "ros_mscl/SetSensorToVehicleTranslation.h"
+#include "ros_mscl/SetSensor2VehicleOffset.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_sensor2vehicle_offset");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<ros_mscl::SetSensorToVehicleTranslation>("SetSensorToVehicleOffset");
-  ros_mscl::SetSensorToVehicleTranslation srv;
+  ros::ServiceClient client = n.serviceClient<ros_mscl::SetSensor2VehicleOffset>("SetSensor2VehicleOffset");
+  ros_mscl::SetSensor2VehicleOffset srv;
 
   srv.request.offset.x = atoll(argv[1]);
   srv.request.offset.y = atoll(argv[2]);

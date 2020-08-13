@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include "ros_mscl/SetSensorToVehicleRotation.h"
+#include "ros_mscl/SetSensor2VehicleRotation.h"
 #include <cstdlib>
 
 
@@ -8,8 +8,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "set_sensor2vehicle_rotation");
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<ros_mscl::SetSensorToVehicleRotation>("SetSensorToVehicleRotation");
-  ros_mscl::SetSensorToVehicleRotation srv;
+  ros::ServiceClient client = n.serviceClient<ros_mscl::SetSensor2VehicleRotation>("SetSensor2VehicleRotation");
+  ros_mscl::SetSensor2VehicleRotation srv;
 
   srv.request.angle.x = atoll(argv[1]);
   srv.request.angle.y = atoll(argv[2]);

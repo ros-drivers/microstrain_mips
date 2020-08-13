@@ -11,7 +11,7 @@ int main(int argc, char **argv){
   ros::ServiceClient client = n.serviceClient<ros_mscl::SetEstimationControlFlags>("SetEstimationControlFlags");
   ros_mscl::SetEstimationControlFlags srv;
 
-  srv.request.flag = atoll(argv[1]);
+  srv.request.flags = atoll(argv[1]);
 
   if (client.call(srv))
   {

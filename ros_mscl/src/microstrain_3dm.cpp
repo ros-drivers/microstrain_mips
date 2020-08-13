@@ -439,9 +439,7 @@ void Microstrain::run()
     //Enable publishing of fields depending on what the device supports
     bool supportsGNSS   = msclInertialNode->features().supportsCategory(mscl::MipTypes::DataClass::CLASS_GNSS);
     bool supportsFilter = msclInertialNode->features().supportsCategory(mscl::MipTypes::DataClass::CLASS_ESTFILTER);
-    
-    //mscl::HeadingUpdateOptionsList options = msclInertialNode->features().supportedHeadingUpdateOptions();
-    
+        
     private_nh.param("publish_gps",  publish_gps_,  supportsGNSS);
     private_nh.param("publish_odom", publish_odom_, supportsFilter);
 
@@ -820,7 +818,7 @@ void Microstrain::angZupt()
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool Microstrain::reset_filter(std_srvs::Empty::Request &req,
-                                 std_srvs::Empty::Response &res)
+                               std_srvs::Empty::Response &res)
 {
   ROS_INFO("Resetting filter\n");
 
@@ -844,8 +842,8 @@ bool Microstrain::reset_filter(std_srvs::Empty::Request &req,
 // Initialize Filter (Euler Angles) Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::init_filter_euler(ros_mscl::SetFilterEuler::Request &req,
-                                    ros_mscl::SetFilterEuler::Response &res)
+bool Microstrain::init_filter_euler(ros_mscl::InitFilterEuler::Request &req,
+                                    ros_mscl::InitFilterEuler::Response &res)
 {
   res.success = false;
   ROS_INFO("Initializing the Filter with Euler angles\n");
@@ -875,8 +873,8 @@ bool Microstrain::init_filter_euler(ros_mscl::SetFilterEuler::Request &req,
 // Initialize Filter (Heading Angle) Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::init_filter_heading(ros_mscl::SetFilterHeading::Request &req,
-                                      ros_mscl::SetFilterHeading::Response &res)
+bool Microstrain::init_filter_heading(ros_mscl::InitFilterHeading::Request &req,
+                                      ros_mscl::InitFilterHeading::Response &res)
 {
   res.success = false;
 
@@ -945,8 +943,8 @@ bool Microstrain::set_accel_bias(ros_mscl::SetAccelBias::Request &req,
 // Get Accel Bias Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_accel_bias(std_srvs::Trigger::Request &req,
-                                 std_srvs::Trigger::Response &res)
+bool Microstrain::get_accel_bias(ros_mscl::GetAccelBias::Request &req,
+                                 ros_mscl::GetAccelBias::Response &res)
 {
   res.success = false;
   ROS_INFO("Getting accel bias values\n");
@@ -960,7 +958,11 @@ bool Microstrain::get_accel_bias(std_srvs::Trigger::Request &req,
       ROS_INFO("Accel bias vector values are: %f %f %f.\n",
                biasVector.x(), biasVector.y(), biasVector.z());
 
-      res.success = true;
+      res.bias.x = biasVector.x();
+      res.bias.y = biasVector.y();
+      res.bias.z = biasVector.z();
+
+     res.success = true;
     }
     catch(mscl::Error &e)
     {
@@ -1018,8 +1020,8 @@ bool Microstrain::set_gyro_bias(ros_mscl::SetGyroBias::Request &req,
 // Get Gyro Bias Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_gyro_bias(std_srvs::Trigger::Request &req,
-                                std_srvs::Trigger::Response &res)
+bool Microstrain::get_gyro_bias(ros_mscl::GetGyroBias::Request &req,
+                                ros_mscl::GetGyroBias::Response &res)
 {
   res.success = false;
   ROS_INFO("Getting gyro bias values");
@@ -1032,6 +1034,10 @@ bool Microstrain::get_gyro_bias(std_srvs::Trigger::Request &req,
       ROS_INFO("Gyro bias vector values are: %f %f %f",
                biasVector.x(), biasVector.y(), biasVector.z());
                
+      res.bias.x = biasVector.x();
+      res.bias.y = biasVector.y();
+      res.bias.z = biasVector.z();
+
       res.success = true;
     }
     catch(mscl::Error &e)
@@ -1120,7 +1126,8 @@ bool Microstrain::set_hard_iron_values(ros_mscl::SetHardIronValues::Request &req
 // Get Hard Iron Offset Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_hard_iron_values(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+bool Microstrain::get_hard_iron_values(ros_mscl::GetHardIronValues::Request &req,
+                                       ros_mscl::GetHardIronValues::Response &res)
 {
   res.success = false;
   ROS_INFO("Getting gyro bias values");
@@ -1133,6 +1140,10 @@ bool Microstrain::get_hard_iron_values(std_srvs::Trigger::Request &req, std_srvs
 
       ROS_INFO("Hard iron values are: %f %f %f",
                biasVector.x(), biasVector.y(), biasVector.z());
+
+      res.bias.x = biasVector.x();
+      res.bias.y = biasVector.y();
+      res.bias.z = biasVector.z();
 
       res.success = true;
     }
@@ -1200,8 +1211,8 @@ bool Microstrain::set_soft_iron_matrix(ros_mscl::SetSoftIronMatrix::Request &req
 // Get Soft Iron Matrix Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_soft_iron_matrix(std_srvs::Trigger::Request &req,
-                                       std_srvs::Trigger::Response &res)
+bool Microstrain::get_soft_iron_matrix(ros_mscl::GetSoftIronMatrix::Request &req,
+                                       ros_mscl::GetSoftIronMatrix::Response &res)
 {
   res.success = false;
   ROS_INFO("Getting the soft iron matrix values\n");
@@ -1216,6 +1227,16 @@ bool Microstrain::get_soft_iron_matrix(std_srvs::Trigger::Request &req,
                data(0, 0), data(0, 1), data(0, 2),
                data(1, 0), data(1, 1), data(1, 2),
                data(2, 0), data(2, 1), data(2, 2));
+
+      res.soft_iron_1.x = data(0, 0);
+      res.soft_iron_1.y = data(0, 1);
+      res.soft_iron_1.z = data(0, 2);
+      res.soft_iron_2.x = data(1, 0);
+      res.soft_iron_2.y = data(1, 1);
+      res.soft_iron_2.z = data(1, 2);
+      res.soft_iron_3.x = data(2, 0);
+      res.soft_iron_3.y = data(2, 1);
+      res.soft_iron_3.z = data(2, 2);
 
       res.success = true;
     }
@@ -1277,8 +1298,8 @@ bool Microstrain::set_complementary_filter(ros_mscl::SetComplementaryFilter::Req
 // Get Complementary Filter Settings Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_complementary_filter(std_srvs::Trigger::Request &req,
-                                           std_srvs::Trigger::Response &res)
+bool Microstrain::get_complementary_filter(ros_mscl::GetComplementaryFilter::Request &req,
+                                           ros_mscl::GetComplementaryFilter::Response &res)
 {
   res.success = false;
   ROS_INFO("Getting the complementary filter values\n");
@@ -1292,6 +1313,11 @@ bool Microstrain::get_complementary_filter(std_srvs::Trigger::Request &req,
       ROS_INFO("Returned values: Up Enable: %d North Enable: %d Up Time Constant: %f North Time Constant: %f \n",
                comp_filter_command.upCompensationEnabled, comp_filter_command.northCompensationEnabled,
                comp_filter_command.upCompensationTimeInSeconds, comp_filter_command.northCompensationTimeInSeconds);
+
+      res.up_comp_enable        = comp_filter_command.upCompensationEnabled;
+      res.up_comp_time_const    = comp_filter_command.upCompensationTimeInSeconds;
+      res.north_comp_enable     = comp_filter_command.northCompensationEnabled;
+      res.north_comp_time_const = comp_filter_command.northCompensationTimeInSeconds ;
 
       res.success = true;
     }
@@ -1346,8 +1372,8 @@ bool Microstrain::set_heading_source(ros_mscl::SetHeadingSource::Request &req,
 // Get Heading Source Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_heading_source(std_srvs::Trigger::Request &req,
-                                     std_srvs::Trigger::Response &res)
+bool Microstrain::get_heading_source(ros_mscl::GetHeadingSource::Request &req,
+                                     ros_mscl::GetHeadingSource::Response &res)
 {
   res.success = false;
   ROS_INFO("Getting the heading source\n");
@@ -1358,7 +1384,9 @@ bool Microstrain::get_heading_source(std_srvs::Trigger::Request &req,
     {
       mscl::HeadingUpdateOptions source = msclInertialNode->getHeadingUpdateControl();
 
-      ROS_INFO("Current heading source is %#04X", source);
+      ROS_INFO("Current heading source is %#04X", source.AsOptionId());
+
+      res.headingSource = static_cast<uint8_t>(source.AsOptionId());
 
       res.success = true;
     }
@@ -1411,8 +1439,8 @@ bool Microstrain::set_sensor2vehicle_rotation(ros_mscl::SetSensor2VehicleRotatio
 // Get Sensor2Vehicle Frame Rotation Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_sensor2vehicle_rotation(std_srvs::Trigger::Request &req,
-                                              std_srvs::Trigger::Response &res)
+bool Microstrain::get_sensor2vehicle_rotation(ros_mscl::GetSensor2VehicleRotation::Request &req,
+                                              ros_mscl::GetSensor2VehicleRotation::Response &res)
 {
   res.success = false;
 
@@ -1423,6 +1451,10 @@ bool Microstrain::get_sensor2vehicle_rotation(std_srvs::Trigger::Request &req,
       mscl::EulerAngles angles = msclInertialNode->getSensorToVehicleRotation_eulerAngles();
       ROS_INFO("Sensor Vehicle Frame Rotation Angles: %f roll %f pitch %f yaw\n",
                angles.roll(), angles.pitch(), angles.yaw());
+
+      res.angle.x = angles.roll();
+      res.angle.y = angles.pitch();
+      res.angle.z = angles.yaw();
 
       res.success = true;
     }
@@ -1475,7 +1507,8 @@ bool Microstrain::set_sensor2vehicle_offset(ros_mscl::SetSensor2VehicleOffset::R
 // Get Sensor2Vehicle Frame Offset Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_sensor2vehicle_offset(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+bool Microstrain::get_sensor2vehicle_offset(ros_mscl::GetSensor2VehicleOffset::Request &req,
+                                            ros_mscl::GetSensor2VehicleOffset::Response &res)
 {
   res.success = false;
 
@@ -1488,6 +1521,10 @@ bool Microstrain::get_sensor2vehicle_offset(std_srvs::Trigger::Request &req, std
       mscl::PositionOffset offset = msclInertialNode->getSensorToVehicleOffset();
       ROS_INFO("Returned offset: %f X %f Y %f Z\n",
                offset.x(), offset.y(), offset.z());
+
+      res.offset.x = offset.x();
+      res.offset.y = offset.y();
+      res.offset.z = offset.z();
 
       res.success = true;
     }
@@ -1505,7 +1542,8 @@ bool Microstrain::get_sensor2vehicle_offset(std_srvs::Trigger::Request &req, std
 // Get Sensor2Vehicle Frame Transformation (Combination of Offset and Rotation) Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_sensor2vehicle_transformation(ros_mscl::GetSensor2VehicleTransformation::Request &req, ros_mscl::GetSensor2VehicleTransformation::Response &res)
+bool Microstrain::get_sensor2vehicle_transformation(ros_mscl::GetSensor2VehicleTransformation::Request &req, 
+                                                    ros_mscl::GetSensor2VehicleTransformation::Response &res)
 {
   res.success = false;
 
@@ -1578,7 +1616,8 @@ bool Microstrain::set_reference_position(ros_mscl::SetReferencePosition::Request
 // Get Reference Position Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_reference_position(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+bool Microstrain::get_reference_position(ros_mscl::GetReferencePosition::Request &req,
+                                         ros_mscl::GetReferencePosition::Response &res)
 {
   res.success = false;
 
@@ -1591,6 +1630,10 @@ bool Microstrain::get_reference_position(std_srvs::Trigger::Request &req, std_sr
       mscl::Position referencePosition = msclInertialNode->getFixedReferencePosition().referencePosition;
       ROS_INFO("Reference position: Lat %f , Long %f, Alt %f", referencePosition.latitude(),
                referencePosition.longitude(), referencePosition.altitude());
+
+      res.position.x = referencePosition.latitude();
+      res.position.y = referencePosition.longitude();
+      res.position.z = referencePosition.altitude();
 
       res.success = true;
     }
@@ -1641,7 +1684,8 @@ bool Microstrain::set_coning_sculling_comp(ros_mscl::SetConingScullingComp::Requ
 // Get Enable/Disable Coning and Sculling Compensation Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_coning_sculling_comp(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+bool Microstrain::get_coning_sculling_comp(ros_mscl::GetConingScullingComp::Request &req,
+                                           ros_mscl::GetConingScullingComp::Response &res)
 {
   res.success = false;
 
@@ -1653,7 +1697,8 @@ bool Microstrain::get_coning_sculling_comp(std_srvs::Trigger::Request &req, std_
 
       bool enabled = msclInertialNode->getConingAndScullingEnable();
       ROS_INFO("%s Coning and Sculling compensation", enabled ? "DISABLED" : "ENABLED\n");
-
+      
+      res.enable  = enabled;
       res.success = true;
     }
     catch(mscl::Error &e)
@@ -1677,7 +1722,7 @@ bool Microstrain::set_estimation_control_flags(ros_mscl::SetEstimationControlFla
   {
     try
     {
-      mscl::EstimationControlOptions flags(req.flag);
+      mscl::EstimationControlOptions flags(req.flags);
       msclInertialNode->setEstimationControlFlags(flags);
       flags = msclInertialNode->getEstimationControlFlags();
       ROS_INFO("Estimation control set to: %d", flags.AsUint16());
@@ -1698,8 +1743,8 @@ bool Microstrain::set_estimation_control_flags(ros_mscl::SetEstimationControlFla
 // Get Estimation Control Flags Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_estimation_control_flags(std_srvs::Trigger::Request &req,
-                                               std_srvs::Trigger::Response &res)
+bool Microstrain::get_estimation_control_flags(ros_mscl::GetEstimationControlFlags::Request &req,
+                                               ros_mscl::GetEstimationControlFlags::Response &res)
 {
   res.success = false;
 
@@ -1707,7 +1752,11 @@ bool Microstrain::get_estimation_control_flags(std_srvs::Trigger::Request &req,
   {
     try
     {
-      ROS_INFO("Estimation control set to: %d", msclInertialNode->getEstimationControlFlags().AsUint16());
+      uint16_t flags = msclInertialNode->getEstimationControlFlags().AsUint16();
+
+      ROS_INFO("Estimation control set to: %x", flags);
+
+      res.flags   = flags;
       res.success = true;
     }
     catch(mscl::Error &e)
@@ -1920,8 +1969,8 @@ bool Microstrain::set_zero_angle_update_threshold(ros_mscl::SetZeroAngleUpdateTh
 // Get Auto Angular Zupt Enable/Threshold Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_zero_angle_update_threshold(std_srvs::Trigger::Request &req,
-                                                  std_srvs::Trigger::Response &res)
+bool Microstrain::get_zero_angle_update_threshold(ros_mscl::GetZeroAngleUpdateThreshold::Request &req,
+                                                  ros_mscl::GetZeroAngleUpdateThreshold::Response &res)
 {
   res.success = false;
 
@@ -1935,7 +1984,9 @@ bool Microstrain::get_zero_angle_update_threshold(std_srvs::Trigger::Request &re
       ROS_INFO("Enable value set to: %d, Threshold is: %f rad/s",
                ZUPTSettings.enabled, ZUPTSettings.threshold);
 
-      res.success = true;
+      res.enable    = ZUPTSettings.enabled;
+      res.threshold = ZUPTSettings.threshold;
+      res.success   = true;
     }
     catch(mscl::Error &e)
     {
@@ -1952,7 +2003,7 @@ bool Microstrain::get_zero_angle_update_threshold(std_srvs::Trigger::Request &re
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool Microstrain::set_zero_velocity_update_threshold(ros_mscl::SetZeroVelocityUpdateThreshold::Request &req,
-                                                  ros_mscl::SetZeroVelocityUpdateThreshold::Response &res)
+                                                     ros_mscl::SetZeroVelocityUpdateThreshold::Response &res)
 {
   res.success = false;
 
@@ -1985,8 +2036,8 @@ bool Microstrain::set_zero_velocity_update_threshold(ros_mscl::SetZeroVelocityUp
 // Get Auto Velocity Zupt Enable/Threshold Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_zero_velocity_update_threshold(std_srvs::Trigger::Request &req,
-                                                  std_srvs::Trigger::Response &res)
+bool Microstrain::get_zero_velocity_update_threshold(ros_mscl::GetZeroVelocityUpdateThreshold::Request &req,
+                                                     ros_mscl::GetZeroVelocityUpdateThreshold::Response &res)
 {
   res.success = false;
 
@@ -2000,6 +2051,8 @@ bool Microstrain::get_zero_velocity_update_threshold(std_srvs::Trigger::Request 
       ROS_INFO("Enable value set to: %d, Threshold is: %f rad/s",
                ZUPTSettings.enabled, ZUPTSettings.threshold);
 
+      res.enable    = ZUPTSettings.enabled;
+      res.threshold = ZUPTSettings.threshold;
       res.success = true;
     }
     catch(mscl::Error &e)
@@ -2080,8 +2133,8 @@ bool Microstrain::set_accel_noise(ros_mscl::SetAccelNoise::Request &req,
 // Get Accel Noise 1-Sigma Values Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_accel_noise(std_srvs::Trigger::Request &req,
-                                  std_srvs::Trigger::Response &res)
+bool Microstrain::get_accel_noise(ros_mscl::GetAccelNoise::Request &req,
+                                  ros_mscl::GetAccelNoise::Response &res)
 {
   res.success = false;
 
@@ -2094,7 +2147,10 @@ bool Microstrain::get_accel_noise(std_srvs::Trigger::Request &req,
       mscl::GeometricVector noise = msclInertialNode->getAccelNoiseStandardDeviation();
       ROS_INFO("Returned values: %f X %f Y %f Z\n",
                noise.x(), noise.y(), noise.z());
-
+      
+      res.noise.x = noise.x();
+      res.noise.y = noise.y();
+      res.noise.z = noise.z();
       res.success = true;
     }
     catch(mscl::Error &e)
@@ -2145,8 +2201,8 @@ bool Microstrain::set_gyro_noise(ros_mscl::SetGyroNoise::Request &req,
 // Get Gyro Noise 1-Sigma Values Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_gyro_noise(std_srvs::Trigger::Request &req,
-                                 std_srvs::Trigger::Response &res)
+bool Microstrain::get_gyro_noise(ros_mscl::GetGyroNoise::Request &req,
+                                 ros_mscl::GetGyroNoise::Response &res)
 {
   res.success = false;
 
@@ -2160,6 +2216,9 @@ bool Microstrain::get_gyro_noise(std_srvs::Trigger::Request &req,
       ROS_INFO("Gyro noise values: %f X %f Y %f Z\n",
                noise.x(), noise.y(), noise.z());
 
+      res.noise.x = noise.x();
+      res.noise.y = noise.y();
+      res.noise.z = noise.z();
       res.success = true;
     }
     catch(mscl::Error &e)
@@ -2210,8 +2269,8 @@ bool Microstrain::set_mag_noise(ros_mscl::SetMagNoise::Request &req,
 // Get Magnetometer Noise 1-Sigma Values Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_mag_noise(std_srvs::Trigger::Request &req,
-                                std_srvs::Trigger::Response &res)
+bool Microstrain::get_mag_noise(ros_mscl::GetMagNoise::Request &req,
+                                ros_mscl::GetMagNoise::Response &res)
 {
   res.success = false;
 
@@ -2224,6 +2283,9 @@ bool Microstrain::get_mag_noise(std_srvs::Trigger::Request &req,
       ROS_INFO("Returned values: %f X %f Y %f Z\n",
                noise.x(), noise.y(), noise.z());
 
+      res.noise.x = noise.x();
+      res.noise.y = noise.y();
+      res.noise.z = noise.z();
       res.success = true;
     }
     catch(mscl::Error &e)
@@ -2282,7 +2344,8 @@ bool Microstrain::set_gyro_bias_model(ros_mscl::SetGyroBiasModel::Request &req,
 // Get Gyro Bias Model Values Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_gyro_bias_model(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+bool Microstrain::get_gyro_bias_model(ros_mscl::GetGyroBiasModel::Request &req,
+                                      ros_mscl::GetGyroBiasModel::Response &res)
 {
   res.success = false;
 
@@ -2295,6 +2358,13 @@ bool Microstrain::get_gyro_bias_model(std_srvs::Trigger::Request &req, std_srvs:
       ROS_INFO("Gyro bias model values:  Beta: %f X %f Y %f Z, White Noise: %f X %f Y %f Z\n",
                collection[0].x(), collection[0].y(), collection[0].z(),
                collection[1].x(), collection[1].y(), collection[1].z());
+
+      res.noise_vector.x = collection[0].x();
+      res.noise_vector.y = collection[0].y();
+      res.noise_vector.z = collection[0].z();
+      res.beta_vector.x  = collection[1].x();
+      res.beta_vector.y  = collection[1].y();
+      res.beta_vector.z  = collection[1].z();
 
       res.success = true;
     }
@@ -2352,8 +2422,8 @@ bool Microstrain::set_accel_bias_model(ros_mscl::SetAccelBiasModel::Request &req
 // Get Accel Bias Model Values Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_accel_bias_model(std_srvs::Trigger::Request &req,
-                                       std_srvs::Trigger::Response &res)
+bool Microstrain::get_accel_bias_model(ros_mscl::GetAccelBiasModel::Request &req,
+                                       ros_mscl::GetAccelBiasModel::Response &res)
 {
   res.success = false;
 
@@ -2367,6 +2437,13 @@ bool Microstrain::get_accel_bias_model(std_srvs::Trigger::Request &req,
       ROS_INFO("Accel bias model values:  Beta: %f X %f Y %f Z, White Noise: %f X %f Y %f Z\n",
                collection[0].x(), collection[0].y(), collection[0].z(),
                collection[1].x(), collection[1].y(), collection[1].z());
+
+      res.noise_vector.x = collection[0].x();
+      res.noise_vector.y = collection[0].y();
+      res.noise_vector.z = collection[0].z();
+      res.beta_vector.x  = collection[1].x();
+      res.beta_vector.y  = collection[1].y();
+      res.beta_vector.z  = collection[1].z();
 
       res.success = true;
     }
@@ -2385,7 +2462,7 @@ bool Microstrain::get_accel_bias_model(std_srvs::Trigger::Request &req,
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool Microstrain::set_gravity_adaptive_vals(ros_mscl::SetGravityAdaptiveVals::Request &req,
-                                          ros_mscl::SetGravityAdaptiveVals::Response &res)
+                                            ros_mscl::SetGravityAdaptiveVals::Response &res)
 {
   res.success = false;
   
@@ -2430,7 +2507,8 @@ bool Microstrain::set_gravity_adaptive_vals(ros_mscl::SetGravityAdaptiveVals::Re
 // Get Accel Magnitude Error Adaptive Measurement Values Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_gravity_adaptive_vals(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+bool Microstrain::get_gravity_adaptive_vals(ros_mscl::GetGravityAdaptiveVals::Request &req,
+                                            ros_mscl::GetGravityAdaptiveVals::Response &res)
 {
   res.success = false;
 
@@ -2446,6 +2524,14 @@ bool Microstrain::get_gravity_adaptive_vals(std_srvs::Trigger::Request &req, std
                adaptiveData.minUncertainty, adaptiveData.lowLimit,
                adaptiveData.highLimit, adaptiveData.lowLimitUncertainty,
                adaptiveData.highLimitUncertainty);
+
+      res.enable            = adaptiveData.mode;
+      res.low_pass_cutoff   = adaptiveData.lowPassFilterCutoff;
+      res.low_limit         = adaptiveData.lowLimit;
+      res.high_limit        = adaptiveData.highLimit;
+      res.low_limit_1sigma  = adaptiveData.lowLimitUncertainty;
+      res.high_limit_1sigma = adaptiveData.highLimitUncertainty; 
+      res.min_1sigma        = adaptiveData.minUncertainty;
 
       res.success = true;
     }
@@ -2510,7 +2596,8 @@ bool Microstrain::set_mag_adaptive_vals(ros_mscl::SetMagAdaptiveVals::Request &r
 // Get Magnetometer Magnitude Error Adaptive Measurement Values Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_mag_adaptive_vals(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+bool Microstrain::get_mag_adaptive_vals(ros_mscl::GetMagAdaptiveVals::Request &req,
+                                        ros_mscl::GetMagAdaptiveVals::Response &res)
 {
   res.success = false;
 
@@ -2524,6 +2611,14 @@ bool Microstrain::get_mag_adaptive_vals(std_srvs::Trigger::Request &req, std_srv
       ROS_INFO("Mag magnitude error adaptive measurement values are: Enable: %i, Parameters: %f %f %f %f %f %f",
                adaptiveData.mode, adaptiveData.lowPassFilterCutoff, adaptiveData.minUncertainty, adaptiveData.lowLimit,
                adaptiveData.highLimit, adaptiveData.lowLimitUncertainty, adaptiveData.highLimitUncertainty);
+
+      res.enable            = adaptiveData.mode;
+      res.low_pass_cutoff   = adaptiveData.lowPassFilterCutoff;
+      res.low_limit         = adaptiveData.lowLimit;
+      res.high_limit        = adaptiveData.highLimit;
+      res.low_limit_1sigma  = adaptiveData.lowLimitUncertainty;
+      res.high_limit_1sigma = adaptiveData.highLimitUncertainty; 
+      res.min_1sigma        = adaptiveData.minUncertainty;
 
       res.success = true;
     }
@@ -2585,7 +2680,8 @@ bool Microstrain::set_mag_dip_adaptive_vals(ros_mscl::SetMagDipAdaptiveVals::Req
 // Get Magnetometer Dip Angle Error Adaptive Measurement Values Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_mag_dip_adaptive_vals(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
+bool Microstrain::get_mag_dip_adaptive_vals(ros_mscl::GetMagDipAdaptiveVals::Request &req,
+                                            ros_mscl::GetMagDipAdaptiveVals::Response &res)
 {
   res.success = false;
 
@@ -2601,6 +2697,12 @@ bool Microstrain::get_mag_dip_adaptive_vals(std_srvs::Trigger::Request &req, std
                adaptiveData.minUncertainty, adaptiveData.lowLimit,
                adaptiveData.highLimit, adaptiveData.lowLimitUncertainty,
                adaptiveData.highLimitUncertainty);
+
+      res.enable            = adaptiveData.mode;
+      res.low_pass_cutoff   = adaptiveData.lowPassFilterCutoff;
+      res.high_limit        = adaptiveData.highLimit;
+      res.high_limit_1sigma = adaptiveData.highLimitUncertainty; 
+      res.min_1sigma        = adaptiveData.minUncertainty;
 
       res.success = true;
     }
@@ -2650,8 +2752,8 @@ bool Microstrain::set_dynamics_mode(ros_mscl::SetDynamicsMode::Request &req,
 // Get Vehicle Dynamics Mode Service
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Microstrain::get_dynamics_mode(std_srvs::Trigger::Request &req,
-                                    std_srvs::Trigger::Response &res)
+bool Microstrain::get_dynamics_mode(ros_mscl::GetDynamicsMode::Request &req,
+                                    ros_mscl::GetDynamicsMode::Response &res)
 {
   res.success = false;
 
@@ -2664,6 +2766,7 @@ bool Microstrain::get_dynamics_mode(std_srvs::Trigger::Request &req,
       mscl::InertialTypes::VehicleModeType mode = msclInertialNode->getVehicleDynamicsMode();
       ROS_INFO("Vehicle dynamics mode is: %d\n", mode);
 
+      res.mode    = mode;
       res.success = true;
     }
     catch(mscl::Error &e)

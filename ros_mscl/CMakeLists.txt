@@ -40,29 +40,53 @@ add_service_files(
   InitFilterEuler.srv
   InitFilterHeading.srv
   SetAccelBias.srv
+  GetAccelBias.srv
   SetGyroBias.srv
+  GetGyroBias.srv
   SetHardIronValues.srv
+  GetHardIronValues.srv
   SetSoftIronMatrix.srv
+  GetSoftIronMatrix.srv
   SetComplementaryFilter.srv
+  GetComplementaryFilter.srv
   SetAccelBiasModel.srv
-  SetAccelAdaptiveVals.srv
+  GetAccelBiasModel.srv
+  SetGravityAdaptiveVals.srv
+  GetGravityAdaptiveVals.srv
   SetSensor2VehicleRotation.srv
+  GetSensor2VehicleRotation.srv
   SetSensor2VehicleOffset.srv
+  GetSensor2VehicleOffset.srv
   SetReferencePosition.srv
+  GetReferencePosition.srv
   SetConingScullingComp.srv
+  GetConingScullingComp.srv
   SetEstimationControlFlags.srv
+  GetEstimationControlFlags.srv
   SetDynamicsMode.srv
+  GetDynamicsMode.srv
   SetZeroAngleUpdateThreshold.srv
+  GetZeroAngleUpdateThreshold.srv
   SetZeroVelocityUpdateThreshold.srv
+  GetZeroVelocityUpdateThreshold.srv
   SetTareOrientation.srv
+  GetTareOrientation.srv
   SetAccelNoise.srv
+  GetAccelNoise.srv
   SetGyroNoise.srv
+  GetGyroNoise.srv
   SetMagNoise.srv
+  GetMagNoise.srv
   SetGyroBiasModel.srv
+  GetGyroBiasModel.srv
   SetAccelAdaptiveVals.srv
+  GetAccelAdaptiveVals.srv
   SetMagAdaptiveVals.srv
+  GetMagAdaptiveVals.srv
   SetMagDipAdaptiveVals.srv
+  GetMagDipAdaptiveVals.srv
   SetHeadingSource.srv
+  GetHeadingSource.srv
   GetSensor2VehicleTransformation.srv
 )
 
@@ -208,7 +232,7 @@ add_executable(set_gyro_bias_model_client src/set_gyro_bias_model_client.cpp)
 
 add_executable(get_gyro_bias_model_client src/get_gyro_bias_model_client.cpp)
 
-add_executable(get_accel_adaptive_vals_client src/get_accel_adaptive_vals_client.cpp)
+add_executable(get_gravity_adaptive_vals_client src/get_gravity_adaptive_vals_client.cpp)
 
 add_executable(set_mag_adaptive_vals_client src/set_mag_adaptive_vals_client.cpp)
 
@@ -312,7 +336,7 @@ add_dependencies(set_gyro_bias_model_client ros_mscl_gencpp)
 
 add_dependencies(get_gyro_bias_model_client ros_mscl_gencpp)
 
-add_dependencies(get_accel_adaptive_vals_client ros_mscl_gencpp)
+add_dependencies(get_gravity_adaptive_vals_client ros_mscl_gencpp)
 
 add_dependencies(set_mag_adaptive_vals_client ros_mscl_gencpp)
 
@@ -434,7 +458,7 @@ target_link_libraries(set_gyro_bias_model_client ${catkin_LIBRARIES})
 
 target_link_libraries(get_gyro_bias_model_client ${catkin_LIBRARIES})
 
-target_link_libraries(get_accel_adaptive_vals_client ${catkin_LIBRARIES})
+target_link_libraries(get_gravity_adaptive_vals_client ${catkin_LIBRARIES})
 
 target_link_libraries(set_mag_adaptive_vals_client ${catkin_LIBRARIES})
 

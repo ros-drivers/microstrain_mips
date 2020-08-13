@@ -46,30 +46,52 @@
 #include "ros_mscl/status_msg.h"
 #include "ros_mscl/nav_status_msg.h"
 #include "ros_mscl/SetAccelBias.h"
+#include "ros_mscl/GetAccelBias.h"
 #include "ros_mscl/SetGyroBias.h"
+#include "ros_mscl/GetGyroBias.h"
 #include "ros_mscl/SetHardIronValues.h"
+#include "ros_mscl/GetHardIronValues.h"
 #include "ros_mscl/SetSoftIronMatrix.h"
+#include "ros_mscl/GetSoftIronMatrix.h"
 #include "ros_mscl/SetComplementaryFilter.h"
-#include "ros_mscl/SetFilterEuler.h"
-#include "ros_mscl/SetFilterHeading.h"
+#include "ros_mscl/GetComplementaryFilter.h"
+#include "ros_mscl/InitFilterEuler.h"
+#include "ros_mscl/InitFilterHeading.h"
 #include "ros_mscl/SetAccelBiasModel.h"
+#include "ros_mscl/GetAccelBiasModel.h"
 #include "ros_mscl/SetGravityAdaptiveVals.h"
+#include "ros_mscl/GetGravityAdaptiveVals.h"
 #include "ros_mscl/SetSensor2VehicleRotation.h"
+#include "ros_mscl/GetSensor2VehicleRotation.h"
 #include "ros_mscl/SetSensor2VehicleOffset.h"
+#include "ros_mscl/GetSensor2VehicleOffset.h"
 #include "ros_mscl/SetReferencePosition.h"
+#include "ros_mscl/GetReferencePosition.h"
 #include "ros_mscl/SetConingScullingComp.h"
+#include "ros_mscl/GetConingScullingComp.h"
 #include "ros_mscl/SetEstimationControlFlags.h"
+#include "ros_mscl/GetEstimationControlFlags.h"
 #include "ros_mscl/SetDynamicsMode.h"
+#include "ros_mscl/GetDynamicsMode.h"
 #include "ros_mscl/SetZeroAngleUpdateThreshold.h"
+#include "ros_mscl/GetZeroAngleUpdateThreshold.h"
 #include "ros_mscl/SetZeroVelocityUpdateThreshold.h"
+#include "ros_mscl/GetZeroVelocityUpdateThreshold.h"
 #include "ros_mscl/SetTareOrientation.h"
 #include "ros_mscl/SetAccelNoise.h"
+#include "ros_mscl/GetAccelNoise.h"
 #include "ros_mscl/SetGyroNoise.h"
+#include "ros_mscl/GetGyroNoise.h"
 #include "ros_mscl/SetMagNoise.h"
+#include "ros_mscl/GetMagNoise.h"
 #include "ros_mscl/SetGyroBiasModel.h"
+#include "ros_mscl/GetGyroBiasModel.h"
 #include "ros_mscl/SetMagAdaptiveVals.h"
+#include "ros_mscl/GetMagAdaptiveVals.h"
 #include "ros_mscl/SetMagDipAdaptiveVals.h"
+#include "ros_mscl/GetMagDipAdaptiveVals.h"
 #include "ros_mscl/SetHeadingSource.h"
+#include "ros_mscl/GetHeadingSource.h"
 #include "ros_mscl/GetSensor2VehicleTransformation.h"
 
 
@@ -124,55 +146,55 @@ namespace Microstrain
     bool get_diagnostic_report(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
   
     bool set_accel_bias(ros_mscl::SetAccelBias::Request &req, ros_mscl::SetAccelBias::Response &res);
-    bool get_accel_bias(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_accel_bias(ros_mscl::GetAccelBias::Request &req, ros_mscl::GetAccelBias::Response &res);
 
     bool set_gyro_bias(ros_mscl::SetGyroBias::Request &req, ros_mscl::SetGyroBias::Response &res);
-    bool get_gyro_bias(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_gyro_bias(ros_mscl::GetGyroBias::Request &req, ros_mscl::GetGyroBias::Response &res);
 
     bool gyro_bias_capture(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
     bool set_hard_iron_values(ros_mscl::SetHardIronValues::Request &req, ros_mscl::SetHardIronValues::Response &res);
-    bool get_hard_iron_values(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_hard_iron_values(ros_mscl::GetHardIronValues::Request &req, ros_mscl::GetHardIronValues::Response &res);
 
     bool set_soft_iron_matrix(ros_mscl::SetSoftIronMatrix::Request &req, ros_mscl::SetSoftIronMatrix::Response &res);
-    bool get_soft_iron_matrix(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_soft_iron_matrix(ros_mscl::GetSoftIronMatrix::Request &req, ros_mscl::GetSoftIronMatrix::Response &res);
 
     bool set_complementary_filter(ros_mscl::SetComplementaryFilter::Request &req, ros_mscl::SetComplementaryFilter::Response &res);
-    bool get_complementary_filter(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_complementary_filter(ros_mscl::GetComplementaryFilter::Request &req, ros_mscl::GetComplementaryFilter::Response &res);
 
     bool set_coning_sculling_comp(ros_mscl::SetConingScullingComp::Request &req, ros_mscl::SetConingScullingComp::Response &res);
-    bool get_coning_sculling_comp(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_coning_sculling_comp(ros_mscl::GetConingScullingComp::Request &req, ros_mscl::GetConingScullingComp::Response &res);
 
     bool set_sensor2vehicle_rotation(ros_mscl::SetSensor2VehicleRotation::Request &req, ros_mscl::SetSensor2VehicleRotation::Response &res);
-    bool get_sensor2vehicle_rotation(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_sensor2vehicle_rotation(ros_mscl::GetSensor2VehicleRotation::Request &req, ros_mscl::GetSensor2VehicleRotation::Response &res);
 
     bool set_sensor2vehicle_offset(ros_mscl::SetSensor2VehicleOffset::Request &req, ros_mscl::SetSensor2VehicleOffset::Response &res);
-    bool get_sensor2vehicle_offset(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_sensor2vehicle_offset(ros_mscl::GetSensor2VehicleOffset::Request &req, ros_mscl::GetSensor2VehicleOffset::Response &res);
 
     bool get_sensor2vehicle_transformation(ros_mscl::GetSensor2VehicleTransformation::Request &req, ros_mscl::GetSensor2VehicleTransformation::Response &res);
       
     bool reset_filter(std_srvs::Empty::Request &req, std_srvs::Empty::Response &resp);
 
-    bool init_filter_euler(ros_mscl::SetFilterEuler::Request &req, ros_mscl::SetFilterEuler::Response &res);
-    bool init_filter_heading(ros_mscl::SetFilterHeading::Request &req, ros_mscl::SetFilterHeading::Response &res);
+    bool init_filter_euler(ros_mscl::InitFilterEuler::Request &req, ros_mscl::InitFilterEuler::Response &res);
+    bool init_filter_heading(ros_mscl::InitFilterHeading::Request &req, ros_mscl::InitFilterHeading::Response &res);
   
     bool set_heading_source(ros_mscl::SetHeadingSource::Request &req, ros_mscl::SetHeadingSource::Response &res);
-    bool get_heading_source(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_heading_source(ros_mscl::GetHeadingSource::Request &req, ros_mscl::GetHeadingSource::Response &res);
 
     bool set_reference_position(ros_mscl::SetReferencePosition::Request &req, ros_mscl::SetReferencePosition::Response &res);
-    bool get_reference_position(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_reference_position(ros_mscl::GetReferencePosition::Request &req, ros_mscl::GetReferencePosition::Response &res);
 
     bool set_estimation_control_flags(ros_mscl::SetEstimationControlFlags::Request &req, ros_mscl::SetEstimationControlFlags::Response &res);
-    bool get_estimation_control_flags(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_estimation_control_flags(ros_mscl::GetEstimationControlFlags::Request &req, ros_mscl::GetEstimationControlFlags::Response &res);
 
     bool set_dynamics_mode(ros_mscl::SetDynamicsMode::Request &req, ros_mscl::SetDynamicsMode::Response &res);
-    bool get_dynamics_mode(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_dynamics_mode(ros_mscl::GetDynamicsMode::Request &req, ros_mscl::GetDynamicsMode::Response &res);
 
     bool set_zero_angle_update_threshold(ros_mscl::SetZeroAngleUpdateThreshold::Request &req, ros_mscl::SetZeroAngleUpdateThreshold::Response &res);
-    bool get_zero_angle_update_threshold(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_zero_angle_update_threshold(ros_mscl::GetZeroAngleUpdateThreshold::Request &req, ros_mscl::GetZeroAngleUpdateThreshold::Response &res);
     
     bool set_zero_velocity_update_threshold(ros_mscl::SetZeroVelocityUpdateThreshold::Request &req, ros_mscl::SetZeroVelocityUpdateThreshold::Response &res);
-    bool get_zero_velocity_update_threshold(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_zero_velocity_update_threshold(ros_mscl::GetZeroVelocityUpdateThreshold::Request &req, ros_mscl::GetZeroVelocityUpdateThreshold::Response &res);
 
     bool set_tare_orientation(ros_mscl::SetTareOrientation::Request &req, ros_mscl::SetTareOrientation::Response &res);
     
@@ -180,28 +202,28 @@ namespace Microstrain
     bool commanded_ang_rate_zupt(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
   
     bool set_accel_noise(ros_mscl::SetAccelNoise::Request &req, ros_mscl::SetAccelNoise::Response &res);
-    bool get_accel_noise(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_accel_noise(ros_mscl::GetAccelNoise::Request &req, ros_mscl::GetAccelNoise::Response &res);
 
     bool set_gyro_noise(ros_mscl::SetGyroNoise::Request &req, ros_mscl::SetGyroNoise::Response &res);
-    bool get_gyro_noise(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_gyro_noise(ros_mscl::GetGyroNoise::Request &req, ros_mscl::GetGyroNoise::Response &res);
 
     bool set_mag_noise(ros_mscl::SetMagNoise::Request &req, ros_mscl::SetMagNoise::Response &res);
-    bool get_mag_noise(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_mag_noise(ros_mscl::GetMagNoise::Request &req, ros_mscl::GetMagNoise::Response &res);
 
     bool set_gyro_bias_model(ros_mscl::SetGyroBiasModel::Request &req, ros_mscl::SetGyroBiasModel::Response &res);
-    bool get_gyro_bias_model(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_gyro_bias_model(ros_mscl::GetGyroBiasModel::Request &req, ros_mscl::GetGyroBiasModel::Response &res);
 
     bool set_accel_bias_model(ros_mscl::SetAccelBiasModel::Request &req, ros_mscl::SetAccelBiasModel::Response &res);
-    bool get_accel_bias_model(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
+    bool get_accel_bias_model(ros_mscl::GetAccelBiasModel::Request &req, ros_mscl::GetAccelBiasModel::Response &res);
 
     bool set_gravity_adaptive_vals(ros_mscl::SetGravityAdaptiveVals::Request &req, ros_mscl::SetGravityAdaptiveVals::Response &res);
-    bool get_gravity_adaptive_vals(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res );
+    bool get_gravity_adaptive_vals(ros_mscl::GetGravityAdaptiveVals::Request &req, ros_mscl::GetGravityAdaptiveVals::Response &res);
 
-    bool set_mag_adaptive_vals(ros_mscl::SetMagAdaptiveVals::Request &req, ros_mscl::SetMagAdaptiveVals::Response &res );
-    bool get_mag_adaptive_vals(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res );
+    bool set_mag_adaptive_vals(ros_mscl::SetMagAdaptiveVals::Request &req, ros_mscl::SetMagAdaptiveVals::Response &res);
+    bool get_mag_adaptive_vals(ros_mscl::GetMagAdaptiveVals::Request &req, ros_mscl::GetMagAdaptiveVals::Response &res);
 
-    bool set_mag_dip_adaptive_vals(ros_mscl::SetMagDipAdaptiveVals::Request &req, ros_mscl::SetMagDipAdaptiveVals::Response &res );
-    bool get_mag_dip_adaptive_vals(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res );
+    bool set_mag_dip_adaptive_vals(ros_mscl::SetMagDipAdaptiveVals::Request &req, ros_mscl::SetMagDipAdaptiveVals::Response &res);
+    bool get_mag_dip_adaptive_vals(ros_mscl::GetMagDipAdaptiveVals::Request &req, ros_mscl::GetMagDipAdaptiveVals::Response &res);
      
     void velocity_zupt_callback(const std_msgs::Bool& state);
     void velZupt();
