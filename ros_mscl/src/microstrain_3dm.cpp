@@ -700,7 +700,7 @@ bool Microstrain::device_report(std_srvs::Trigger::Request &req, std_srvs::Trigg
       ROS_INFO("Model Number     => %s\n", msclInertialNode->modelNumber().c_str());
       ROS_INFO("Serial Number    => %s\n", msclInertialNode->serialNumber().c_str());
       ROS_INFO("Options          => %s\n", msclInertialNode->deviceOptions().c_str());
-      ROS_INFO("Firmware Version => %d.%d.%.2d\n\n", msclInertialNode->firmwareVersion().str());
+      ROS_INFO("Firmware Version => %s\n\n", msclInertialNode->firmwareVersion().str().c_str());
       res.success = true;
     }
     catch (mscl::Error &e)
