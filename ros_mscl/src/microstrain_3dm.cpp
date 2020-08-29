@@ -25,6 +25,7 @@
 #include "mscl/mscl.h"
 #include "ros_mscl/status_msg.h"
 #include "ros_mscl/nav_status_msg.h"
+#include "ros_mscl/nav_heading_msg.h"
 #include "microstrain_diagnostic_updater.h"
 #include <ros/callback_queue.h>
 #include <tf2/LinearMath/Transform.h>
@@ -455,6 +456,7 @@ void Microstrain::run()
     {
       nav_pub_          = node.advertise<nav_msgs::Odometry>("nav/odom", 100);
       nav_status_pub_   = node.advertise<ros_mscl::nav_status_msg>("nav/status", 100);
+      nav_heading_pub_  = node.advertise<ros_mscl::nav_heading_msg>("nav/heading", 100);
       filtered_imu_pub_ = node.advertise<sensor_msgs::Imu>("filtered/imu/data", 100);
     }
   
@@ -596,6 +598,7 @@ void Microstrain::run()
         msclInertialNode->enableDataStream(mscl::MipTypes::DataClass::CLASS_ESTFILTER);
       }
 
+      
       //If the user wants the settings to be stored on the device, do it
       if(save_settings)
         msclInertialNode->saveSettingsAsStartup();
@@ -3106,6 +3109,13 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
       else if(point.qualifier() == mscl::MipTypes::CH_YAW)
       {
         curr_filter_yaw = point.as_float();
+
+        nav_heading_msg_.heading_deg = curr_filter_yaw*180.0/3.14;
+        nav_heading_msg_.heading_rad = curr_filter_yaw;
+      }
+      else if(point.qualifier() == mscl::MipTypes::CH_FLAGS)
+      {
+        nav_heading_msg_.status_flags = point.as_uint16();
       }
     }break;
 
@@ -3233,6 +3243,7 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
   filtered_imu_pub_.publish(filtered_imu_msg_);
   nav_pub_.publish(nav_msg_);
   nav_status_pub_.publish(nav_status_msg_);
+  nav_heading_pub_.publish(nav_heading_msg_);
 }
 
 
