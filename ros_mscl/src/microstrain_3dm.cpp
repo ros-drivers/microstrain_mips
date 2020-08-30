@@ -3357,10 +3357,13 @@ void Microstrain::device_status_callback()
     {
       mscl::DeviceStatusData statusData = msclInertialNode->getDiagnosticDeviceStatus();
       mscl::DeviceStatusMap status = statusData.asMap();
+      mscl::PpsPulseInfo pps_info = statusData.gnss1PpsPulseInfo();
       
-
       device_status_msg_.system_timer_ms = statusData.systemTimerInMS;
-      
+
+      device_status_msg_.num_gps_pps_triggers    = pps_info.count;
+      device_status_msg_.last_gps_pps_trigger_ms = pps_info.lastTimeinMS;
+
       mscl::DeviceStatusMap::iterator it;
 
       for(it = status.begin(); it != status.end(); it++)
@@ -3380,7 +3383,11 @@ void Microstrain::device_status_callback()
           break;
 
         case mscl::DeviceStatusValues::ImuStreamInfo_Enabled:
-          device_status_msg_.imu_stream_enabled = strcmp(it->second.c_str(),"1");
+          device_status_msg_.imu_stream_enabled = atoi(it->second.c_str());
+          break;
+
+        case mscl::DeviceStatusValues::GnssStreamInfo_Enabled:
+          device_status_msg_.gps_stream_enabled = atoi(it->second.c_str());
           break;
 
         case mscl::DeviceStatusValues::ImuStreamInfo_PacketsDropped:
@@ -3388,7 +3395,7 @@ void Microstrain::device_status_callback()
           break;
 
         case mscl::DeviceStatusValues::EstimationFilterStreamInfo_Enabled:
-          device_status_msg_.filter_stream_enabled = strcmp(it->second.c_str(),"1");
+          device_status_msg_.filter_stream_enabled = atoi(it->second.c_str());
           break;
 
         case mscl::DeviceStatusValues::EstimationFilterStreamInfo_PacketsDropped:
@@ -3421,6 +3428,26 @@ void Microstrain::device_status_callback()
 
         case mscl::DeviceStatusValues::ImuMessageInfo_LastMessageReadinMS:
           device_status_msg_.imu_last_message_ms = atoi(it->second.c_str());
+          break;
+
+        case mscl::DeviceStatusValues::GnssStreamInfo_PacketsDropped:
+          device_status_msg_.gps_dropped_packets = atoi(it->second.c_str());
+          break;
+
+       case mscl::DeviceStatusValues::GnssMessageInfo_MessageParsingErrors:
+          device_status_msg_.gps_parser_errors = atoi(it->second.c_str());
+          break;
+       
+        case mscl::DeviceStatusValues::GnssMessageInfo_MessagesRead:
+          device_status_msg_.gps_message_count = atoi(it->second.c_str());
+          break;
+
+        case mscl::DeviceStatusValues::GnssMessageInfo_LastMessageReadinMS:
+          device_status_msg_.gps_last_message_ms = atoi(it->second.c_str());
+          break;
+
+        case mscl::DeviceStatusValues::GnssPowerStateOn:
+          device_status_msg_.gps_power_on = atoi(it->second.c_str());
           break;
 
         default:
