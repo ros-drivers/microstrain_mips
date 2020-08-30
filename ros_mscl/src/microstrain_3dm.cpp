@@ -648,6 +648,8 @@ void Microstrain::run()
 
     ROS_INFO("Starting Data Parsing");
 
+    uint32_t status_counter = 0;
+
     while(ros::ok())
     {
       mscl::MipDataPackets packets = msclInertialNode->getDataPackets(1000);
@@ -655,10 +657,14 @@ void Microstrain::run()
       for(mscl::MipDataPacket packet : packets)
       {
         parseMipPacket(packet);
-        ros::spinOnce();
       }
       
-      device_status_callback();
+      //Only get the status packet at 1 Hz
+      if(status_counter++ >= spin_rate/2)
+      {
+        device_status_callback();
+        status_counter = 0;
+      }
 
       //Take care of service requests
       ros::spinOnce(); 
