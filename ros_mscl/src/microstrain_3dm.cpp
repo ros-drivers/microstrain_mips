@@ -3358,6 +3358,9 @@ void Microstrain::device_status_callback()
       mscl::DeviceStatusData statusData = msclInertialNode->getDiagnosticDeviceStatus();
       mscl::DeviceStatusMap status = statusData.asMap();
       
+
+      device_status_msg_.system_timer_ms = statusData.systemTimerInMS;
+      
       mscl::DeviceStatusMap::iterator it;
 
       for(it = status.begin(); it != status.end(); it++)
