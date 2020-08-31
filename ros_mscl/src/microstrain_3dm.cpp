@@ -434,6 +434,15 @@ void Microstrain::run()
       get_dynamics_mode_service = node.advertiseService("get_dynamics_mode", &Microstrain::get_dynamics_mode, this);
     } 
  
+
+    //Sevice Settings
+    ros::ServiceServer device_settings;
+    if (msclInertialNode->features().supportsCommand(mscl::MipTypes::Command::CMD_SAVE_STARTUP_SETTINGS))
+    {
+      device_settings = node.advertiseService("device_settings", &Microstrain::device_settings, this);
+    }
+
+
     //Print the device info
     ROS_INFO("Model Name:    %s\n", msclInertialNode->modelName().c_str());
     ROS_INFO("Serial Number: %s\n", msclInertialNode->serialNumber().c_str());
@@ -2790,6 +2799,61 @@ bool Microstrain::get_dynamics_mode(ros_mscl::GetDynamicsMode::Request &req,
   return res.success;
 }
   
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// Change Device Settings
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool Microstrain::device_settings(ros_mscl::DeviceSettings::Request &req, ros_mscl::DeviceSettings::Response &res)
+{
+  res.success = false;
+
+  if(msclInertialNode)
+  {
+    try
+    {
+      switch(req.function_selector)
+      {
+        //Save
+        case 3:
+        {
+          ROS_INFO("Processing device settings command with function selector = 3 (Save)\n");
+          msclInertialNode->saveSettingsAsStartup();
+        }break;
+        
+        //Load Saved Settings
+        case 4:
+        {
+          ROS_INFO("Processing device settings command with function selector = 4 (Load Saved Settings)\n");
+          msclInertialNode->loadStartupSettings();
+        }break;
+
+        //Load Default Settings
+        case 5:
+        {
+          ROS_INFO("Processing device settings command with function selector = 5 (Load Defailt Settings)\n");
+          msclInertialNode->loadFactoryDefaultSettings();
+        }break;
+
+        //Unsupported function selector
+        default: 
+        {
+          ROS_INFO("Error: Unsupported function selector for device settings command\n");
+          return res.success;
+        }break;
+      }
+ 
+      res.success = true;
+    }
+    catch(mscl::Error &e)
+    {
+      ROS_ERROR("Error: %s", e.what());
+    }
+  }
+
+  return res.success;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // Commanded Velocity Zupt Service

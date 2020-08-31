@@ -41,6 +41,7 @@ add_service_files(
   FILES
   InitFilterEuler.srv
   InitFilterHeading.srv
+  DeviceSettings.srv
   SetAccelBias.srv
   GetAccelBias.srv
   SetGyroBias.srv
@@ -176,6 +177,8 @@ add_executable(init_filter_euler_client src/init_filter_euler_client.cpp)
 
 add_executable(init_filter_heading_client src/init_filter_heading_client.cpp)
 
+add_executable(device_settings_client src/device_settings_client.cpp)
+
 add_executable(set_accel_bias_model_client src/set_accel_bias_model_client.cpp)
 
 add_executable(set_gravity_adaptive_vals_client src/set_gravity_adaptive_vals_client.cpp)
@@ -279,6 +282,8 @@ add_dependencies(get_complementary_filter_client ros_mscl_gencpp)
 add_dependencies(init_filter_euler_client ros_mscl_gencpp)
 
 add_dependencies(init_filter_heading_client ros_mscl_gencpp)
+
+add_dependencies(device_settings_client ros_mscl_gencpp)
 
 add_dependencies(set_accel_bias_model_client ros_mscl_gencpp)
 
@@ -401,6 +406,8 @@ target_link_libraries(get_complementary_filter_client ${catkin_LIBRARIES})
 target_link_libraries(init_filter_euler_client ${catkin_LIBRARIES})
 
 target_link_libraries(init_filter_heading_client ${catkin_LIBRARIES})
+
+target_link_libraries(device_settings_client ${catkin_LIBRARIES})
 
 target_link_libraries(set_accel_bias_model_client ${catkin_LIBRARIES})
 

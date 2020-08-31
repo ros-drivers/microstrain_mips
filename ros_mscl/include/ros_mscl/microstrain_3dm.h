@@ -59,6 +59,7 @@
 #include "ros_mscl/GetComplementaryFilter.h"
 #include "ros_mscl/InitFilterEuler.h"
 #include "ros_mscl/InitFilterHeading.h"
+#include "ros_mscl/DeviceSettings.h"
 #include "ros_mscl/SetAccelBiasModel.h"
 #include "ros_mscl/GetAccelBiasModel.h"
 #include "ros_mscl/SetGravityAdaptiveVals.h"
@@ -227,6 +228,8 @@ namespace Microstrain
     bool set_mag_dip_adaptive_vals(ros_mscl::SetMagDipAdaptiveVals::Request &req, ros_mscl::SetMagDipAdaptiveVals::Response &res);
     bool get_mag_dip_adaptive_vals(ros_mscl::GetMagDipAdaptiveVals::Request &req, ros_mscl::GetMagDipAdaptiveVals::Response &res);
      
+    bool device_settings(ros_mscl::DeviceSettings::Request &req, ros_mscl::DeviceSettings::Response &res);
+
     void velocity_zupt_callback(const std_msgs::Bool& state);
     void velZupt();
     
