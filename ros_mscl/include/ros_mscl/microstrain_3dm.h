@@ -46,6 +46,7 @@
 #include "ros_mscl/status_msg.h"
 #include "ros_mscl/nav_status_msg.h"
 #include "ros_mscl/nav_heading_msg.h"
+#include "ros_mscl/nav_heading_state_msg.h"
 #include "ros_mscl/SetAccelBias.h"
 #include "ros_mscl/GetAccelBias.h"
 #include "ros_mscl/SetGyroBias.h"
@@ -315,6 +316,7 @@ namespace Microstrain
   //NAV Filter Publishers
   ros::Publisher nav_status_pub_;
   ros::Publisher nav_heading_pub_;
+  ros::Publisher nav_heading_state_pub_;
   ros::Publisher nav_pub_;
   ros::Publisher filtered_imu_pub_;
  
@@ -343,6 +345,7 @@ namespace Microstrain
   ros_mscl::status_msg device_status_msg_;
   ros_mscl::nav_status_msg nav_status_msg_;
   ros_mscl::nav_heading_msg nav_heading_msg_;
+  ros_mscl::nav_heading_state_msg nav_heading_state_msg_;
 
   //Frame ids
   std::string imu_frame_id_;

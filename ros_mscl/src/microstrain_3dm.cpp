@@ -26,6 +26,7 @@
 #include "ros_mscl/status_msg.h"
 #include "ros_mscl/nav_status_msg.h"
 #include "ros_mscl/nav_heading_msg.h"
+#include "ros_mscl/nav_heading_state_msg.h"
 #include "microstrain_diagnostic_updater.h"
 #include <ros/callback_queue.h>
 #include <tf2/LinearMath/Transform.h>
@@ -431,8 +432,8 @@ void Microstrain::run()
     {
       set_dynamics_mode_service = node.advertiseService("set_dynamics_mode", &Microstrain::set_dynamics_mode, this);
       get_dynamics_mode_service = node.advertiseService("get_dynamics_mode", &Microstrain::get_dynamics_mode, this);
-    }
-
+    } 
+ 
     //Print the device info
     ROS_INFO("Model Name:    %s\n", msclInertialNode->modelName().c_str());
     ROS_INFO("Serial Number: %s\n", msclInertialNode->serialNumber().c_str());
@@ -454,10 +455,11 @@ void Microstrain::run()
     //If the device has a kalman filter, publish relevant topics
     if(supportsFilter)
     {
-      nav_pub_          = node.advertise<nav_msgs::Odometry>("nav/odom", 100);
-      nav_status_pub_   = node.advertise<ros_mscl::nav_status_msg>("nav/status", 100);
-      nav_heading_pub_  = node.advertise<ros_mscl::nav_heading_msg>("nav/heading", 100);
-      filtered_imu_pub_ = node.advertise<sensor_msgs::Imu>("filtered/imu/data", 100);
+      nav_pub_                = node.advertise<nav_msgs::Odometry>("nav/odom", 100);
+      nav_status_pub_         = node.advertise<ros_mscl::nav_status_msg>("nav/status", 100);
+      nav_heading_pub_        = node.advertise<ros_mscl::nav_heading_msg>("nav/heading", 100);
+      nav_heading_state_pub_  = node.advertise<ros_mscl::nav_heading_state_msg>("nav/heading_state", 100);
+      filtered_imu_pub_       = node.advertise<sensor_msgs::Imu>("filtered/imu/data", 100);
     }
   
     //If the device has a magnetometer, publish relevant topics
@@ -549,7 +551,8 @@ void Microstrain::run()
             mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_ESTIMATED_LINEAR_ACCEL,
             mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_ESTIMATED_ORIENT_EULER,
             mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_ESTIMATED_LLH_POS,
-            mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_FILTER_STATUS};
+            mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_FILTER_STATUS,
+            mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_HEADING_UPDATE_SOURCE};
 
         mscl::MipChannels supportedChannels;
         for(mscl::MipTypes::ChannelField channel : msclInertialNode->features().supportedChannelFields(mscl::MipTypes::DataClass::CLASS_ESTFILTER))
@@ -3237,6 +3240,27 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
       }
     }break;
 
+
+    case mscl::MipTypes:: CH_FIELD_ESTFILTER_HEADING_UPDATE_SOURCE: 
+    {
+      if(point.qualifier() == mscl::MipTypes::CH_HEADING) 
+      {
+        nav_heading_state_msg_.heading_rad = point.as_float();
+      } 
+      else if(point.qualifier() == mscl::MipTypes::CH_HEADING_UNCERTAINTY)
+      {
+        nav_heading_state_msg_.heading_uncertainty = point.as_float();
+      }
+      else if(point.qualifier() == mscl::MipTypes::CH_SOURCE)
+      {
+        nav_heading_state_msg_.source = point.as_uint16();
+      }
+      else if(point.qualifier() == mscl::MipTypes::CH_FLAGS)
+      {
+        nav_heading_state_msg_.status_flags = point.as_uint16();
+      }
+    }break;  
+
     default: break;
     }
   }
@@ -3250,6 +3274,7 @@ void Microstrain::parseEstFilterPacket(const mscl::MipDataPacket &packet)
   nav_pub_.publish(nav_msg_);
   nav_status_pub_.publish(nav_status_msg_);
   nav_heading_pub_.publish(nav_heading_msg_);
+  nav_heading_state_pub_.publish(nav_heading_state_msg_);
 }
 
 

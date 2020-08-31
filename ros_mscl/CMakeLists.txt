@@ -34,6 +34,7 @@ add_message_files(
   status_msg.msg
   nav_status_msg.msg
   nav_heading_msg.msg
+  nav_heading_state_msg.msg
 )
 
 add_service_files(
