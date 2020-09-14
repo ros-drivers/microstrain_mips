@@ -1,71 +1,241 @@
-<?xml version="1.0"?>
+<?xml version="1.1"?>
 <launch>
-  <!-- Standalone example launch file for 3DM-GX5-25 or 3DM-GX5-45-->
+
+  <!-- Standalone example launch file for GX3, GX4, GX/CX5, RQ1 and GQ7 series devices-->
+  <!-- Note: Feature support is device-dependent and some of the following settings may have no affect on your device. --> 
+     <!--  Please consult your device's documentation for supported features -->
 
   <!-- Declare arguments with default values -->
-  <arg name="name" default="gx5" />
-  <arg name="port" default="/dev/ttyS0" />
-  <arg name="baudrate" default="115200" />
-  <arg name="imu_rate" default="100" />
-  <arg name="imu_frame_id" default="gx5_link" />
-  <arg name="debug" default="false" />
-  <arg name="diagnostics" default="true" />
+  <arg name="name"        default = "gx5" />
+  <arg name="port"        default = "/dev/ttyS0" />
+  <arg name="baudrate"    default = "115200" />
+  <arg name="debug"       default = "false" />
+  <arg name="diagnostics" default = "true" />
 
-  <!-- For setting debug level to debug -->
-  <group if="$(arg debug)">
-    <env name="ROSCONSOLE_CONFIG_FILE"
-       value="$(find ros_mscl)/config/custom_rosconsole.conf"/>
-  </group>
 
+  <!-- ****************************************************************** -->
   <!-- Microstrain sensor node -->
+  <!-- ****************************************************************** -->
+    
   <node name="ros_mscl_node" pkg="ros_mscl" type="ros_mscl_node" output="screen" ns="$(arg name)">
 
-    <param name="port" value="$(arg port)" type="str" />
-    <param name="baudrate" value="$(arg baudrate)" type="int" />
-
-    <param name="device_setup" value="true" type="bool" />
-
+    <!-- ****************************************************************** -->
     <!-- General Settings -->
-    <param name="readback_settings" value="true" type="bool" />
+    <!-- ****************************************************************** -->
+    
+    <param name="port"     value="$(arg port)"     type="str" />
+    <param name="baudrate" value="$(arg baudrate)" type="int" />
+    
+    <!-- Controls if the driver-defined setup is sent to the device
+          false - The driver will ignore the settings below and use the device's current settings
+          true  - Overwrite the current device settings with those listed below
+     -->
+     
+    <param name="device_setup" value="true" type="bool" />
+    
+
+    <!-- Controls if the driver-defined settings are saved 
+          false - Do not save the settings
+          true  - Save the settings in the device's non-volatile memory
+     -->
+     
     <param name="save_settings" value="true" type="bool" />
-    <param name="auto_init" value="true" type="bool" />
+    
 
-    <!-- AHRS Settings -->
+    <!-- ****************************************************************** -->
+    <!-- IMU Settings -->
+    <!-- ****************************************************************** -->
+    
     <param name="publish_imu" value="true" type="bool" />
-    <param name="imu_rate" value="$(arg imu_rate)" type="int" />
-    <param name="imu_frame_id" value="$(arg imu_frame_id)" type="str" />
 
-    <!-- Declination source 1=None, 2=magnetic, 3=manual -->
-    <param name="declination_source" value="2" type="int" />
-    <param name="declination" value="0.23" type="double" />
+    <param name="imu_data_rate" value="100"      type="int" />
+    <param name="imu_frame_id"  value="gx5_link" type="str" />
 
-    <!-- Heading source 0=None, 1=magnetic, 2=GNSS velocity (note: see manual for limitations)  -->
-    <param name="heading_source" value="1" type="int" />
-
-    <!-- Static IMU message covariance values -->
+    <!-- Static IMU message covariance values (the device does not generate these) -->
     <!-- Since internally these are std::vector we need to use the rosparam tags -->
     <rosparam param="imu_orientation_cov"> [0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01]</rosparam>
-    <rosparam param="imu_linear_cov"> [0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01]</rosparam>
-    <rosparam param="imu_angular_cov"> [0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01]</rosparam>
+    <rosparam param="imu_linear_cov">      [0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01]</rosparam>
+    <rosparam param="imu_angular_cov">     [0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01]</rosparam>
 
-    <!-- GPS Settings -45 and -35 Only -->
-    <param name="gps_rate" value="4" type="int" />
-    <param name="gps_frame_id" value="gps_antenna_wgs84" type="str" />
 
-    <!-- Kalman Filter Settings -->
-    <param name="nav_rate" value="10" type="int" />
-    <param name="dynamics_mode" value="1" type="int" />
-    <param name="odom_frame_id" value="sensor_wgs84" type="str" />
-    <param name="odom_child_frame_id" value="sensor_ned" type="str" />
+    <!-- ****************************************************************** -->
+    <!-- GNSS Settings (only applicable for devices with GNSS) -->
+    <!-- ****************************************************************** -->
     
-    <param name="velocity_zupt_topic" value="/moving_vel" type="str" />
-    <param name="angular_zupt_topic" value="/moving_ang" type="str" />
-    <param name="velocity_zupt" value="true" type="bool" />
-    <param name="angular_zupt" value="true" type="bool" />
+    <param name="publish_gnss1"   value="true" type="bool" />
+    <param name="gnss1_data_rate" value="2"    type="int" />
+    <param name="gnss1_frame_id"  value="gnss1_antenna_wgs84" type="str" />
+
+    <!-- Antenna #1 lever arm offset vector
+         For GQ7 - in the vehicle frame wrt IMU origin (meters)
+         For all other models - in the IMU frame wrt IMU origin (meters) 
+         Note: Make this as accurate as possible for good performance -->
+     -->
+    <rosparam param="gnss1_antenna_offset"> [0.0, -0.7, -1.0]</rosparam>
+
+    <!-- GNSS2 settings are only applicable for multi-GNSS systems (e.g. GQ7) -->
+    <param name="publish_gnss2"   value="true" type="bool" />
+    <param name="gnss2_data_rate" value="2"    type="int" />
+    <param name="gnss2_frame_id"  value="gnss2_antenna_wgs84" type="str" />
+
+    <!-- Antenna #2 lever arm offset vector (In the vehicle frame wrt IMU origin (meters) )-->
+    <!--Note: Make this as accurate as possible for good performance -->
+
+    <rosparam param="gnss2_antenna_offset"> [0.0, 0.7, -1.0]</rosparam>
+
+    <!-- (GQ7 Only) Enable RTK dongle interface -->
+    <param name="rtk_dongle_enable" value="true"    type="bool" />
+ 
+    <!-- ****************************************************************** -->
+    <!-- Kalman Filter Settings (only applicable for devices with a Kalman Filter) -->
+    <!-- ****************************************************************** -->
+    
+    <param name="publish_filter" value="true" type="bool" />
+
+    <param name="filter_data_rate"           value="10" type="int" />
+    <param name="filter_odom_frame_id"       value="sensor_wgs84" type="str" />
+    <param name="filter_odom_child_frame_id" value="sensor_ned" type="str" />
+ 
+    <!-- Sensor2vehicle frame transformation selector 
+         0 = None, 1 = Euler Angles, 2 - matrix, 3 - quaternion 
+         Notes: These are different ways of setting the same parameter in the device.
+                The different options are provided as a convenience.
+                Support for matrix and quaternion options is firmware version dependent.
+                Quaternion order is [i, j, k, w]
+     -->
+    <param name="filter_sensor2vehicle_frame_selector" value="0" type="int" />
+
+    <rosparam param="filter_sensor2vehicle_frame_transformation_euler">      [0.0, 0.0, 0.0]</rosparam>
+    <rosparam param="filter_sensor2vehicle_frame_transformation_matrix">     [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]</rosparam>
+    <rosparam param="filter_sensor2vehicle_frame_transformation_quaternion"> [0.0, 0.0, 0.0, 1.0]</rosparam>
+ 
+
+     <!-- Controls if the Kalman filter is reset after the settings are configured-->
+    <param name="filter_reset_after_config" value="true" type="bool" />
+
+     <!-- Controls if the Kalman filter will auto-init or requires manual initialization-->
+    <param name="filter_auto_init" value="true" type="bool" />
+
+    <!-- (All, except -10, and -15 products) Declination Source 1 = None, 2 = magnetic model, 3 = manual -->
+    <param name="filter_declination_source" value="2" type="int" />
+    <param name="filter_declination"        value="0.23" type="double" />
+
+    <!-- (All, except GQ7, -10, and -15 products) Heading Source 0 = None, 1 = magnetic, 2 = GNSS velocity (note: see manual for limitations)  -->
+    <param name="filter_heading_source" value="1" type="int" />
+
+    <!-- (GX5 and previous,-45 models only) Dynamics Mode 1 = Portable (default), 2 = Automotive, 3 = Airborne (<2Gs), 4 = Airborne High G (<4Gs) -->
+    <param name="filter_dynamics_mode" value="1" type="int" />>
+        
+    <!-- ZUPT control -->
+    <param name="filter_velocity_zupt_topic" value="/moving_vel" type="str" />
+    <param name="filter_angular_zupt_topic"  value="/moving_ang" type="str" />
+    <param name="filter_velocity_zupt"       value="true" type="bool" />
+    <param name="filter_angular_zupt"        value="true" type="bool" />
+
+    <!-- (GQ7 full support, GX5-45 limited support) Adaptive filter settings 
+          Adaptive level: 0 - off, 1 - Conservative, 2 = Moderate (default), 3 = agressive
+          Time limit: Max duration of measurement rejection prior to recovery, in milliseconds - default = 15000 
+     -->
+    
+
+    <param name="filter_adaptive_level"         value="2" type="int" />
+    <param name="filter_adaptive_time_limit_ms" value="15000" type="int" />
+
+    <!-- (GQ7 only) Aiding measurement control -->
+    <param name="filter_enable_gnss_pos_vel_aiding"     value="true"  type="bool" />
+    <param name="filter_enable_gnss_heading_aiding"     value="true"  type="bool" />
+    <param name="filter_enable_altimeter_aiding"        value="false" type="bool" />
+    <param name="filter_enable_odometer_aiding"         value="false" type="bool" />
+    <param name="filter_enable_magnetometer_aiding"     value="false" type="bool" />
+    <param name="filter_enable_external_heading_aiding" value="false" type="bool" />
+
+    <!-- (GQ7 only) Kinematic Constraints Control 
+          Acceleration = 0 - none, 1 - zero acceleration
+          Velocity     = 0 - none, 1 - zero velocity,    2 - wheeled vehicle 
+          Angular Rate = 0 - none, 1 - zero angular rate 
+     -->
+
+    <param name="filter_enable_acceleration_constraint" value="0" type="int" />
+    <param name="filter_enable_velocity_constraint"     value="0" type="int" />
+    <param name="filter_enable_angular_constraint"      value="0" type="int" />
+
+    <!-- (GQ7 only) Filter Initialization control
+  
+         Init Condition source = 
+         0 - auto pos, vel, attitude (default) 
+         1 - auto pos, vel, roll, pitch, manual heading
+         2 - auto pos, vel, manual attitude
+         3 - manual pos, vel, attitude
+     
+         Auto-Heading alignment selector = 
+         0 - Dual-antenna GNSS 
+         1 - GNSS kinematic (requires motion, e.g. a GNSS velocity)
+         2 - Magnetometer 
+       
+         Reference frame =
+         1 - WGS84 Earth-fixed, earth centered (ECEF) position, velocity, attitude
+         2 - WGS84 Latitude, Longitude, height above ellipsoid position, NED velocity and attitude
+     -->
+
+    <param name="filter_init_condition_src"              value="0"     type="int" />
+    <param name="filter_auto_heading_alignment_selector" value="0"     type="int" />
+    <param name="filter_init_reference_frame"            value="2"     type="int" />
+    <rosparam param="filter_init_position">   [0.0, 0.0, 0.0]</rosparam>    
+    <rosparam param="filter_init_velocity">   [0.0, 0.0, 0.0]</rosparam>
+    <rosparam param="filter_init_attitude">   [0.0, 0.0, 0.0]</rosparam>
+
+    <!-- (GQ7 only) Relative Position Configuration
+         Reference frame =
+         1 - Relative ECEF position
+         2 - Relative LLH position
+
+         Reference position - Units provided by reference frame
+     -->
+    
+
+    <param name="filter_relative_position_frame"    value="2"  type="int" />
+    <rosparam param="filter_relative_position_ref"> [0.0, 0.0, 0.0]</rosparam>    
+
+    <!-- (GQ7 only) Speed Lever Arm Configuration
+         Lever Arm - In vehicle reference frame (meters)
+     -->
+    
+
+    <rosparam param="filter_speed_lever_arm"> [0.0, 0.0, 0.0]</rosparam>    
+
+    <!-- (GQ7 only) Wheeled Vehicle Constraint Control 
+    
+          Note: When enabled, the filter uses the assumption that velocity is constrained to the primary vehicle axis. 
+                By convention, the primary vehicle axis is the vehicle X-axis
+     -->
+    
+    <param name="filter_enable_wheeled_vehicle_constraint" value="false"  type="bool" />
+
+    <!-- (GQ7 only) Vertical Gyro Constraint Control 
+    
+          Note: When enabled and no valid GNSS measurements are available, the filter uses the accelerometers to track 
+                pitch and roll under the assumption that the sensor platform is not undergoing linear acceleration.
+                This constraint is useful to maintain accurate pitch and roll during GNSS signal outages.
+     -->
+    
+    <param name="filter_enable_vertical_gyro_constraint" value="false"  type="bool" />
+    
+    <!-- (GQ7 only) GNSS Antenna Calibration Control 
+    
+         Note: When enabled, the filter will enable lever arm error tracking, up to the maximum offset specified in meters.
+     -->
+    
+    <param name="filter_enable_gnss_antenna_cal"     value="false" type="bool" />
+    <param name="filter_gnss_antenna_cal_max_offset" value="0.1"   type="double" />
   </node>
 
+
+  <!-- ****************************************************************** -->
   <!-- Diagnostics -->
+  <!-- ****************************************************************** -->
+    
   <group if="$(arg diagnostics)">
+
     <!-- Diagnostic Aggregator for robot monitor usage -->
     <node pkg="diagnostic_aggregator" type="aggregator_node" name="imu_diagnostic_aggregator">
       <rosparam command="load" file="$(find ros_mscl)/config/diagnostic_analyzers.yaml" />
@@ -73,4 +243,12 @@
   </group>
 
 
+  <!-- ****************************************************************** -->
+  <!-- Set the debug level to debug -->
+  <!-- ****************************************************************** -->
+ 
+  <group if="$(arg debug)">
+    <env name="ROSCONSOLE_CONFIG_FILE"
+       value="$(find ros_mscl)/config/custom_rosconsole.conf"/>
+  </group>
 </launch>

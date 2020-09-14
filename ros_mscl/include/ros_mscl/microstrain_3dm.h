@@ -44,9 +44,9 @@
 //MSCL
 #include "mscl/mscl.h"
 #include "ros_mscl/status_msg.h"
-#include "ros_mscl/nav_status_msg.h"
-#include "ros_mscl/nav_heading_msg.h"
-#include "ros_mscl/nav_heading_state_msg.h"
+#include "ros_mscl/filter_status_msg.h"
+#include "ros_mscl/filter_heading_msg.h"
+#include "ros_mscl/filter_heading_state_msg.h"
 #include "ros_mscl/SetAccelBias.h"
 #include "ros_mscl/GetAccelBias.h"
 #include "ros_mscl/SetGyroBias.h"
@@ -98,9 +98,11 @@
 #include "ros_mscl/GetSensor2VehicleTransformation.h"
 
 
-//Device Comm Modes
-#define MIP_SDK_GX4_45_IMU_STANDARD_MODE 0x01
-#define MIP_SDK_GX4_45_IMU_DIRECT_MODE   0x02
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Defines
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define NUM_COMMAND_LINE_ARGUMENTS 3
 
@@ -109,13 +111,9 @@
 //Macro to cause Sleep call to behave as it does for windows
 #define Sleep(x) usleep(x*1000.0)
 
-//Device id strings
-#define GX5_45_DEVICE "3DM-GX5-45"
-#define GX5_35_DEVICE "3DM-GX5-35"
-#define GX5_25_DEVICE "3DM-GX5-25"
-#define GX5_15_DEVICE "3DM-GX5-15"
-
-
+#define GNSS1_ID 0
+#define GNSS2_ID 1
+#define NUM_GNSS 2
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
@@ -138,11 +136,11 @@ namespace Microstrain
 
     void run();
 
-    void parseMipPacket(const mscl::MipDataPacket& packet);
-    void parseSensorPacket(const mscl::MipDataPacket& packet);
-    void parseEstFilterPacket(const mscl::MipDataPacket& packet);
-    void parseGnssPacket(const mscl::MipDataPacket& packet);
-
+    void parse_mip_packet(const mscl::MipDataPacket& packet);
+    void parse_imu_packet(const mscl::MipDataPacket& packet);
+    void parse_filter_packet(const mscl::MipDataPacket& packet);
+    void parse_gnss_packet(const mscl::MipDataPacket& packet, int gnss_id);
+   
     void device_status_callback();
     bool device_report(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
     bool get_basic_status(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
@@ -231,20 +229,10 @@ namespace Microstrain
     bool device_settings(ros_mscl::DeviceSettings::Request &req, ros_mscl::DeviceSettings::Response &res);
 
     void velocity_zupt_callback(const std_msgs::Bool& state);
-    void velZupt();
+    void vel_zupt();
     
     void ang_zupt_callback(const std_msgs::Bool& state);
-    void angZupt();    
-
-
-    //GNSS check  
-    bool get_model_gps()
-    {
-      if (Microstrain::GX5_45 || Microstrain::GX5_35)
-        return true;
-      else
-        return false;
-    }
+    void ang_zupt();    
 
 
   private:
@@ -254,165 +242,153 @@ namespace Microstrain
   void print_packet_stats();
 
   //Variables/fields
-  std::unique_ptr<mscl::InertialNode> msclInertialNode;
+  std::unique_ptr<mscl::InertialNode> m_inertial_device;
 
   //Packet Counters (valid, timeout, and checksum errors)
-  uint32_t filter_valid_packet_count_;
-  uint32_t ahrs_valid_packet_count_;
-  uint32_t gps_valid_packet_count_;
+  uint32_t m_imu_valid_packet_count;
+  uint32_t m_gnss_valid_packet_count[NUM_GNSS];
+  uint32_t m_filter_valid_packet_count;
 
-  uint32_t filter_timeout_packet_count_;
-  uint32_t ahrs_timeout_packet_count_;
-  uint32_t gps_timeout_packet_count_;
+  uint32_t m_imu_timeout_packet_count;
+  uint32_t m_gnss_timeout_packet_count[NUM_GNSS];
+  uint32_t m_filter_timeout_packet_count;
 
-  uint32_t filter_checksum_error_packet_count_;
-  uint32_t ahrs_checksum_error_packet_count_;
-  uint32_t gps_checksum_error_packet_count_;
+  uint32_t m_imu_checksum_error_packet_count;
+  uint32_t m_gnss_checksum_error_packet_count[NUM_GNSS];
+  uint32_t m_filter_checksum_error_packet_count;
 
   //Data field storage
-  //AHRS
-  float curr_ahrs_mag_x;
-  float curr_ahrs_mag_y;
-  float curr_ahrs_mag_z;
+  //IMU
+  float m_curr_imu_mag_x;
+  float m_curr_imu_mag_y;
+  float m_curr_imu_mag_z;
 
-  mscl::Vector curr_ahrs_quaternion_;
+  mscl::Vector m_curr_ahrs_quaternion;
 
   //FILTER
-  double curr_filter_posLat;
-  double curr_filter_posLong;
-  double curr_filter_posHeight;
+  double m_curr_filter_pos_lat;
+  double m_curr_filter_pos_long;
+  double m_curr_filter_pos_height;
 
-  float curr_filter_velNorth;
-  float curr_filter_velEast;
-  float curr_filter_velDown;
+  float m_curr_filter_vel_north;
+  float m_curr_filter_vel_east;
+  float m_curr_filter_vel_down;
 
-  mscl::Vector curr_filter_quaternion_;
+  mscl::Vector m_curr_filter_quaternion;
 
-  float curr_filter_roll;
-  float curr_filter_pitch;
-  float curr_filter_yaw;
+  float m_curr_filter_roll;
+  float m_curr_filter_pitch;
+  float m_curr_filter_yaw;
 
-  float curr_filter_angularRate_x;
-  float curr_filter_angularRate_y;
-  float curr_filter_angularRate_z;
+  float m_curr_filter_angular_rate_x;
+  float m_curr_filter_angular_rate_y;
+  float m_curr_filter_angular_rate_z;
 
-  float curr_filter_pos_uncert_north;
-  float curr_filter_pos_uncert_east;
-  float curr_filter_pos_uncert_down;
+  float m_curr_filter_pos_uncert_north;
+  float m_curr_filter_pos_uncert_east;
+  float m_curr_filter_pos_uncert_down;
 
-  float curr_filter_vel_uncert_north;
-  float curr_filter_vel_uncert_east;
-  float curr_filter_vel_uncert_down;
+  float m_curr_filter_vel_uncert_north;
+  float m_curr_filter_vel_uncert_east;
+  float m_curr_filter_vel_uncert_down;
 
-  float curr_filter_att_uncert_roll;
-  float curr_filter_att_uncert_pitch;
-  float curr_filter_att_uncert_yaw;
+  float m_curr_filter_att_uncert_roll;
+  float m_curr_filter_att_uncert_pitch;
+  float m_curr_filter_att_uncert_yaw;
 
   //IMU Publishers
-  ros::Publisher imu_pub_;
-  ros::Publisher mag_pub_;
+  ros::Publisher m_imu_pub;
+  ros::Publisher m_mag_pub;
 
-  //GPS Publishers
-  ros::Publisher gps_pub_;
-  ros::Publisher gps_odom_pub_;
- 
-  //NAV Filter Publishers
-  ros::Publisher nav_status_pub_;
-  ros::Publisher nav_heading_pub_;
-  ros::Publisher nav_heading_state_pub_;
-  ros::Publisher nav_pub_;
-  ros::Publisher filtered_imu_pub_;
- 
-  //ros::Publisher bias_pub_;
+  //GNSS Publishers
+  ros::Publisher m_gnss_pub[NUM_GNSS];
+  ros::Publisher m_gnss_odom_pub[NUM_GNSS];
+
+  //Filter Publishers
+  ros::Publisher m_filter_status_pub;
+  ros::Publisher m_filter_heading_pub;
+  ros::Publisher m_filter_heading_state_pub;
+  ros::Publisher m_filter_pub;
+  ros::Publisher m_filtered_imu_pub;
 
   //Device Status Publisher
-  ros::Publisher device_status_pub_;
+  ros::Publisher m_device_status_pub;
    
   //ZUPT subscribers
-  ros::Subscriber vel_state_sub_;
-  ros::Subscriber ang_state_sub_;
+  ros::Subscriber m_filter_vel_state_sub;
+  ros::Subscriber m_filter_ang_state_sub;
 
   //IMU Messages
-  sensor_msgs::Imu imu_msg_;
-  sensor_msgs::MagneticField mag_msg_;
+  sensor_msgs::Imu           m_imu_msg;
+  sensor_msgs::MagneticField m_mag_msg;
 
-  //GPS Messages
-  sensor_msgs::NavSatFix gps_msg_;
-  nav_msgs::Odometry gps_odom_msg_;
+  //GNSS Messages
+  sensor_msgs::NavSatFix m_gnss_msg[NUM_GNSS];
+  nav_msgs::Odometry     m_gnss_odom_msg[NUM_GNSS];
 
-  //Nav Messages
-  nav_msgs::Odometry nav_msg_;
-  sensor_msgs::Imu filtered_imu_msg_;
+  //Filter Messages
+  nav_msgs::Odometry                 m_filter_msg;
+  sensor_msgs::Imu                   m_filtered_imu_msg;
+  ros_mscl::filter_heading_msg       m_filter_heading_msg;
+  ros_mscl::filter_heading_state_msg m_filter_heading_state_msg;
+  ros_mscl::filter_status_msg        m_filter_status_msg;
 
-  //geometry_msgs::Vector3 bias_msg_;
-  ros_mscl::status_msg device_status_msg_;
-  ros_mscl::nav_status_msg nav_status_msg_;
-  ros_mscl::nav_heading_msg nav_heading_msg_;
-  ros_mscl::nav_heading_state_msg nav_heading_state_msg_;
-
+  //Device Status Message
+  ros_mscl::status_msg m_device_status_msg;
+ 
   //Frame ids
-  std::string imu_frame_id_;
-  std::string gps_frame_id_;
-  std::string odom_frame_id_;
-  std::string odom_child_frame_id_;
+  std::string m_imu_frame_id;
+  std::string m_gnss_frame_id[NUM_GNSS];
+  std::string m_filter_frame_id;
+  std::string m_filter_child_frame_id;
  
   //Topic strings
-  std::string velocity_zupt_topic;
-  std::string angular_zupt_topic;
+  std::string m_velocity_zupt_topic;
+  std::string m_angular_zupt_topic;
   
   //Publish data flags
-  bool publish_gps_;
-  bool publish_imu_;
-  bool publish_odom_;
-  bool publish_bias_;
+  bool m_publish_imu;
+  bool m_publish_gnss[NUM_GNSS];
+  bool m_publish_filter;
   
   //ZUPT, angular ZUPT topic listener variables
-  bool angular_zupt;
-  bool velocity_zupt;
+  bool m_angular_zupt;
+  bool m_velocity_zupt;
   
-  bool vel_still;
-  bool ang_still;
+  bool m_vel_still;
+  bool m_ang_still;
   
   //Static covariance vectors
-  std::vector<double> imu_linear_cov_;
-  std::vector<double> imu_angular_cov_;
-  std::vector<double> imu_orientation_cov_;
-
-  //Device Flags
-  bool GX5_15;
-  bool GX5_25;
-  bool GX5_35;
-  bool GX5_45;
-  bool GQX_45;
-  bool RQX_45;
-  bool CXX_45;
-  bool CVX_10;
-  bool CVX_15;
-  bool CVX_25;
+  std::vector<double> m_imu_linear_cov;
+  std::vector<double> m_imu_angular_cov;
+  std::vector<double> m_imu_orientation_cov;
 
   // Update rates
-  int nav_rate_;
-  int imu_rate_;
-  int gps_rate_;
+  int m_imu_data_rate;
+  int m_gnss_data_rate[NUM_GNSS];
+  int m_filter_data_rate;
+
+  //Gnss antenna offsets
+  std::vector<double> m_gnss_antenna_offset[NUM_GNSS];
 
   //Various settings variables
-  clock_t start;
-  uint8_t com_mode;
-  float   field_data[3];
-  float   soft_iron[9];
-  float   soft_iron_readback[9];
-  float   angles[3];
-  float   heading_angle;
-  float   readback_angles[3];
-  float   noise[3];
-  float   beta[3];
-  float   readback_beta[3];
-  float   readback_noise[3];
-  float   offset[3];
-  float   readback_offset[3];
-  double  reference_position_command[3];
-  double  reference_position_readback[3];
-  uint8_t dynamics_mode;
+  clock_t m_start;
+  uint8_t m_com_mode;
+  float   m_field_data[3];
+  float   m_soft_iron[9];
+  float   m_soft_iron_readback[9];
+  float   m_angles[3];
+  float   m_heading_angle;
+  float   m_readback_angles[3];
+  float   m_noise[3];
+  float   m_beta[3];
+  float   m_readback_beta[3];
+  float   m_readback_noise[3];
+  float   m_offset[3];
+  float   m_readback_offset[3];
+  double  m_reference_position_command[3];
+  double  m_reference_position_readback[3];
+  uint8_t m_dynamics_mode;
   }; //Microstrain class
 
 
