@@ -505,8 +505,8 @@ void Microstrain::run()
           if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_QUAT))
           {
             //Invert the quaternion for "rotation" (note: device uses aerospace quaternion definition [w, i, j, k])
-            mscl::Quaternion quat(filter_sensor2vehicle_frame_transformation_quaternion[-3], filter_sensor2vehicle_frame_transformation_quaternion[-0],
-                                  filter_sensor2vehicle_frame_transformation_quaternion[-1], filter_sensor2vehicle_frame_transformation_quaternion[-2]);
+            mscl::Quaternion quat(-filter_sensor2vehicle_frame_transformation_quaternion[3], -filter_sensor2vehicle_frame_transformation_quaternion[0],
+                                  -filter_sensor2vehicle_frame_transformation_quaternion[1], -filter_sensor2vehicle_frame_transformation_quaternion[2]);
             
             m_inertial_device->setSensorToVehicleRotation_quaternion(quat);
           }
