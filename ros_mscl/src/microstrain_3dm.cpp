@@ -677,6 +677,9 @@ void Microstrain::run()
         ROS_INFO("Resetting the filter after the configuration is complete.");
         m_inertial_device->resetFilter();
       }
+
+      //Resume the device
+      m_inertial_device->resume();
     }
 
 
