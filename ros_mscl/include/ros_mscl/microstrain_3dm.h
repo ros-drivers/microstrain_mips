@@ -28,6 +28,7 @@
 #include "ros/ros.h"
 #include "sensor_msgs/NavSatFix.h"
 #include "sensor_msgs/Imu.h"
+#include "sensor_msgs/TimeReference.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 #include "geometry_msgs/Vector3.h"
 #include "sensor_msgs/MagneticField.h"
@@ -303,6 +304,7 @@ namespace Microstrain
   //GNSS Publishers
   ros::Publisher m_gnss_pub[NUM_GNSS];
   ros::Publisher m_gnss_odom_pub[NUM_GNSS];
+  ros::Publisher m_gnss_time_pub[NUM_GNSS];
 
   //Filter Publishers
   ros::Publisher m_filter_status_pub;
@@ -323,8 +325,9 @@ namespace Microstrain
   sensor_msgs::MagneticField m_mag_msg;
 
   //GNSS Messages
-  sensor_msgs::NavSatFix m_gnss_msg[NUM_GNSS];
-  nav_msgs::Odometry     m_gnss_odom_msg[NUM_GNSS];
+  sensor_msgs::NavSatFix     m_gnss_msg[NUM_GNSS];
+  nav_msgs::Odometry         m_gnss_odom_msg[NUM_GNSS];
+  sensor_msgs::TimeReference m_gnss_time_msg[NUM_GNSS];
 
   //Filter Messages
   nav_msgs::Odometry                 m_filter_msg;

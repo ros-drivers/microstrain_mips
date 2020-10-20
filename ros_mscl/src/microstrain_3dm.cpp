@@ -720,6 +720,7 @@ void Microstrain::run()
       ROS_INFO("Publishing GNSS1 data.");
       m_gnss_pub[GNSS1_ID]      = node.advertise<sensor_msgs::NavSatFix>("gnss1/fix", 100);
       m_gnss_odom_pub[GNSS1_ID] = node.advertise<nav_msgs::Odometry>("gnss1/odom", 100);
+      m_gnss_time_pub[GNSS1_ID] = node.advertise<sensor_msgs::TimeReference>("gnss1/time_ref", 100);
     }
 
     //If the device has GNSS2, publish relevant topics
@@ -728,6 +729,7 @@ void Microstrain::run()
       ROS_INFO("Publishing GNSS2 data.");
       m_gnss_pub[GNSS2_ID]      = node.advertise<sensor_msgs::NavSatFix>("gnss2/fix", 100);
       m_gnss_odom_pub[GNSS2_ID] = node.advertise<nav_msgs::Odometry>("gnss2/odom", 100);
+      m_gnss_time_pub[GNSS2_ID] = node.advertise<sensor_msgs::TimeReference>("gnss2/time_ref", 100);
     }
 
     //If the device has a kalman filter, publish relevant topics
@@ -1559,11 +1561,13 @@ void Microstrain::parse_gnss_packet(const mscl::MipDataPacket &packet, int gnss_
   m_gnss_valid_packet_count[gnss_id]++;
   
   //Handle time
-  uint64_t time = packet.collectedTimestamp().nanoseconds();
-  
+  uint64_t time       = packet.collectedTimestamp().nanoseconds();
+  bool     time_valid = false;
+
   if(packet.hasDeviceTime() && packet.deviceTimeValid()) 
   {
-     time = packet.deviceTimestamp().nanoseconds();
+     time       = packet.deviceTimestamp().nanoseconds();
+     time_valid = true;
   }
 
   //GPS Fix time
@@ -1576,6 +1580,12 @@ void Microstrain::parse_gnss_packet(const mscl::MipDataPacket &packet, int gnss_
   m_gnss_odom_msg[gnss_id].header.stamp    = ros::Time().fromNSec(time);
   m_gnss_odom_msg[gnss_id].header.frame_id = m_gnss_frame_id[gnss_id];
   //m_gnss_odom_msg[gnss_id].child_frame_id  = m_gnss_odom_child_frame_id[gnss_id];
+
+  //GPS Time reference
+  m_gnss_time_msg[gnss_id].header.seq      = m_gnss_valid_packet_count[gnss_id];
+  m_gnss_time_msg[gnss_id].header.stamp    = ros::Time().fromNSec(time);
+  m_gnss_time_msg[gnss_id].header.frame_id = m_gnss_frame_id[gnss_id];
+  m_gnss_time_msg[gnss_id].time_ref        = ros::Time().fromNSec(time);
 
   //Get the list of data elements
   const mscl::MipDataPoints &points = packet.data();
@@ -1643,6 +1653,9 @@ void Microstrain::parse_gnss_packet(const mscl::MipDataPacket &packet, int gnss_
   //Publish
   m_gnss_pub[gnss_id].publish(m_gnss_msg[gnss_id]);
   m_gnss_odom_pub[gnss_id].publish(m_gnss_odom_msg[gnss_id]);
+
+  if(time_valid)
+    m_gnss_time_pub[gnss_id].publish(m_gnss_time_msg[gnss_id]);
 }
 
 
