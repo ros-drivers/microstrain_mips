@@ -1099,6 +1099,7 @@ void Microstrain::run()
   //Release the inertial node, if necessary
   if(m_inertial_device)
   {
+    m_inertial_device->setToIdle();
     m_inertial_device->connection().disconnect();
   }
 } 
@@ -1564,7 +1565,7 @@ void Microstrain::parse_gnss_packet(const mscl::MipDataPacket &packet, int gnss_
   uint64_t time       = packet.collectedTimestamp().nanoseconds();
   bool     time_valid = false;
 
-  if(packet.hasDeviceTime() && packet.deviceTimeValid()) 
+  if(packet.hasDeviceTime() && (packet.deviceTimeFlags() >= 3)) 
   {
      time       = packet.deviceTimestamp().nanoseconds();
      time_valid = true;
