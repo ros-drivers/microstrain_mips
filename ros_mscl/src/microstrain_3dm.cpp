@@ -1171,6 +1171,7 @@ void Microstrain::parse_imu_packet(const mscl::MipDataPacket &packet)
   bool has_accel = false;
   bool has_gyro  = false;
   bool has_quat  = false;
+  bool has_mag   = false;
 
   //Get the list of data elements
   const mscl::MipDataPoints &points = packet.data();
@@ -1222,6 +1223,8 @@ void Microstrain::parse_imu_packet(const mscl::MipDataPacket &packet)
     //Scaled Mag
     case mscl::MipTypes::CH_FIELD_SENSOR_SCALED_MAG_VEC:
     {
+      has_mag = true;
+
       if(point.qualifier() == mscl::MipTypes::CH_X)
       {
         m_curr_imu_mag_x           = point.as_float();
@@ -1278,7 +1281,9 @@ void Microstrain::parse_imu_packet(const mscl::MipDataPacket &packet)
 
   //Publish
   m_imu_pub.publish(m_imu_msg);
-  m_mag_pub.publish(m_mag_msg);
+
+  if(has_mag)
+    m_mag_pub.publish(m_mag_msg);
 }
 
 
