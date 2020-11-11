@@ -247,6 +247,7 @@ void Microstrain::run()
     bool supports_gnss1  = m_inertial_device->features().supportsCategory(mscl::MipTypes::DataClass::CLASS_GNSS) | m_inertial_device->features().supportsCategory(mscl::MipTypes::DataClass::CLASS_GNSS1);
     bool supports_gnss2  = m_inertial_device->features().supportsCategory(mscl::MipTypes::DataClass::CLASS_GNSS2);
     bool supports_filter = m_inertial_device->features().supportsCategory(mscl::MipTypes::DataClass::CLASS_ESTFILTER);
+    bool supports_imu    = m_inertial_device->features().supportsCategory(mscl::MipTypes::DataClass::CLASS_AHRS_IMU);
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -264,7 +265,7 @@ void Microstrain::run()
       //IMU Setup
       //
       
-      if(m_publish_imu)
+      if(m_publish_imu && supports_imu)
       {
         mscl::SampleRate imu_rate = mscl::SampleRate::Hertz(m_imu_data_rate);
 
@@ -672,7 +673,7 @@ void Microstrain::run()
 
 
       //Reset the filter, if enabled
-      if(filter_reset_after_config)
+      if(filter_reset_after_config && m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_RESET_FILTER))
       {
         ROS_INFO("Resetting the filter after the configuration is complete.");
         m_inertial_device->resetFilter();
