@@ -149,6 +149,73 @@
     <param name="filter_enable_magnetometer_aiding"     value="false" type="bool" />
     <param name="filter_enable_external_heading_aiding" value="false" type="bool" />
 
+    <!--  External GPS Time Update Control 
+          Notes:    filter_external_gps_time_topic should publish at no more than 1 Hz.
+                    gps_leap_seconds should be updated to reflect the current number
+                    of leap seconds.
+    -->
+    <param name="filter_enable_external_gps_time_update"    value="false" type="bool" />
+    <param name="filter_external_gps_time_topic"            value="/external_gps_time" type="str" />
+    <param name="gps_leap_seconds"                          value="18" type="int" />
+
+
+    <!--  (GQ7 only) GPIO Configuration
+          Notes:    For information on possible configurations and specific pin options, 
+                    refer to the MSCL MipNodeFeatures command, supportedGpioConfigurations.
+
+          GPIO Pins = 
+          1 - GPIO1 (primary port pin 7) - Features = 0 - Unused, 1 - GPIO, 2 - PPS, 3 - Encoder 
+          2 - GPIO2 (primary port pin 9) - Features = 0 - Unused, 1 - GPIO, 2 - PPS, 3 - Encoder 
+          3 - GPIO3 (aux port pin 7)     - Features = 0 - Unused, 1 - GPIO, 2 - PPS, 3 - Encoder 
+          4 - GPIO4 (aux port pin 9)     - Features = 0 - Unused, 1 - GPIO, 2 - PPS, 3 - Encoder 
+
+          Feature:
+          0 - Unused   - Behaviors = 0 - unused
+          1 - GPIO     - Behaviors = 0 - unused, 1 - input, 2 - output low, 3 - output high
+          2 - PPS      - Behaviors = 0 - unused, 1 - input, 2 - output
+          3 - Encoder  - Behaviors = 0 - unused, 1 - enc A, 2 - enc B
+
+          GPIO Behavior:
+          0 - Unused       
+          1 - Input        
+          2 - Output Low   
+          3 - Output High  
+
+          PPS Behavior:
+          0 - Unused 
+          1 - Input   
+          2 - Output  
+          
+          Encoder Behavior:
+          0 - Unused 
+          1 - Encoder A 
+          2 - Encoder B   
+
+          Pin Mode Bitfield: 
+          1 - open drain
+          2 - pulldown
+          4 - pullup
+    -->
+    <param name="gpio1_feature"     value="0" type="int" />
+    <param name="gpio1_behavior"    value="0" type="int" />
+    <param name="gpio1_pin_mode"    value="0" type="int" />
+    
+    <param name="gpio2_feature"     value="0" type="int" />
+    <param name="gpio2_behavior"    value="0" type="int" />
+    <param name="gpio2_pin_mode"    value="0" type="int" />
+    
+    <param name="gpio3_feature"     value="0" type="int" />
+    <param name="gpio3_behavior"    value="0" type="int" />
+    <param name="gpio3_pin_mode"    value="0" type="int" />
+    
+    <param name="gpio4_feature"     value="0" type="int" />
+    <param name="gpio4_behavior"    value="0" type="int" />
+    <param name="gpio4_pin_mode"    value="0" type="int" />
+
+    <param name="gpio_config"       value="false" type="bool" />
+
+    
+    
     <!-- (GQ7 only) Kinematic Constraints Control 
           Acceleration = 0 - none, 1 - zero acceleration
           Velocity     = 0 - none, 1 - zero velocity,    2 - wheeled vehicle 
@@ -224,6 +291,19 @@
     
          Note: When enabled, the filter will enable lever arm error tracking, up to the maximum offset specified in meters.
      -->
+
+    <!-- (GQ7 only) PPS Source
+          PPS Source =
+          0 - Disabled
+          1 - Reciever 1 (default)
+          2 - Reciever 2
+          3 - Generated from system oscillator
+          4 - GPIO 1 (provided by external source if supported)
+          5 - GPIO 2 (provided by external source if supported)
+          6 - GPIO 3 (provided by external source if supported)
+          7 - GPIO 4 (provided by external source if supported)
+     -->
+    <param name="filter_pps_source" value="1" type="int" />
     
     <param name="filter_enable_gnss_antenna_cal"     value="false" type="bool" />
     <param name="filter_gnss_antenna_cal_max_offset" value="0.1"   type="double" />

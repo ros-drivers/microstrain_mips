@@ -109,6 +109,9 @@
 
 #define DEFAULT_PACKET_TIMEOUT_MS  1000 //milliseconds
 
+#define SECS_PER_WEEK (60L*60*24*7)
+#define UTC_GPS_EPOCH_DUR (315964800)
+
 //Macro to cause Sleep call to behave as it does for windows
 #define Sleep(x) usleep(x*1000.0)
 
@@ -235,6 +238,8 @@ namespace Microstrain
     void ang_zupt_callback(const std_msgs::Bool& state);
     void ang_zupt();    
 
+    void external_gps_time_callback(const sensor_msgs::TimeReference& time);
+
 
   private:
 
@@ -267,6 +272,8 @@ namespace Microstrain
   mscl::Vector m_curr_ahrs_quaternion;
 
   //FILTER
+  double m_gps_leap_seconds;
+
   double m_curr_filter_pos_lat;
   double m_curr_filter_pos_long;
   double m_curr_filter_pos_height;
@@ -320,6 +327,9 @@ namespace Microstrain
   ros::Subscriber m_filter_vel_state_sub;
   ros::Subscriber m_filter_ang_state_sub;
 
+  //External GNSS subscriber
+  ros::Subscriber m_external_gps_time_sub;
+
   //IMU Messages
   sensor_msgs::Imu           m_imu_msg;
   sensor_msgs::MagneticField m_mag_msg;
@@ -348,6 +358,7 @@ namespace Microstrain
   //Topic strings
   std::string m_velocity_zupt_topic;
   std::string m_angular_zupt_topic;
+  std::string m_external_gps_time_topic;
   
   //Publish data flags
   bool m_publish_imu;

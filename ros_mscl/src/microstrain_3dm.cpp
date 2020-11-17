@@ -56,6 +56,7 @@ Microstrain::Microstrain()
   m_filter_frame_id = "filter_frame";
   m_filter_child_frame_id = "filter_child_frame";
   m_publish_imu = true;
+  m_gps_leap_seconds = 18.0;
   m_publish_gnss[GNSS1_ID]= true;
   m_publish_gnss[GNSS2_ID]= true;
   m_publish_filter= true;
@@ -104,6 +105,7 @@ void Microstrain::run()
   bool filter_enable_odometer_aiding;
   bool filter_enable_magnetometer_aiding;
   bool filter_enable_external_heading_aiding;
+  bool filter_enable_external_gps_time_update;
   int filter_enable_acceleration_constraint; 
   int filter_enable_velocity_constraint;
   int filter_enable_angular_constraint;
@@ -120,6 +122,22 @@ void Microstrain::run()
   bool filter_enable_vertical_gyro_constraint;
   bool filter_enable_gnss_antenna_cal;
   double filter_gnss_antenna_cal_max_offset;
+  int filter_pps_source;
+
+  //GPIO Config options
+  bool gpio_config;
+  int gpio1_feature;
+  int gpio1_behavior;
+  int gpio1_pin_mode;
+  int gpio2_feature;
+  int gpio2_behavior;
+  int gpio2_pin_mode;
+  int gpio3_feature;
+  int gpio3_behavior;
+  int gpio3_pin_mode;
+  int gpio4_feature;
+  int gpio4_behavior;
+  int gpio4_pin_mode;
   
 
   // ROS setup
@@ -174,7 +192,6 @@ void Microstrain::run()
   //RTK Dongle configuration
   private_nh.param("rtk_dongle_enable",  rtk_dongle_enable,  false);
   
-
   //Filter
   private_nh.param("publish_filter",             m_publish_filter, false);
   private_nh.param("filter_reset_after_config",  filter_reset_after_config, true);
@@ -187,15 +204,18 @@ void Microstrain::run()
   private_nh.param("filter_sensor2vehicle_frame_transformation_matrix",     filter_sensor2vehicle_frame_transformation_matrix,     default_matrix);
   private_nh.param("filter_sensor2vehicle_frame_transformation_quaternion", filter_sensor2vehicle_frame_transformation_quaternion, default_quaternion);
  
-  private_nh.param("filter_initial_heading",     initial_heading, (float)0.0);
-  private_nh.param("filter_heading_source",      heading_source, 0x1);
-  private_nh.param("filter_declination_source",  declination_source, 2);
-  private_nh.param("filter_declination",         declination, 0.23);
-  private_nh.param("filter_dynamics_mode",       dynamics_mode, 1);
-  private_nh.param("filter_angular_zupt",        m_angular_zupt, false);
-  private_nh.param("filter_velocity_zupt",       m_velocity_zupt, false);
-  private_nh.param("filter_velocity_zupt_topic", m_velocity_zupt_topic, std::string("/moving_vel"));
-  private_nh.param("filter_angular_zupt_topic",  m_angular_zupt_topic, std::string("/moving_ang"));
+  private_nh.param("filter_initial_heading",          initial_heading, (float)0.0);
+  private_nh.param("filter_heading_source",           heading_source, 0x1);
+  private_nh.param("filter_declination_source",       declination_source, 2);
+  private_nh.param("filter_declination",              declination, 0.23);
+  private_nh.param("filter_dynamics_mode",            dynamics_mode, 1);
+  private_nh.param("filter_pps_source",               filter_pps_source, 1);
+  private_nh.param("gps_leap_seconds",                m_gps_leap_seconds, 18.0);
+  private_nh.param("filter_angular_zupt",             m_angular_zupt, false);
+  private_nh.param("filter_velocity_zupt",            m_velocity_zupt, false);
+  private_nh.param("filter_velocity_zupt_topic",      m_velocity_zupt_topic, std::string("/moving_vel"));
+  private_nh.param("filter_angular_zupt_topic",       m_angular_zupt_topic, std::string("/moving_ang"));
+  private_nh.param("filter_external_gps_time_topic",  m_external_gps_time_topic, std::string("/external_gps_time"));
  
   //Additional GQ7 Filter
   private_nh.param("filter_adaptive_level" ,                   filter_adaptive_level, 2);
@@ -206,6 +226,7 @@ void Microstrain::run()
   private_nh.param("filter_enable_odometer_aiding",            filter_enable_odometer_aiding, false);
   private_nh.param("filter_enable_magnetometer_aiding",        filter_enable_magnetometer_aiding, false);
   private_nh.param("filter_enable_external_heading_aiding",    filter_enable_external_heading_aiding, false);
+  private_nh.param("filter_enable_external_gps_time_update",   filter_enable_external_gps_time_update, false);
   private_nh.param("filter_enable_acceleration_constraint",    filter_enable_acceleration_constraint, 0);
   private_nh.param("filter_enable_velocity_constraint",        filter_enable_velocity_constraint, 0);
   private_nh.param("filter_enable_angular_constraint",         filter_enable_angular_constraint, 0);
@@ -223,7 +244,26 @@ void Microstrain::run()
   private_nh.param("filter_enable_gnss_antenna_cal",           filter_enable_gnss_antenna_cal, false);
   private_nh.param("filter_gnss_antenna_cal_max_offset",       filter_gnss_antenna_cal_max_offset, 0.1);   
 
+  //GPIO Configuration
+  private_nh.param("gpio1_feature",   gpio1_feature,  0);
+  private_nh.param("gpio1_behavior",  gpio1_behavior, 0);
+  private_nh.param("gpio1_pin_mode",  gpio1_pin_mode, 0);
 
+  private_nh.param("gpio2_feature",   gpio2_feature,  0);
+  private_nh.param("gpio2_behavior",  gpio2_behavior, 0);
+  private_nh.param("gpio2_pin_mode",  gpio2_pin_mode, 0);
+
+  private_nh.param("gpio3_feature",   gpio3_feature,  0);
+  private_nh.param("gpio3_behavior",  gpio3_behavior, 0);
+  private_nh.param("gpio3_pin_mode",  gpio3_pin_mode, 0);
+
+  private_nh.param("gpio4_feature",   gpio4_feature,  0);
+  private_nh.param("gpio4_behavior",  gpio4_behavior, 0);
+  private_nh.param("gpio4_pin_mode",  gpio4_pin_mode, 0);
+
+  private_nh.param("gpio_config",     gpio_config, false);
+  
+  
   ///////////////////////////////////////////////////////////////////////////
   // Setup the inertial device, ROS publishers, and subscribers 
   ///////////////////////////////////////////////////////////////////////////
@@ -406,6 +446,55 @@ void Microstrain::run()
         ROS_INFO("Setting RTK dongle enable to %d", rtk_dongle_enable);
         m_inertial_device->enableRtk(rtk_dongle_enable);
       }
+      
+
+      //
+      //GPIO config
+      //
+
+      if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_GPIO_CONFIGURATION) && gpio_config)
+      {
+        try {
+          mscl::GpioConfiguration gpioConfig;
+          
+          gpioConfig.pin = 1;
+          gpioConfig.feature = static_cast<mscl::GpioConfiguration::Feature>(gpio1_feature);
+          gpioConfig.behavior = gpio1_behavior;
+          gpioConfig.pinMode.value(gpio1_pin_mode);
+          m_inertial_device->setGpioConfig(gpioConfig);
+  
+          ROS_INFO("Configuring GPIO1 to feature: %i, behavior: %i, pinMode: %i", gpio1_feature, gpio1_behavior, gpio1_pin_mode);
+  
+          gpioConfig.pin = 2;
+          gpioConfig.feature = static_cast<mscl::GpioConfiguration::Feature>(gpio2_feature);
+          gpioConfig.behavior = gpio2_behavior;
+          gpioConfig.pinMode.value(gpio4_pin_mode);
+          m_inertial_device->setGpioConfig(gpioConfig);
+  
+          ROS_INFO("Configuring GPIO2 to feature: %i, behavior: %i, pinMode: %i", gpio2_feature, gpio2_behavior, gpio2_pin_mode);
+  
+          gpioConfig.pin = 3;
+          gpioConfig.feature = static_cast<mscl::GpioConfiguration::Feature>(gpio3_feature);
+          gpioConfig.behavior = gpio3_behavior;
+          gpioConfig.pinMode.value(gpio4_pin_mode);
+          m_inertial_device->setGpioConfig(gpioConfig);
+  
+          ROS_INFO("Configuring GPIO3 to feature: %i, behavior: %i, pinMode: %i", gpio3_feature, gpio3_behavior, gpio3_pin_mode);
+  
+          gpioConfig.pin = 4;
+          gpioConfig.feature = static_cast<mscl::GpioConfiguration::Feature>(gpio4_feature);
+          gpioConfig.behavior = gpio4_behavior;
+          gpioConfig.pinMode.value(gpio4_pin_mode);
+          m_inertial_device->setGpioConfig(gpioConfig);
+  
+          ROS_INFO("Configuring GPIO4 to feature: %i, behavior: %i, pinMode: %i", gpio4_feature, gpio4_behavior, gpio4_pin_mode);
+        }
+
+        catch(mscl::Error &e)
+        {
+          ROS_ERROR("GPIO Config Error: %s", e.what());
+        }
+      }
 
 
       //
@@ -455,7 +544,16 @@ void Microstrain::run()
           }
         }
 
-
+        //set pps source
+        if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_PPS_SOURCE))
+        {
+          mscl::PpsSourceOptions sources = m_inertial_device->features().supportedPpsSourceOptions();
+          if (std::find(sources.begin(), sources.end(), static_cast<mscl::InertialTypes::PpsSource>(filter_pps_source)) != sources.end())
+          {
+            ROS_INFO("Setting PPS source to %#04X", static_cast<mscl::InertialTypes::PpsSource>(filter_pps_source));
+            m_inertial_device->setPpsSource(static_cast<mscl::InertialTypes::PpsSource>(filter_pps_source));
+          }
+        }
 
         //Set sensor2vehicle frame transformation
         //Euler Angles
@@ -1053,6 +1151,12 @@ void Microstrain::run()
       m_filter_ang_state_sub = node.subscribe(m_angular_zupt_topic.c_str(), 1000, &Microstrain::ang_zupt_callback, this);
     }
     
+    // external_gps
+    //Create a topic listener for external GNSS updates
+    if(filter_enable_external_gps_time_update && m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_GPS_TIME_UPDATE))
+    {
+      m_external_gps_time_sub = node.subscribe(m_external_gps_time_topic.c_str(), 1000, &Microstrain::external_gps_time_callback, this);
+    }
 
     //
     //Main packet processing loop
@@ -1791,6 +1895,36 @@ void Microstrain::ang_zupt()
 
     ros::spinOnce();
     loop_rate.sleep();
+  }
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// External GPS Time Callback
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+void Microstrain::external_gps_time_callback(const sensor_msgs::TimeReference& time)
+{
+  if(m_inertial_device)
+  {
+    try
+    {
+      long utcTime = time.time_ref.toSec() + m_gps_leap_seconds - UTC_GPS_EPOCH_DUR;
+
+      long secs = utcTime % (int)SECS_PER_WEEK;
+
+      int weeks = (utcTime - secs)/SECS_PER_WEEK;
+
+
+      m_inertial_device->setGPSTimeUpdate(mscl::MipTypes::TimeFrame::TIME_FRAME_WEEKS, weeks);
+      m_inertial_device->setGPSTimeUpdate(mscl::MipTypes::TimeFrame::TIME_FRAME_SECONDS, secs);
+
+      ROS_INFO("GPS Update: w%i, s%i",
+               weeks, secs);
+    }
+    catch(mscl::Error &e)
+    {
+      ROS_ERROR("Error: %s", e.what());
+    }
   }
 }
 
