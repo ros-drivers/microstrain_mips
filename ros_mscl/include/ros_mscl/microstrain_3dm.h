@@ -22,7 +22,8 @@
 #include <cstdio>
 #include <unistd.h>
 #include <time.h>
-
+#include <iostream>
+#include <fstream>
 
 //ROS
 #include "ros/ros.h"
@@ -45,6 +46,7 @@
 //MSCL
 #include "mscl/mscl.h"
 #include "ros_mscl/status_msg.h"
+#include "ros_mscl/rtk_status_msg.h"
 #include "ros_mscl/filter_status_msg.h"
 #include "ros_mscl/filter_heading_msg.h"
 #include "ros_mscl/filter_heading_state_msg.h"
@@ -119,6 +121,7 @@
 #define GNSS2_ID 1
 #define NUM_GNSS 2
 
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 /// \brief Contains functions for micostrain driver
@@ -144,7 +147,8 @@ namespace Microstrain
     void parse_imu_packet(const mscl::MipDataPacket& packet);
     void parse_filter_packet(const mscl::MipDataPacket& packet);
     void parse_gnss_packet(const mscl::MipDataPacket& packet, int gnss_id);
-   
+    void parse_rtk_packet(const mscl::MipDataPacket& packet);
+
     void device_status_callback();
     bool device_report(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
     bool get_basic_status(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
@@ -254,6 +258,7 @@ namespace Microstrain
   uint32_t m_imu_valid_packet_count;
   uint32_t m_gnss_valid_packet_count[NUM_GNSS];
   uint32_t m_filter_valid_packet_count;
+  uint32_t m_rtk_valid_packet_count;
 
   uint32_t m_imu_timeout_packet_count;
   uint32_t m_gnss_timeout_packet_count[NUM_GNSS];
@@ -262,6 +267,7 @@ namespace Microstrain
   uint32_t m_imu_checksum_error_packet_count;
   uint32_t m_gnss_checksum_error_packet_count[NUM_GNSS];
   uint32_t m_filter_checksum_error_packet_count;
+
 
   //Data field storage
   //IMU
@@ -313,6 +319,9 @@ namespace Microstrain
   ros::Publisher m_gnss_odom_pub[NUM_GNSS];
   ros::Publisher m_gnss_time_pub[NUM_GNSS];
 
+  //RTK Data publisher
+  ros::Publisher m_rtk_pub;
+  
   //Filter Publishers
   ros::Publisher m_filter_status_pub;
   ros::Publisher m_filter_heading_pub;
@@ -339,6 +348,9 @@ namespace Microstrain
   nav_msgs::Odometry         m_gnss_odom_msg[NUM_GNSS];
   sensor_msgs::TimeReference m_gnss_time_msg[NUM_GNSS];
 
+  //RTK Messages
+  ros_mscl::rtk_status_msg   m_rtk_msg;
+ 
   //Filter Messages
   nav_msgs::Odometry                 m_filter_msg;
   sensor_msgs::Imu                   m_filtered_imu_msg;
@@ -364,7 +376,8 @@ namespace Microstrain
   bool m_publish_imu;
   bool m_publish_gnss[NUM_GNSS];
   bool m_publish_filter;
-  
+  bool m_publish_rtk;
+
   //ZUPT, angular ZUPT topic listener variables
   bool m_angular_zupt;
   bool m_velocity_zupt;
@@ -403,6 +416,11 @@ namespace Microstrain
   double  m_reference_position_command[3];
   double  m_reference_position_readback[3];
   uint8_t m_dynamics_mode;
+
+  //Raw data file parameters
+  bool          m_raw_file_enable;
+  bool          m_raw_file_include_support_data;
+  std::ofstream m_raw_file;
   }; //Microstrain class
 
 

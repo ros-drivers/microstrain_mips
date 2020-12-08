@@ -35,6 +35,7 @@ add_message_files(
   filter_status_msg.msg
   filter_heading_msg.msg
   filter_heading_state_msg.msg
+  rtk_status_msg.msg
 )
 
 add_service_files(

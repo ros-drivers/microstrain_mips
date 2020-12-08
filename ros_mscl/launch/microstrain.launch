@@ -39,8 +39,36 @@
           true  - Save the settings in the device's non-volatile memory
      -->
      
-    <param name="save_settings" value="true" type="bool" />
+    <param name="save_settings" value="false" type="bool" />
     
+
+    <!-- Controls if the driver creates a raw binary file
+          false - Do not create the file
+          true  - Create the file
+
+          Notes: 1) The filename will have the following format - 
+                    model_number "_" serial_number "_" datetime (year_month_day_hour_minute_sec) ".bin"
+                    example: "3DM-GX5-45_6251.00001_20_12_01_01_01_01.bin"
+                 2) This file is useful for getting support from the manufacturer
+     -->
+     
+    <param name="raw_file_enable" value="false" type="bool" />
+
+
+    <!-- (GQ7 only) Controls if the driver requests additional factory support data to be included in the raw data file
+          false - Do not request the additional data
+          true  - Request the additional channels
+
+          Notes: Including this feature increases communication bandwidth requirements... for serial data connections,
+                 please ensure the baudrate is sufficient for the added data channels.
+     -->
+
+    <param name="raw_file_include_support_data" value="false" type="bool" />
+
+    <!-- The directory to store the raw data file (no trailing '/')-->
+
+    <param name="raw_file_directory" value="/home/your_name" type="str" />
+ 
 
     <!-- ****************************************************************** -->
     <!-- IMU Settings -->

@@ -2,13 +2,19 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.1 (2020-12-08)
+------------------
+* Added support for raw binary file output (used for support issues)
+* Added support for RTK status message received on data class GNSS3 (GQ7 only)
+* Added factory streaming setup for devices that support this command (GQ7 currently)
+
 1.1.0 (2020-09-14)
 ------------------
-*Added preliminary support for GQ7
-*Changed "GPS" topic to "GNSS1" and added "GNSS2" topic in support of GQ7
-*Refactored driver code for more explicit variable names
-*Changed initialization procedure to setup device first, then topics, then services
-*Modified example launch file with more specific parameter names
+* Added preliminary support for GQ7
+* Changed "GPS" topic to "GNSS1" and added "GNSS2" topic in support of GQ7
+* Refactored driver code for more explicit variable names
+* Changed initialization procedure to setup device first, then topics, then services
+* Modified example launch file with more specific parameter names
 
 
 1.0.0 (2020-02-13)

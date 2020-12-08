@@ -21,6 +21,7 @@
 #include <math.h>
 #include <vector>
 #include <stdlib.h>
+#include <ctime>
 
 #include "mscl/mscl.h"
 #include "microstrain_diagnostic_updater.h"
@@ -63,6 +64,8 @@ Microstrain::Microstrain()
   m_imu_linear_cov = std::vector<double>(9, 0.0);
   m_imu_angular_cov = std::vector<double>(9, 0.0);
   m_imu_orientation_cov = std::vector<double>(9, 0.0); 
+  m_raw_file_enable = false;
+  m_raw_file_include_support_data = false;
 }
 
 
@@ -148,6 +151,9 @@ void Microstrain::run()
   // Comms Parameters
   std::string port;
   int baudrate;
+
+  //Raw datafile 
+  std::string raw_file_directory;
 
 
   ///////////////////////////////////////////////////////////////////////////
@@ -263,6 +269,12 @@ void Microstrain::run()
 
   private_nh.param("gpio_config",     gpio_config, false);
   
+  //Raw data file save
+  private_nh.param("raw_file_enable",               m_raw_file_enable, false);
+  private_nh.param("raw_file_include_support_data", m_raw_file_include_support_data, false);
+  private_nh.param("raw_file_directory",            raw_file_directory, std::string("."));
+
+   
   
   ///////////////////////////////////////////////////////////////////////////
   // Setup the inertial device, ROS publishers, and subscribers 
@@ -286,6 +298,7 @@ void Microstrain::run()
     //Get supported features
     bool supports_gnss1  = m_inertial_device->features().supportsCategory(mscl::MipTypes::DataClass::CLASS_GNSS) | m_inertial_device->features().supportsCategory(mscl::MipTypes::DataClass::CLASS_GNSS1);
     bool supports_gnss2  = m_inertial_device->features().supportsCategory(mscl::MipTypes::DataClass::CLASS_GNSS2);
+    bool supports_rtk    = m_inertial_device->features().supportsCategory(mscl::MipTypes::DataClass::CLASS_GNSS3);
     bool supports_filter = m_inertial_device->features().supportsCategory(mscl::MipTypes::DataClass::CLASS_ESTFILTER);
     bool supports_imu    = m_inertial_device->features().supportsCategory(mscl::MipTypes::DataClass::CLASS_AHRS_IMU);
 
@@ -300,6 +313,55 @@ void Microstrain::run()
       //Put into idle mode
       ROS_INFO("Setting to Idle: Stopping data streams and/or waking from sleep");
       m_inertial_device->setToIdle();
+
+
+      //
+      //GPIO config
+      //
+
+      if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_GPIO_CONFIGURATION) && gpio_config)
+      {
+        try {
+          mscl::GpioConfiguration gpioConfig;
+          
+          gpioConfig.pin = 1;
+          gpioConfig.feature = static_cast<mscl::GpioConfiguration::Feature>(gpio1_feature);
+          gpioConfig.behavior = gpio1_behavior;
+          gpioConfig.pinMode.value(gpio1_pin_mode);
+          m_inertial_device->setGpioConfig(gpioConfig);
+  
+          ROS_INFO("Configuring GPIO1 to feature: %i, behavior: %i, pinMode: %i", gpio1_feature, gpio1_behavior, gpio1_pin_mode);
+  
+          gpioConfig.pin = 2;
+          gpioConfig.feature = static_cast<mscl::GpioConfiguration::Feature>(gpio2_feature);
+          gpioConfig.behavior = gpio2_behavior;
+          gpioConfig.pinMode.value(gpio4_pin_mode);
+          m_inertial_device->setGpioConfig(gpioConfig);
+  
+          ROS_INFO("Configuring GPIO2 to feature: %i, behavior: %i, pinMode: %i", gpio2_feature, gpio2_behavior, gpio2_pin_mode);
+  
+          gpioConfig.pin = 3;
+          gpioConfig.feature = static_cast<mscl::GpioConfiguration::Feature>(gpio3_feature);
+          gpioConfig.behavior = gpio3_behavior;
+          gpioConfig.pinMode.value(gpio4_pin_mode);
+          m_inertial_device->setGpioConfig(gpioConfig);
+  
+          ROS_INFO("Configuring GPIO3 to feature: %i, behavior: %i, pinMode: %i", gpio3_feature, gpio3_behavior, gpio3_pin_mode);
+  
+          gpioConfig.pin = 4;
+          gpioConfig.feature = static_cast<mscl::GpioConfiguration::Feature>(gpio4_feature);
+          gpioConfig.behavior = gpio4_behavior;
+          gpioConfig.pinMode.value(gpio4_pin_mode);
+          m_inertial_device->setGpioConfig(gpioConfig);
+  
+          ROS_INFO("Configuring GPIO4 to feature: %i, behavior: %i, pinMode: %i", gpio4_feature, gpio4_behavior, gpio4_pin_mode);
+        }
+
+        catch(mscl::Error &e)
+        {
+          ROS_ERROR("GPIO Config Error: %s", e.what());
+        }
+      }
 
       //
       //IMU Setup
@@ -410,7 +472,7 @@ void Microstrain::run()
             mscl::MipTypes::ChannelField::CH_FIELD_GNSS_2_LLH_POSITION,
             mscl::MipTypes::ChannelField::CH_FIELD_GNSS_2_NED_VELOCITY,
             mscl::MipTypes::ChannelField::CH_FIELD_GNSS_2_GPS_TIME};
-
+        
         mscl::MipChannels supportedChannels;
         for (mscl::MipTypes::ChannelField channel : m_inertial_device->features().supportedChannelFields(mscl::MipTypes::DataClass::CLASS_GNSS2))
         {
@@ -436,66 +498,41 @@ void Microstrain::run()
         m_inertial_device->enableDataStream(mscl::MipTypes::DataClass::CLASS_GNSS2);
       }
 
-
       //
       // RTK Dongle
       //
       
+      if(m_publish_rtk && supports_rtk)
+      {
+
+        mscl::SampleRate gnss3_rate = mscl::SampleRate::Hertz(1);
+
+        ROS_INFO("Setting RTK data to stream at 1 hz");
+
+        mscl::MipTypes::MipChannelFields gnssChannels{
+            mscl::MipTypes::ChannelField::CH_FIELD_GNSS_3_RTK_CORRECTIONS_STATUS};
+
+        mscl::MipChannels supportedChannels;
+        for (mscl::MipTypes::ChannelField channel : m_inertial_device->features().supportedChannelFields(mscl::MipTypes::DataClass::CLASS_GNSS3))
+        {
+          if (std::find(gnssChannels.begin(), gnssChannels.end(), channel) != gnssChannels.end())
+          {
+            supportedChannels.push_back(mscl::MipChannel(channel, gnss3_rate));
+          }
+        }
+
+        //set the GNSS channel fields
+        m_inertial_device->setActiveChannelFields(mscl::MipTypes::DataClass::CLASS_GNSS3, supportedChannels);
+
+        m_inertial_device->enableDataStream(mscl::MipTypes::DataClass::CLASS_GNSS3);
+      }
+
+
       if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_GNSS_RTK_CONFIG))
       {
         ROS_INFO("Setting RTK dongle enable to %d", rtk_dongle_enable);
         m_inertial_device->enableRtk(rtk_dongle_enable);
       }
-      
-
-      //
-      //GPIO config
-      //
-
-      if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_GPIO_CONFIGURATION) && gpio_config)
-      {
-        try {
-          mscl::GpioConfiguration gpioConfig;
-          
-          gpioConfig.pin = 1;
-          gpioConfig.feature = static_cast<mscl::GpioConfiguration::Feature>(gpio1_feature);
-          gpioConfig.behavior = gpio1_behavior;
-          gpioConfig.pinMode.value(gpio1_pin_mode);
-          m_inertial_device->setGpioConfig(gpioConfig);
-  
-          ROS_INFO("Configuring GPIO1 to feature: %i, behavior: %i, pinMode: %i", gpio1_feature, gpio1_behavior, gpio1_pin_mode);
-  
-          gpioConfig.pin = 2;
-          gpioConfig.feature = static_cast<mscl::GpioConfiguration::Feature>(gpio2_feature);
-          gpioConfig.behavior = gpio2_behavior;
-          gpioConfig.pinMode.value(gpio4_pin_mode);
-          m_inertial_device->setGpioConfig(gpioConfig);
-  
-          ROS_INFO("Configuring GPIO2 to feature: %i, behavior: %i, pinMode: %i", gpio2_feature, gpio2_behavior, gpio2_pin_mode);
-  
-          gpioConfig.pin = 3;
-          gpioConfig.feature = static_cast<mscl::GpioConfiguration::Feature>(gpio3_feature);
-          gpioConfig.behavior = gpio3_behavior;
-          gpioConfig.pinMode.value(gpio4_pin_mode);
-          m_inertial_device->setGpioConfig(gpioConfig);
-  
-          ROS_INFO("Configuring GPIO3 to feature: %i, behavior: %i, pinMode: %i", gpio3_feature, gpio3_behavior, gpio3_pin_mode);
-  
-          gpioConfig.pin = 4;
-          gpioConfig.feature = static_cast<mscl::GpioConfiguration::Feature>(gpio4_feature);
-          gpioConfig.behavior = gpio4_behavior;
-          gpioConfig.pinMode.value(gpio4_pin_mode);
-          m_inertial_device->setGpioConfig(gpioConfig);
-  
-          ROS_INFO("Configuring GPIO4 to feature: %i, behavior: %i, pinMode: %i", gpio4_feature, gpio4_behavior, gpio4_pin_mode);
-        }
-
-        catch(mscl::Error &e)
-        {
-          ROS_ERROR("GPIO Config Error: %s", e.what());
-        }
-      }
-
 
       //
       //Filter setup
@@ -762,11 +799,24 @@ void Microstrain::run()
         m_inertial_device->enableDataStream(mscl::MipTypes::DataClass::CLASS_ESTFILTER);
       }
 
+      //
+      //Support channel setup
+      //
+
+      if(m_raw_file_enable && m_raw_file_include_support_data &&
+         m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_FACTORY_STREAMING))
+      {
+        ROS_INFO("Enabling factory support channels");
+
+        m_inertial_device->setFactoryStreamingChannels(mscl::InertialTypes::FACTORY_STREAMING_ADDITIVE);
+      }
+
+
       //Save the settings to the device, if enabled
       if(save_settings)
       {
         ROS_INFO("Saving the launch file configuration settings to the device");
-        //m_inertial_device->saveSettingsAsStartup();
+        m_inertial_device->saveSettingsAsStartup();
       }
 
 
@@ -779,6 +829,44 @@ void Microstrain::run()
 
       //Resume the device
       m_inertial_device->resume();
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////
+    //Setup Raw Data File
+    ///////////////////////////////////////////////////////////////////////////
+
+    //Open raw data file, if enabled, and configure the device for raw data output
+    if(m_raw_file_enable)
+    {
+      time_t raw_time;
+      struct tm * curr_time;
+      char curr_time_buffer[100];
+
+      //Get the current time
+      time(&raw_time);
+      curr_time = localtime(&raw_time);
+      strftime(curr_time_buffer, sizeof(curr_time_buffer),"%y_%m_%d_%H_%M_%S", curr_time);
+      
+      std::string time_string(curr_time_buffer);
+      
+      std::string filename = raw_file_directory + std::string("/") + 
+                              m_inertial_device->modelName() + std::string("_") + m_inertial_device->serialNumber() + 
+                              std::string("_") + time_string + std::string(".bin");
+
+      m_raw_file.open(filename, std::ios::out | std::ios::binary | std::ios::trunc);
+    
+      if(!m_raw_file.is_open())
+      {
+        ROS_INFO("ERROR opening raw binary datafile at %s", filename.c_str()); 
+      }
+      else
+      {
+        ROS_INFO("Raw binary datafile opened at %s", filename.c_str()); 
+      }
+      
+
+      m_inertial_device->connection().debugMode(true);
     }
 
 
@@ -813,7 +901,7 @@ void Microstrain::run()
       m_mag_pub = node.advertise<sensor_msgs::MagneticField>("mag", 100);
     }
         
-   //If the device has GNSS1, publish relevant topics
+    //If the device has GNSS1, publish relevant topics
     if(m_publish_gnss[GNSS1_ID] && supports_gnss1)
     {
       ROS_INFO("Publishing GNSS1 data.");
@@ -830,6 +918,13 @@ void Microstrain::run()
       m_gnss_odom_pub[GNSS2_ID] = node.advertise<nav_msgs::Odometry>("gnss2/odom", 100);
       m_gnss_time_pub[GNSS2_ID] = node.advertise<sensor_msgs::TimeReference>("gnss2/time_ref", 100);
     }
+
+    //If the device has RTK, publish relevant topics
+    if(m_publish_rtk && supports_rtk)
+    {
+      m_rtk_pub =  node.advertise<ros_mscl::rtk_status_msg>("rtk/status", 100);
+    }
+
 
     //If the device has a kalman filter, publish relevant topics
     if(m_publish_filter && supports_filter)
@@ -1182,6 +1277,19 @@ void Microstrain::run()
         status_counter = 0;
       }
 
+      //Save raw data, if enabled
+      if(m_raw_file_enable)
+      {
+        mscl::ConnectionDebugDataVec raw_packets = m_inertial_device->connection().getDebugData();
+
+        for(mscl::ConnectionDebugData raw_packet : raw_packets)
+        {
+          const mscl::Bytes& raw_packet_bytes = raw_packet.data();
+
+          m_raw_file.write(reinterpret_cast<const char*>(raw_packet_bytes.data()), raw_packet_bytes.size());
+        }
+      }
+
       //Take care of service requests
       ros::spinOnce(); 
 
@@ -1206,6 +1314,12 @@ void Microstrain::run()
   {
     m_inertial_device->setToIdle();
     m_inertial_device->connection().disconnect();
+  }
+
+  //Close raw data file if enabled
+  if(m_raw_file_enable)
+  {
+    m_raw_file.close();
   }
 } 
 
@@ -1236,6 +1350,11 @@ void Microstrain::parse_mip_packet(const mscl::MipDataPacket &packet)
 
   case mscl::MipTypes::DataClass::CLASS_GNSS2:
     parse_gnss_packet(packet, GNSS2_ID);
+    print_packet_stats();
+    break;
+
+  case mscl::MipTypes::DataClass::CLASS_GNSS3:
+    parse_rtk_packet(packet);
     print_packet_stats();
     break;
 
@@ -1767,6 +1886,87 @@ void Microstrain::parse_gnss_packet(const mscl::MipDataPacket &packet, int gnss_
 
   if(time_valid)
     m_gnss_time_pub[gnss_id].publish(m_gnss_time_msg[gnss_id]);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// MIP RTK Packet Parsing Function
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Microstrain::parse_rtk_packet(const mscl::MipDataPacket& packet)
+{
+  //Update diagnostics
+  m_rtk_valid_packet_count++;
+  
+  //Handle time
+  uint64_t time = packet.collectedTimestamp().nanoseconds();
+
+  if(packet.hasDeviceTime() && (packet.deviceTimeFlags() >= 3)) 
+    time = packet.deviceTimestamp().nanoseconds();
+
+  //Get the list of data elements
+  const mscl::MipDataPoints &points = packet.data();
+
+  //Loop over data elements and map them
+  for(mscl::MipDataPoint point : points)
+  {
+   switch(point.field())
+    {
+      //RTK Correction Status
+      case mscl::MipTypes::CH_FIELD_GNSS_3_RTK_CORRECTIONS_STATUS:
+      {
+        if(point.qualifier() == mscl::MipTypes::CH_TIME_OF_WEEK)
+        {        
+          m_rtk_msg.gps_tow = point.as_double();
+        }
+        else if(point.qualifier() == mscl::MipTypes::CH_WEEK_NUMBER)
+        {        
+          m_rtk_msg.gps_week = point.as_uint16();
+        }
+        else if(point.qualifier() == mscl::MipTypes::CH_STATUS)
+        {        
+          m_rtk_msg.epoch_status = point.as_uint16();
+        }
+        else if(point.qualifier() == mscl::MipTypes::CH_FLAGS)
+        {        
+          //Decode dongle status
+          mscl::RTKDeviceStatusFlags dongle_status(point.as_uint32());
+
+          m_rtk_msg.dongle_state 						   = dongle_status.state(); 
+          m_rtk_msg.dongle_status 				     = dongle_status.statusCode(); 
+          m_rtk_msg.dongle_corrections_timeout = dongle_status.correctionsTimedOut();
+          m_rtk_msg.dongle_service_unavailable = dongle_status.serviceUnavailable();
+          m_rtk_msg.dongle_reset_reason 		   = static_cast<uint8_t>(dongle_status.resetReason());
+          m_rtk_msg.dongle_modem_powered 			 = dongle_status.modemPowered(); 
+          m_rtk_msg.dongle_cell_connected 		 = dongle_status.cellConnected();
+          m_rtk_msg.dongle_server_connected 	 = dongle_status.serverConnected();
+          m_rtk_msg.dongle_data_enabled 			 = dongle_status.dataEnabled(); 
+          m_rtk_msg.dongle_rssi 					     = dongle_status.rssi(); 
+          m_rtk_msg.dongle_signal_quality			 = dongle_status.signalQuality(); 
+        }
+        else if(point.qualifier() == mscl::MipTypes::CH_GPS_CORRECTION_LATENCY)
+        {
+          m_rtk_msg.gps_correction_latency = point.as_float();
+        }
+        else if(point.qualifier() == mscl::MipTypes::CH_GLONASS_CORRECTION_LATENCY)
+        {
+          m_rtk_msg.glonass_correction_latency = point.as_float();
+        }
+        else if(point.qualifier() == mscl::MipTypes::CH_GALILEO_CORRECTION_LATENCY)
+        {
+          m_rtk_msg.galileo_correction_latency = point.as_float();
+        }
+        else if(point.qualifier() == mscl::MipTypes::CH_BEIDOU_CORRECTION_LATENCY)
+        {
+          m_rtk_msg.beidou_correction_latency = point.as_float();
+        }
+      }break;
+    }
+  }
+
+  //Publish
+  if(m_publish_rtk)
+    m_rtk_pub.publish(m_rtk_msg);
 }
 
 
