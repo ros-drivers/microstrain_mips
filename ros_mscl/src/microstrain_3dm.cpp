@@ -884,7 +884,11 @@ void Microstrain::run()
       m_device_status_pub           = node.advertise<ros_mscl::status_msg>("device/status", 100);
       get_basic_status_service      = node.advertiseService("get_basic_status",      &Microstrain::get_basic_status, this);
       get_diagnostic_report_service = node.advertiseService("get_diagnostic_report", &Microstrain::get_diagnostic_report, this);
-      device_report_service         = node.advertiseService("device_report",         &Microstrain::device_report, this);
+    }
+
+    if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_GET_DEVICE_INFO))
+    {
+      device_report_service = node.advertiseService("device_report", &Microstrain::device_report, this);
     }
 
     //Publish IMU data, if enabled
