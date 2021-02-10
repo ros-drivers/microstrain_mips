@@ -377,8 +377,9 @@ void Microstrain::run()
             mscl::MipTypes::ChannelField::CH_FIELD_SENSOR_SCALED_ACCEL_VEC,
             mscl::MipTypes::ChannelField::CH_FIELD_SENSOR_SCALED_GYRO_VEC,
             mscl::MipTypes::ChannelField::CH_FIELD_SENSOR_ORIENTATION_QUATERNION,
-            mscl::MipTypes::ChannelField::CH_FIELD_SENSOR_SCALED_MAG_VEC
-            };
+            mscl::MipTypes::ChannelField::CH_FIELD_SENSOR_SCALED_MAG_VEC,
+            mscl::MipTypes::ChannelField::CH_FIELD_SENSOR_GPS_CORRELATION_TIMESTAMP
+           };
 
         mscl::MipChannels supportedChannels;
         for(mscl::MipTypes::ChannelField channel : m_inertial_device->features().supportedChannelFields(mscl::MipTypes::DataClass::CLASS_AHRS_IMU))
@@ -1380,7 +1381,8 @@ void Microstrain::parse_imu_packet(const mscl::MipDataPacket &packet)
   //Handle time
   uint64_t time = packet.collectedTimestamp().nanoseconds();
   
-  if(packet.hasDeviceTime() && packet.deviceTimeValid()) 
+  // Note: validity check removed so time is assigned even if GPS time has not been captured
+  if(packet.hasDeviceTime()) // && packet.deviceTimeValid()) 
   {
      time = packet.deviceTimestamp().nanoseconds();
   }
