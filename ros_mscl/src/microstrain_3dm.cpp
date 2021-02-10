@@ -1529,7 +1529,8 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
   //Handle time
   uint64_t time = packet.collectedTimestamp().nanoseconds();
   
-  if(packet.hasDeviceTime() && packet.deviceTimeValid()) 
+  // Note: validity check removed so time is assigned even if GPS time has not been captured
+  if(packet.hasDeviceTime())// && packet.deviceTimeValid()) 
   {
      time = packet.deviceTimestamp().nanoseconds();
   }
@@ -1800,7 +1801,8 @@ void Microstrain::parse_gnss_packet(const mscl::MipDataPacket &packet, int gnss_
   uint64_t time       = packet.collectedTimestamp().nanoseconds();
   bool     time_valid = false;
 
-  if(packet.hasDeviceTime() && (packet.deviceTimeFlags() >= 3)) 
+  // Note: validity check removed so time is assigned even if GPS time has not been captured
+  if(packet.hasDeviceTime()) // && (packet.deviceTimeFlags() >= 3)) 
   {
      time       = packet.deviceTimestamp().nanoseconds();
      time_valid = true;
@@ -1907,7 +1909,8 @@ void Microstrain::parse_rtk_packet(const mscl::MipDataPacket& packet)
   //Handle time
   uint64_t time = packet.collectedTimestamp().nanoseconds();
 
-  if(packet.hasDeviceTime() && (packet.deviceTimeFlags() >= 3)) 
+  // Note: validity check removed so time is assigned even if GPS time has not been captured
+  if(packet.hasDeviceTime()) // && (packet.deviceTimeFlags() >= 3)) 
     time = packet.deviceTimestamp().nanoseconds();
 
   //Get the list of data elements
