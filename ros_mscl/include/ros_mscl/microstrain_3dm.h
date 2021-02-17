@@ -50,6 +50,7 @@
 #include "ros_mscl/filter_status_msg.h"
 #include "ros_mscl/filter_heading_msg.h"
 #include "ros_mscl/filter_heading_state_msg.h"
+#include "ros_mscl/GpsCorrelationTimestampStamped.h"
 #include "ros_mscl/SetAccelBias.h"
 #include "ros_mscl/GetAccelBias.h"
 #include "ros_mscl/SetGyroBias.h"
@@ -313,6 +314,7 @@ namespace Microstrain
   //IMU Publishers
   ros::Publisher m_imu_pub;
   ros::Publisher m_mag_pub;
+  ros::Publisher m_gps_corr_pub;
 
   //GNSS Publishers
   ros::Publisher m_gnss_pub[NUM_GNSS];
@@ -342,6 +344,7 @@ namespace Microstrain
   //IMU Messages
   sensor_msgs::Imu           m_imu_msg;
   sensor_msgs::MagneticField m_mag_msg;
+  ros_mscl::GpsCorrelationTimestampStamped m_gps_corr_msg;
 
   //GNSS Messages
   sensor_msgs::NavSatFix     m_gnss_msg[NUM_GNSS];
@@ -374,6 +377,7 @@ namespace Microstrain
   
   //Publish data flags
   bool m_publish_imu;
+  bool m_publish_gps_corr;
   bool m_publish_gnss[NUM_GNSS];
   bool m_publish_filter;
   bool m_publish_rtk;
