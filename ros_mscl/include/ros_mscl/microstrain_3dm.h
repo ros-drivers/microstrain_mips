@@ -114,6 +114,8 @@
 #define SECS_PER_WEEK (60L*60*24*7)
 #define UTC_GPS_EPOCH_DUR (315964800)
 
+#define USTRAIN_G 9.80665  // from section 5.1.1 in https://www.microstrain.com/sites/default/files/3dm-gx5-25_dcp_manual_8500-0065_reference_document.pdf
+
 //Macro to cause Sleep call to behave as it does for windows
 #define Sleep(x) usleep(x*1000.0)
 
