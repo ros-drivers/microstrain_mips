@@ -1430,15 +1430,15 @@ void Microstrain::parse_imu_packet(const mscl::MipDataPacket &packet)
       // Stuff into ROS message - acceleration in m/s^2
       if(point.qualifier() == mscl::MipTypes::CH_X)
       {
-        m_imu_msg.linear_acceleration.x = 9.81 * point.as_float();
+        m_imu_msg.linear_acceleration.x = USTRAIN_G * point.as_float();
       }
       else if(point.qualifier() == mscl::MipTypes::CH_Y)
       {
-        m_imu_msg.linear_acceleration.y = 9.81 * point.as_float();
+        m_imu_msg.linear_acceleration.y = USTRAIN_G * point.as_float();
       }
       else if(point.qualifier() == mscl::MipTypes::CH_Z)
       {
-        m_imu_msg.linear_acceleration.z = 9.81 * point.as_float();
+        m_imu_msg.linear_acceleration.z = USTRAIN_G * point.as_float();
       }
     }break;
 
