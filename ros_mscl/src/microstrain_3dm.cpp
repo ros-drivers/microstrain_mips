@@ -57,7 +57,7 @@ Microstrain::Microstrain()
   m_filter_frame_id = "filter_frame";
   m_filter_child_frame_id = "filter_child_frame";
   m_publish_imu = true;
-  m_publish_gps_corr = true;
+  m_publish_gps_corr = false;
   m_gps_leap_seconds = 18.0;
   m_publish_gnss[GNSS1_ID]= true;
   m_publish_gnss[GNSS2_ID]= true;
@@ -180,7 +180,7 @@ void Microstrain::run()
 
   //IMU
   private_nh.param("publish_imu",           m_publish_imu, true);
-  private_nh.param("publish_gps_corr",      m_publish_gps_corr, true);
+  private_nh.param("publish_gps_corr",      m_publish_gps_corr, false);
   private_nh.param("imu_data_rate",         m_imu_data_rate, 10);
   private_nh.param("imu_frame_id",          m_imu_frame_id, std::string("sensor_ned"));
   private_nh.param("imu_orientation_cov",   m_imu_orientation_cov, default_matrix);
