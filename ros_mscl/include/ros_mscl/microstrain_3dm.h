@@ -45,12 +45,12 @@
 
 //MSCL
 #include "mscl/mscl.h"
-#include "ros_mscl/status_msg.h"
-#include "ros_mscl/rtk_status_msg.h"
-#include "ros_mscl/filter_status_msg.h"
-#include "ros_mscl/filter_heading_msg.h"
-#include "ros_mscl/filter_heading_state_msg.h"
-#include "ros_mscl/GpsCorrelationTimestampStamped.h"
+#include "mscl_msgs/Status.h"
+#include "mscl_msgs/RTKStatus.h"
+#include "mscl_msgs/FilterStatus.h"
+#include "mscl_msgs/FilterHeading.h"
+#include "mscl_msgs/FilterHeadingState.h"
+#include "mscl_msgs/GPSCorrelationTimestampStamped.h"
 #include "ros_mscl/SetAccelBias.h"
 #include "ros_mscl/GetAccelBias.h"
 #include "ros_mscl/SetGyroBias.h"
@@ -346,7 +346,7 @@ namespace Microstrain
   //IMU Messages
   sensor_msgs::Imu           m_imu_msg;
   sensor_msgs::MagneticField m_mag_msg;
-  ros_mscl::GpsCorrelationTimestampStamped m_gps_corr_msg;
+  mscl_msgs::GPSCorrelationTimestampStamped m_gps_corr_msg;
 
   //GNSS Messages
   sensor_msgs::NavSatFix     m_gnss_msg[NUM_GNSS];
@@ -354,17 +354,17 @@ namespace Microstrain
   sensor_msgs::TimeReference m_gnss_time_msg[NUM_GNSS];
 
   //RTK Messages
-  ros_mscl::rtk_status_msg   m_rtk_msg;
+  mscl_msgs::RTKStatus   m_rtk_msg;
  
   //Filter Messages
   nav_msgs::Odometry                 m_filter_msg;
   sensor_msgs::Imu                   m_filtered_imu_msg;
-  ros_mscl::filter_heading_msg       m_filter_heading_msg;
-  ros_mscl::filter_heading_state_msg m_filter_heading_state_msg;
-  ros_mscl::filter_status_msg        m_filter_status_msg;
+  mscl_msgs::FilterHeading           m_filter_heading_msg;
+  mscl_msgs::FilterHeadingState      m_filter_heading_state_msg;
+  mscl_msgs::FilterStatus            m_filter_status_msg;
 
   //Device Status Message
-  ros_mscl::status_msg m_device_status_msg;
+  mscl_msgs::Status m_device_status_msg;
  
   //Frame ids
   std::string m_imu_frame_id;

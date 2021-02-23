@@ -29,71 +29,12 @@ add_definitions(-std=c++11)
 
 set(CMAKE_C_FLAGS "-Wno-implicit-function-declaration -Wno-incompatible-pointer-types -Wno-format -fno-builtin-memcpy")
 
-add_message_files(
-  FILES
-  status_msg.msg
-  filter_status_msg.msg
-  filter_heading_msg.msg
-  filter_heading_state_msg.msg
-  rtk_status_msg.msg
-  GpsCorrelationTimestamp.msg
-  GpsCorrelationTimestampStamped.msg
-)
+FILE(GLOB SRV_FILES RELATIVE "${${PROJECT_NAME}_SOURCE_DIR}/srv"
+    "${${PROJECT_NAME}_SOURCE_DIR}/srv/*.srv")
 
 add_service_files(
   FILES
-  InitFilterEuler.srv
-  InitFilterHeading.srv
-  DeviceSettings.srv
-  SetAccelBias.srv
-  GetAccelBias.srv
-  SetGyroBias.srv
-  GetGyroBias.srv
-  SetHardIronValues.srv
-  GetHardIronValues.srv
-  SetSoftIronMatrix.srv
-  GetSoftIronMatrix.srv
-  SetComplementaryFilter.srv
-  GetComplementaryFilter.srv
-  SetAccelBiasModel.srv
-  GetAccelBiasModel.srv
-  SetGravityAdaptiveVals.srv
-  GetGravityAdaptiveVals.srv
-  SetSensor2VehicleRotation.srv
-  GetSensor2VehicleRotation.srv
-  SetSensor2VehicleOffset.srv
-  GetSensor2VehicleOffset.srv
-  SetReferencePosition.srv
-  GetReferencePosition.srv
-  SetConingScullingComp.srv
-  GetConingScullingComp.srv
-  SetEstimationControlFlags.srv
-  GetEstimationControlFlags.srv
-  SetDynamicsMode.srv
-  GetDynamicsMode.srv
-  SetZeroAngleUpdateThreshold.srv
-  GetZeroAngleUpdateThreshold.srv
-  SetZeroVelocityUpdateThreshold.srv
-  GetZeroVelocityUpdateThreshold.srv
-  SetTareOrientation.srv
-  GetTareOrientation.srv
-  SetAccelNoise.srv
-  GetAccelNoise.srv
-  SetGyroNoise.srv
-  GetGyroNoise.srv
-  SetMagNoise.srv
-  GetMagNoise.srv
-  SetGyroBiasModel.srv
-  GetGyroBiasModel.srv
-  SetAccelAdaptiveVals.srv
-  GetAccelAdaptiveVals.srv
-  SetMagAdaptiveVals.srv
-  GetMagAdaptiveVals.srv
-  SetMagDipAdaptiveVals.srv
-  GetMagDipAdaptiveVals.srv
-  SetHeadingSource.srv
-  GetHeadingSource.srv
-  GetSensor2VehicleTransformation.srv
+  ${SRV_FILES}
 )
 
 ###################################
@@ -136,10 +77,16 @@ include_directories(include/${PROJECT_NAME} ${MIPLIBINC} ${MIPUTILINC} ${MSCL_IN
 add_library(ros_mscl
   src/microstrain_3dm.cpp
 )
-add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}
+  mscl_msgs_generate_messages_cpp
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+)
 
 add_library(microstrain_diagnostic_updater src/microstrain_diagnostic_updater.cpp)
-add_dependencies(microstrain_diagnostic_updater ${${PROJECT_NAME}_EXPORTED_TARGETS})
+add_dependencies(microstrain_diagnostic_updater
+  mscl_msgs_generate_messages_cpp
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+)
 
 # Executables
 
@@ -150,6 +97,7 @@ add_executable(ros_mscl_node
 
 add_dependencies(ros_mscl_node
   ros_mscl_gencpp
+  mscl_msgs_generate_messages_cpp
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
 )
 add_executable(set_accel_bias_client src/set_accel_bias_client.cpp)
@@ -258,111 +206,111 @@ add_executable(commanded_ang_rate_zupt_client src/commanded_ang_rate_zupt_client
 
 add_executable(set_heading_source_client src/set_heading_source_client.cpp)
 
-add_dependencies(set_accel_bias_client ros_mscl_gencpp)
+add_dependencies(set_accel_bias_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_accel_bias_client ros_mscl_gencpp)
+add_dependencies(set_accel_bias_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_accel_bias_client ros_mscl_gencpp)
+add_dependencies(get_accel_bias_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_gyro_bias_client ros_mscl_gencpp)
+add_dependencies(set_gyro_bias_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_gyro_bias_client ros_mscl_gencpp)
+add_dependencies(get_gyro_bias_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_hard_iron_values_client ros_mscl_gencpp)
+add_dependencies(set_hard_iron_values_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_hard_iron_values_client ros_mscl_gencpp)
+add_dependencies(get_hard_iron_values_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(device_report_client ros_mscl_gencpp)
+add_dependencies(device_report_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(gyro_bias_capture_client ros_mscl_gencpp)
+add_dependencies(gyro_bias_capture_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_soft_iron_matrix_client ros_mscl_gencpp)
+add_dependencies(set_soft_iron_matrix_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_complementary_filter_client ros_mscl_gencpp)
+add_dependencies(set_complementary_filter_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_complementary_filter_client ros_mscl_gencpp)
+add_dependencies(get_complementary_filter_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(init_filter_euler_client ros_mscl_gencpp)
+add_dependencies(init_filter_euler_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(init_filter_heading_client ros_mscl_gencpp)
+add_dependencies(init_filter_heading_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(device_settings_client ros_mscl_gencpp)
+add_dependencies(device_settings_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_accel_bias_model_client ros_mscl_gencpp)
+add_dependencies(set_accel_bias_model_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_gravity_adaptive_vals_client ros_mscl_gencpp)
+add_dependencies(set_gravity_adaptive_vals_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_sensor2vehicle_rotation_client ros_mscl_gencpp)
+add_dependencies(set_sensor2vehicle_rotation_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_sensor2vehicle_rotation_client ros_mscl_gencpp)
+add_dependencies(get_sensor2vehicle_rotation_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_sensor2vehicle_offset_client ros_mscl_gencpp)
+add_dependencies(set_sensor2vehicle_offset_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_sensor2vehicle_offset_client ros_mscl_gencpp)
+add_dependencies(get_sensor2vehicle_offset_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_reference_position_client ros_mscl_gencpp)
+add_dependencies(set_reference_position_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_reference_position_client ros_mscl_gencpp)
+add_dependencies(get_reference_position_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_coning_sculling_comp_client ros_mscl_gencpp)
+add_dependencies(set_coning_sculling_comp_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_coning_sculling_comp_client ros_mscl_gencpp)
+add_dependencies(get_coning_sculling_comp_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_estimation_control_flags_client ros_mscl_gencpp)
+add_dependencies(set_estimation_control_flags_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_estimation_control_flags_client ros_mscl_gencpp)
+add_dependencies(get_estimation_control_flags_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_dynamics_mode_client ros_mscl_gencpp)
+add_dependencies(set_dynamics_mode_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_dynamics_mode_client ros_mscl_gencpp)
+add_dependencies(get_dynamics_mode_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_basic_status_client ros_mscl_gencpp)
+add_dependencies(get_basic_status_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_diagnostic_report_client ros_mscl_gencpp)
+add_dependencies(get_diagnostic_report_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_zero_angle_update_threshold_client ros_mscl_gencpp)
+add_dependencies(set_zero_angle_update_threshold_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_zero_angle_update_threshold_client ros_mscl_gencpp)
+add_dependencies(get_zero_angle_update_threshold_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_zero_velocity_update_threshold_client ros_mscl_gencpp)
+add_dependencies(set_zero_velocity_update_threshold_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_zero_velocity_update_threshold_client ros_mscl_gencpp)
+add_dependencies(get_zero_velocity_update_threshold_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_tare_orientation_client ros_mscl_gencpp)
+add_dependencies(set_tare_orientation_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_accel_noise_client ros_mscl_gencpp)
+add_dependencies(set_accel_noise_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_accel_noise_client ros_mscl_gencpp)
+add_dependencies(get_accel_noise_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_gyro_noise_client ros_mscl_gencpp)
+add_dependencies(set_gyro_noise_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_gyro_noise_client ros_mscl_gencpp)
+add_dependencies(get_gyro_noise_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_mag_noise_client ros_mscl_gencpp)
+add_dependencies(set_mag_noise_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_mag_noise_client ros_mscl_gencpp)
+add_dependencies(get_mag_noise_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_gyro_bias_model_client ros_mscl_gencpp)
+add_dependencies(set_gyro_bias_model_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_gyro_bias_model_client ros_mscl_gencpp)
+add_dependencies(get_gyro_bias_model_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_gravity_adaptive_vals_client ros_mscl_gencpp)
+add_dependencies(get_gravity_adaptive_vals_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_mag_adaptive_vals_client ros_mscl_gencpp)
+add_dependencies(set_mag_adaptive_vals_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_mag_adaptive_vals_client ros_mscl_gencpp)
+add_dependencies(get_mag_adaptive_vals_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_mag_dip_adaptive_vals_client ros_mscl_gencpp)
+add_dependencies(set_mag_dip_adaptive_vals_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_mag_dip_adaptive_vals_client ros_mscl_gencpp)
+add_dependencies(get_mag_dip_adaptive_vals_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(get_accel_bias_model_client ros_mscl_gencpp)
+add_dependencies(get_accel_bias_model_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(commanded_vel_zupt_client ros_mscl_gencpp)
+add_dependencies(commanded_vel_zupt_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(commanded_ang_rate_zupt_client ros_mscl_gencpp)
+add_dependencies(commanded_ang_rate_zupt_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
-add_dependencies(set_heading_source_client ros_mscl_gencpp)
+add_dependencies(set_heading_source_client ros_mscl_gencpp mscl_msgs_generate_messages_cpp)
 
 
 # Linking

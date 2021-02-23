@@ -93,7 +93,7 @@ void RosDiagnosticUpdater::imuDiagnostics(diagnostic_updater::DiagnosticStatusWr
 }
 
 
-void RosDiagnosticUpdater::statusCallback(const ros_mscl::status_msg::ConstPtr& status)
+void RosDiagnosticUpdater::statusCallback(const mscl_msgs::Status::ConstPtr& status)
 {
   last_status_ = *status;
   update();
