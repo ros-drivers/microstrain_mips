@@ -57,6 +57,7 @@ Microstrain::Microstrain()
   m_filter_frame_id = "filter_frame";
   m_filter_child_frame_id = "filter_child_frame";
   m_publish_imu = true;
+  m_publish_gps_corr = false;
   m_gps_leap_seconds = 18.0;
   m_publish_gnss[GNSS1_ID]= true;
   m_publish_gnss[GNSS2_ID]= true;
@@ -179,6 +180,7 @@ void Microstrain::run()
 
   //IMU
   private_nh.param("publish_imu",           m_publish_imu, true);
+  private_nh.param("publish_gps_corr",      m_publish_gps_corr, false);
   private_nh.param("imu_data_rate",         m_imu_data_rate, 10);
   private_nh.param("imu_frame_id",          m_imu_frame_id, std::string("sensor_ned"));
   private_nh.param("imu_orientation_cov",   m_imu_orientation_cov, default_matrix);
@@ -899,6 +901,13 @@ void Microstrain::run()
       m_imu_pub = node.advertise<sensor_msgs::Imu>("imu/data", 100);
     }
 
+
+    if(m_publish_imu && m_publish_gps_corr)
+    {
+      ROS_INFO("Publishing IMU GPS correlation timestamp.");
+      m_gps_corr_pub = node.advertise<ros_mscl::GpsCorrelationTimestampStamped>("gps_corr", 100);
+    }
+
     //If the device has a magnetometer, publish relevant topics
     if(m_publish_imu && m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_MAG_HARD_IRON_OFFSET))
     {
@@ -1393,9 +1402,10 @@ void Microstrain::parse_imu_packet(const mscl::MipDataPacket &packet)
   m_imu_msg.header.frame_id = m_imu_frame_id;
   
   //Magnetometer timestamp
-  m_mag_msg.header.seq      = m_imu_msg.header.seq;
-  m_mag_msg.header.stamp    = m_imu_msg.header.stamp;
-  m_mag_msg.header.frame_id = m_imu_msg.header.frame_id;
+  m_mag_msg.header      = m_imu_msg.header;
+
+  //GPS correlation timestamp headder
+  m_gps_corr_msg.header = m_imu_msg.header;
 
   //Data present flags
   bool has_accel = false;
@@ -1407,8 +1417,9 @@ void Microstrain::parse_imu_packet(const mscl::MipDataPacket &packet)
   const mscl::MipDataPoints &points = packet.data();
 
   //Loop over the data elements and map them
-  for(mscl::MipDataPoint point : points)
+  for(auto point_iter = points.begin(); point_iter != points.end(); point_iter++)
   {
+    auto point = *point_iter;
     switch(point.field())
     {
     //Scaled Accel
@@ -1488,6 +1499,19 @@ void Microstrain::parse_imu_packet(const mscl::MipDataPacket &packet)
         m_imu_msg.orientation.w = quaternion.as_floatAt(0);
       }
     }break;
+
+    //GPS Corr
+    case mscl::MipTypes::ChannelField::CH_FIELD_SENSOR_GPS_CORRELATION_TIMESTAMP:
+    {
+      // for some reason point.qualifier() == mscl::MipTypes::CH_WEEK_NUMBER and
+      // point.qualifier() == mscl::MipTypes::CH_FLAGS always returned false so I used
+      // an iterator and manually incremented it to access all the elements
+      m_gps_corr_msg.gps_cor.gps_tow = point_iter->as_double();
+      point_iter++;
+      m_gps_corr_msg.gps_cor.gps_week_number = point_iter->as_uint16();
+      point_iter++;
+      m_gps_corr_msg.gps_cor.timestamp_flags = point_iter->as_uint16();
+    }break;
     }
   }
 
@@ -1511,6 +1535,9 @@ void Microstrain::parse_imu_packet(const mscl::MipDataPacket &packet)
 
   //Publish
   m_imu_pub.publish(m_imu_msg);
+
+  if(m_publish_gps_corr)
+    m_gps_corr_pub.publish(m_gps_corr_msg);
 
   if(has_mag)
     m_mag_pub.publish(m_mag_msg);

@@ -85,6 +85,11 @@
     <rosparam param="imu_linear_cov">      [0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01]</rosparam>
     <rosparam param="imu_angular_cov">     [0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01]</rosparam>
 
+    <!-- If enabled, this message can be used to validate time IMU time syncronzation with gps -->
+    <!-- It is most useful when using an external timesource and external PPS-->
+    <!-- (see: filter_enable_external_gps_time_update) -->
+    <param name="publish_gps_corr"  value="false" type="bool" />
+
 
     <!-- ****************************************************************** -->
     <!-- GNSS Settings (only applicable for devices with GNSS) -->
