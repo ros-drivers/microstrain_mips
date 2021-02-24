@@ -117,7 +117,7 @@
     <rosparam param="gnss2_antenna_offset"> [0.0, 0.7, -1.0]</rosparam>
 
     <!-- (GQ7 Only) Enable RTK dongle interface -->
-    <param name="rtk_dongle_enable" value="true"    type="bool" />
+    <param name="rtk_dongle_enable" value="false"    type="bool" />
  
     <!-- ****************************************************************** -->
     <!-- Kalman Filter Settings (only applicable for devices with a Kalman Filter) -->
@@ -247,18 +247,6 @@
 
     <param name="gpio_config"       value="false" type="bool" />
 
-    
-    
-    <!-- (GQ7 only) Kinematic Constraints Control 
-          Acceleration = 0 - none, 1 - zero acceleration
-          Velocity     = 0 - none, 1 - zero velocity,    2 - wheeled vehicle 
-          Angular Rate = 0 - none, 1 - zero angular rate 
-     -->
-
-    <param name="filter_enable_acceleration_constraint" value="0" type="int" />
-    <param name="filter_enable_velocity_constraint"     value="0" type="int" />
-    <param name="filter_enable_angular_constraint"      value="0" type="int" />
-
     <!-- (GQ7 only) Filter Initialization control
   
          Init Condition source = 
@@ -289,12 +277,13 @@
          1 - Relative ECEF position
          2 - Relative LLH position
 
-         Reference position - Units provided by reference frame
+         Reference position - Units provided by reference frame (ECEF - meters, LLH - deg, deg, meters)
+         Note: prior to firmware version 1.0.06 this command will fail for non-positive heights.  1.0.06 fixes this)
      -->
     
-
+    <param name="publish_relative_position"         value="false" type="bool" />
     <param name="filter_relative_position_frame"    value="2"  type="int" />
-    <rosparam param="filter_relative_position_ref"> [0.0, 0.0, 0.0]</rosparam>    
+    <rosparam param="filter_relative_position_ref"> [0, 0, 0.01]</rosparam>    
 
     <!-- (GQ7 only) Speed Lever Arm Configuration
          Lever Arm - In vehicle reference frame (meters)

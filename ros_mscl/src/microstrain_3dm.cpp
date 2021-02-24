@@ -207,11 +207,12 @@ void Microstrain::run()
   private_nh.param("filter_data_rate",           m_filter_data_rate, 10);
   private_nh.param("filter_frame_id",            m_filter_frame_id, std::string("sensor_wgs84"));
   private_nh.param("filter_child_frame_id",      m_filter_child_frame_id, std::string("sensor_ned"));
+  private_nh.param("publish_relative_position",  m_publish_filter_relative_pos, false);
   private_nh.param("filter_sensor2vehicle_frame_selector",                  filter_sensor2vehicle_frame_selector, 0);
   private_nh.param("filter_sensor2vehicle_frame_transformation_euler",      filter_sensor2vehicle_frame_transformation_euler,      default_vector);
   private_nh.param("filter_sensor2vehicle_frame_transformation_matrix",     filter_sensor2vehicle_frame_transformation_matrix,     default_matrix);
   private_nh.param("filter_sensor2vehicle_frame_transformation_quaternion", filter_sensor2vehicle_frame_transformation_quaternion, default_quaternion);
- 
+
   private_nh.param("filter_initial_heading",          initial_heading, (float)0.0);
   private_nh.param("filter_heading_source",           heading_source, 0x1);
   private_nh.param("filter_declination_source",       declination_source, 2);
@@ -560,7 +561,8 @@ void Microstrain::run()
             mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_ESTIMATED_LINEAR_ACCEL,
             mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_ESTIMATED_ORIENT_EULER,
             mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_ESTIMATED_LLH_POS,
-            mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_HEADING_UPDATE_SOURCE};
+            mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_HEADING_UPDATE_SOURCE,
+            mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_NED_RELATIVE_POS};
 
         mscl::MipChannels supportedChannels;
         for(mscl::MipTypes::ChannelField channel : m_inertial_device->features().supportedChannelFields(mscl::MipTypes::DataClass::CLASS_ESTFILTER))
@@ -584,7 +586,7 @@ void Microstrain::run()
           }
         }
 
-        //set pps source
+        //Set PPS source
         if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_PPS_SOURCE))
         {
           mscl::PpsSourceOptions sources = m_inertial_device->features().supportedPpsSourceOptions();
@@ -714,25 +716,16 @@ void Microstrain::run()
           m_inertial_device->enableDisableAidingMeasurement(mscl::InertialTypes::AidingMeasurementSource::EXTERNAL_HEADING_AIDING, filter_enable_external_heading_aiding);
         }
 
-        //(GQ7 only) Set the filter constraint settings
-        /* Waiting on MSCL support
-        if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::))
-        {
-          filter_enable_acceleration_constraint; 
-          filter_enable_velocity_constraint;
-          filter_enable_angular_constraint;
-        }*/
-
-        //(GQ7 only) Set the filter releative frame settings
-        /*
-        if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_RELATIVE_POSITION_REF))
+      
+        //(GQ7 only) Set the filter relative position frame settings
+        if(m_publish_filter_relative_pos && m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_RELATIVE_POSITION_REF))
         {
           mscl::PositionReferenceConfiguration ref;
-
           ref.position = mscl::Position(filter_relative_position_ref[0], filter_relative_position_ref[1], filter_relative_position_ref[2], static_cast<mscl::PositionVelocityReferenceFrame>(filter_relative_position_frame));
  
+          ROS_INFO("Setting reference position to: [%f, %f, %f], ref frame = %d", filter_relative_position_ref[0], filter_relative_position_ref[1], filter_relative_position_ref[2], filter_relative_position_frame);
           m_inertial_device->setRelativePositionReference(ref);
-        }*/
+        }
 
         //(GQ7 only) Set the filter speed lever arm
         /* Waiting on MSCL support
@@ -867,7 +860,6 @@ void Microstrain::run()
       {
         ROS_INFO("Raw binary datafile opened at %s", filename.c_str()); 
       }
-      
 
       m_inertial_device->connection().debugMode(true);
     }
@@ -901,7 +893,7 @@ void Microstrain::run()
       m_imu_pub = node.advertise<sensor_msgs::Imu>("imu/data", 100);
     }
 
-
+    //Publish IMU GPS correlation data, if enabled
     if(m_publish_imu && m_publish_gps_corr)
     {
       ROS_INFO("Publishing IMU GPS correlation timestamp.");
@@ -939,7 +931,6 @@ void Microstrain::run()
       m_rtk_pub =  node.advertise<ros_mscl::rtk_status_msg>("rtk/status", 100);
     }
 
-
     //If the device has a kalman filter, publish relevant topics
     if(m_publish_filter && supports_filter)
     {
@@ -949,6 +940,9 @@ void Microstrain::run()
       m_filter_heading_pub       = node.advertise<ros_mscl::filter_heading_msg>("nav/heading", 100);
       m_filter_heading_state_pub = node.advertise<ros_mscl::filter_heading_state_msg>("nav/heading_state", 100);
       m_filtered_imu_pub         = node.advertise<sensor_msgs::Imu>("nav/filtered_imu/data", 100);
+
+      if(m_publish_filter_relative_pos)
+        m_filter_relative_pos_pub = node.advertise<nav_msgs::Odometry>("nav/relative_pos/odom", 100); 
     }
     
 
@@ -1212,14 +1206,29 @@ void Microstrain::run()
     } 
  
 
-    //Sevice Settings
+    //Device Settings Service
     ros::ServiceServer device_settings;
     if (m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_SAVE_STARTUP_SETTINGS))
     {
       device_settings = node.advertiseService("device_settings", &Microstrain::device_settings, this);
     }
 
+    //External Heading Service
+    ros::ServiceServer external_heading;
+    if ((m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_EXTERN_HEADING_UPDATE)) ||
+        (m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_EXT_HEADING_UPDATE_TS)))
+    {
+      external_heading = node.advertiseService("external_heading", &Microstrain::external_heading_update, this);
+    }
 
+    //Relative Position Reference Service
+    ros::ServiceServer set_relative_position_reference;
+    ros::ServiceServer get_relative_position_reference;
+    if (m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_EXT_HEADING_UPDATE_TS))
+    {
+      set_relative_position_reference = node.advertiseService("set_relative_position_reference", &Microstrain::set_relative_position_reference, this);
+      get_relative_position_reference = node.advertiseService("get_relative_position_reference", &Microstrain::get_relative_position_reference, this);
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     //
@@ -1260,7 +1269,6 @@ void Microstrain::run()
       m_filter_ang_state_sub = node.subscribe(m_angular_zupt_topic.c_str(), 1000, &Microstrain::ang_zupt_callback, this);
     }
     
-    // external_gps
     //Create a topic listener for external GNSS updates
     if(filter_enable_external_gps_time_update && m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_GPS_TIME_UPDATE))
     {
@@ -1534,13 +1542,16 @@ void Microstrain::parse_imu_packet(const mscl::MipDataPacket &packet)
   }
 
   //Publish
-  m_imu_pub.publish(m_imu_msg);
-
   if(m_publish_gps_corr)
     m_gps_corr_pub.publish(m_gps_corr_msg);
 
-  if(has_mag)
-    m_mag_pub.publish(m_mag_msg);
+  if(m_publish_imu)
+  {
+    m_imu_pub.publish(m_imu_msg);
+  
+    if(has_mag)
+      m_mag_pub.publish(m_mag_msg);
+  }
 }
 
 
@@ -1562,15 +1573,22 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
      time = packet.deviceTimestamp().nanoseconds();
   }
 
-  //Filtered IMU timestamp
+  //Filtered IMU timestamp and frame
   m_filtered_imu_msg.header.seq      = m_filter_valid_packet_count;
   m_filtered_imu_msg.header.stamp    = ros::Time().fromNSec(time);
   m_filtered_imu_msg.header.frame_id = m_filter_frame_id;
   
-  //Nav odom timestamp
+  //Nav odom timestamp and frame
   m_filter_msg.header.seq      = m_filter_valid_packet_count;
   m_filter_msg.header.stamp    = ros::Time().fromNSec(time);
   m_filter_msg.header.frame_id = m_filter_frame_id;
+
+  //Nav relative position odom timestamp and frame (note: Relative position frame is NED for both pos and vel)
+  m_filter_relative_pos_msg.header.seq      = m_filter_valid_packet_count;
+  m_filter_relative_pos_msg.header.stamp    = ros::Time().fromNSec(time);
+  m_filter_relative_pos_msg.header.frame_id = m_filter_child_frame_id;
+  m_filter_relative_pos_msg.child_frame_id  = m_filter_child_frame_id;
+
 
   //Get the list of data elements
   const mscl::MipDataPoints &points = packet.data();
@@ -1604,12 +1622,12 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
       if(point.qualifier() == mscl::MipTypes::CH_LATITUDE)
       {
         m_curr_filter_pos_lat             = point.as_double();
-        m_filter_msg.pose.pose.position.y = m_curr_filter_pos_lat;
+        m_filter_msg.pose.pose.position.x = m_curr_filter_pos_lat;
       }
       else if(point.qualifier() == mscl::MipTypes::CH_LONGITUDE)
       {
         m_curr_filter_pos_long            = point.as_double();
-        m_filter_msg.pose.pose.position.x = m_curr_filter_pos_long;
+        m_filter_msg.pose.pose.position.y = m_curr_filter_pos_long;
       }
       else if(point.qualifier() == mscl::MipTypes::CH_HEIGHT_ABOVE_ELLIPSOID)
       {
@@ -1625,16 +1643,19 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
       {
         m_curr_filter_vel_north           = point.as_float();
         m_filter_msg.twist.twist.linear.x = m_curr_filter_vel_north;
+        m_filter_relative_pos_msg.twist.twist.linear.x = m_curr_filter_vel_north;
       }
       else if(point.qualifier() == mscl::MipTypes::CH_EAST)
       {
         m_curr_filter_vel_east            = point.as_float();
         m_filter_msg.twist.twist.linear.y = m_curr_filter_vel_east;
+        m_filter_relative_pos_msg.twist.twist.linear.y = m_curr_filter_vel_east;
       }
       else if(point.qualifier() == mscl::MipTypes::CH_DOWN)
       {
         m_curr_filter_vel_down            = point.as_float();
         m_filter_msg.twist.twist.linear.z = m_curr_filter_vel_down;
+        m_filter_relative_pos_msg.twist.twist.linear.z = m_curr_filter_vel_down;
       }
     }break;
 
@@ -1666,32 +1687,36 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
       mscl::Vector quaternion  = point.as_Vector();
       m_curr_filter_quaternion = quaternion;
       
-      m_filter_msg.pose.pose.orientation.x = quaternion.as_floatAt(1);
-      m_filter_msg.pose.pose.orientation.y = quaternion.as_floatAt(2);
-      m_filter_msg.pose.pose.orientation.z = quaternion.as_floatAt(3);
-      m_filter_msg.pose.pose.orientation.w = quaternion.as_floatAt(0);
-      m_filtered_imu_msg.orientation       = m_filter_msg.pose.pose.orientation;
+      m_filter_msg.pose.pose.orientation.x  = quaternion.as_floatAt(1);
+      m_filter_msg.pose.pose.orientation.y  = quaternion.as_floatAt(2);
+      m_filter_msg.pose.pose.orientation.z  = quaternion.as_floatAt(3);
+      m_filter_msg.pose.pose.orientation.w  = quaternion.as_floatAt(0);
+      m_filtered_imu_msg.orientation        = m_filter_msg.pose.pose.orientation;
+      m_filter_relative_pos_msg.pose.pose.orientation = m_filter_msg.pose.pose.orientation;
     }break;
 
     case mscl::MipTypes::CH_FIELD_ESTFILTER_ESTIMATED_ANGULAR_RATE:
     {
       if(point.qualifier() == mscl::MipTypes::CH_X)
       {
-        m_curr_filter_angular_rate_x          = point.as_float();
-        m_filter_msg.twist.twist.angular.x    = m_curr_filter_angular_rate_x;
-        m_filtered_imu_msg.angular_velocity.x = m_curr_filter_angular_rate_x;
+        m_curr_filter_angular_rate_x              = point.as_float();
+        m_filter_msg.twist.twist.angular.x        = m_curr_filter_angular_rate_x;
+        m_filtered_imu_msg.angular_velocity.x     = m_curr_filter_angular_rate_x;
+        m_filter_relative_pos_msg.twist.twist.angular.x = m_curr_filter_angular_rate_x;
       }
       else if(point.qualifier() == mscl::MipTypes::CH_Y)
       {
-        m_curr_filter_angular_rate_y          = point.as_float();
-        m_filter_msg.twist.twist.angular.y    = m_curr_filter_angular_rate_y;
-        m_filtered_imu_msg.angular_velocity.y = m_curr_filter_angular_rate_y;
+        m_curr_filter_angular_rate_y              = point.as_float();
+        m_filter_msg.twist.twist.angular.y        = m_curr_filter_angular_rate_y;
+        m_filtered_imu_msg.angular_velocity.y     = m_curr_filter_angular_rate_y;
+        m_filter_relative_pos_msg.twist.twist.angular.y = m_curr_filter_angular_rate_y;
       }
       else if(point.qualifier() == mscl::MipTypes::CH_Z)
       {
-        m_curr_filter_angular_rate_z          = point.as_float();
-        m_filter_msg.twist.twist.angular.z    = m_curr_filter_angular_rate_z;
-        m_filtered_imu_msg.angular_velocity.z = m_curr_filter_angular_rate_z;
+        m_curr_filter_angular_rate_z              = point.as_float();
+        m_filter_msg.twist.twist.angular.z        = m_curr_filter_angular_rate_z;
+        m_filtered_imu_msg.angular_velocity.z     = m_curr_filter_angular_rate_z;
+        m_filter_relative_pos_msg.twist.twist.angular.z = m_curr_filter_angular_rate_z;
       }
     }break;
     
@@ -1717,16 +1742,19 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
       {
         m_curr_filter_pos_uncert_north  = point.as_float();
         m_filter_msg.pose.covariance[0] = pow(m_curr_filter_pos_uncert_north, 2);
+        m_filter_relative_pos_msg.pose.covariance[0] = m_filter_msg.pose.covariance[0];
       }
       else if(point.qualifier() == mscl::MipTypes::CH_EAST)
       {
         m_curr_filter_pos_uncert_east   = point.as_float();
         m_filter_msg.pose.covariance[7] = pow(m_curr_filter_pos_uncert_east, 2);
+        m_filter_relative_pos_msg.pose.covariance[7] = m_filter_msg.pose.covariance[7];
       }
       else if(point.qualifier() == mscl::MipTypes::CH_DOWN)
       {
         m_curr_filter_pos_uncert_down    = point.as_float();
         m_filter_msg.pose.covariance[14] = pow(m_curr_filter_pos_uncert_down, 2);
+        m_filter_relative_pos_msg.pose.covariance[14] = m_filter_msg.pose.covariance[14];
       }
     }
     break;
@@ -1737,16 +1765,19 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
       {
         m_curr_filter_vel_uncert_north   = point.as_float();
         m_filter_msg.twist.covariance[0] = pow(m_curr_filter_vel_uncert_north, 2);
+        m_filter_relative_pos_msg.twist.covariance[0] = m_filter_msg.twist.covariance[0];
       }
       else if(point.qualifier() == mscl::MipTypes::CH_EAST)
       {
         m_curr_filter_vel_uncert_east    = point.as_float();
         m_filter_msg.twist.covariance[7] = pow(m_curr_filter_vel_uncert_east, 2);
+        m_filter_relative_pos_msg.twist.covariance[7] = m_filter_msg.twist.covariance[7];
       }
       else if(point.qualifier() == mscl::MipTypes::CH_DOWN)
       {
         m_curr_filter_vel_uncert_down     = point.as_float();
         m_filter_msg.twist.covariance[14] = pow(m_curr_filter_vel_uncert_down, 2);
+        m_filter_relative_pos_msg.twist.covariance[14] = m_filter_msg.twist.covariance[14];
       }
     }
     break;
@@ -1755,26 +1786,29 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
     {
       if(point.qualifier() == mscl::MipTypes::CH_ROLL)
       {
-        m_curr_filter_att_uncert_roll                = point.as_float();
-        m_filter_msg.pose.covariance[21]             = pow(m_curr_filter_att_uncert_roll, 2);
-        m_filtered_imu_msg.orientation_covariance[0] = m_filter_msg.pose.covariance[21];
+        m_curr_filter_att_uncert_roll                 = point.as_float();
+        m_filter_msg.pose.covariance[21]              = pow(m_curr_filter_att_uncert_roll, 2);
+        m_filtered_imu_msg.orientation_covariance[0]  = m_filter_msg.pose.covariance[21];
+        m_filter_relative_pos_msg.pose.covariance[21] = m_filter_msg.pose.covariance[21];
       }
       else if(point.qualifier() == mscl::MipTypes::CH_PITCH)
       {
-        m_curr_filter_att_uncert_pitch               = point.as_float();
-        m_filter_msg.pose.covariance[28]             = pow(m_curr_filter_att_uncert_pitch, 2);
-        m_filtered_imu_msg.orientation_covariance[4] = m_filter_msg.pose.covariance[28];
+        m_curr_filter_att_uncert_pitch                = point.as_float();
+        m_filter_msg.pose.covariance[28]              = pow(m_curr_filter_att_uncert_pitch, 2);
+        m_filtered_imu_msg.orientation_covariance[4]  = m_filter_msg.pose.covariance[28];
+        m_filter_relative_pos_msg.pose.covariance[28] = m_filter_msg.pose.covariance[28];
       }
       else if(point.qualifier() == mscl::MipTypes::CH_YAW)
       {
-        m_curr_filter_att_uncert_yaw                 = point.as_float();
-        m_filter_msg.pose.covariance[35]             = pow(m_curr_filter_att_uncert_yaw, 2);
-        m_filtered_imu_msg.orientation_covariance[8] = m_filter_msg.pose.covariance[35];
+        m_curr_filter_att_uncert_yaw                  = point.as_float();
+        m_filter_msg.pose.covariance[35]              = pow(m_curr_filter_att_uncert_yaw, 2);
+        m_filtered_imu_msg.orientation_covariance[8]  = m_filter_msg.pose.covariance[35];
+        m_filter_relative_pos_msg.pose.covariance[35] = m_filter_msg.pose.covariance[35];
       }
     }break;
 
 
-    case mscl::MipTypes:: CH_FIELD_ESTFILTER_HEADING_UPDATE_SOURCE: 
+    case mscl::MipTypes::CH_FIELD_ESTFILTER_HEADING_UPDATE_SOURCE: 
     {
       if(point.qualifier() == mscl::MipTypes::CH_HEADING) 
       {
@@ -1794,6 +1828,22 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
       }
     }break;  
 
+    case mscl::MipTypes::CH_FIELD_ESTFILTER_NED_RELATIVE_POS: 
+    {
+      if(point.qualifier() == mscl::MipTypes::CH_X)
+      {
+        m_filter_relative_pos_msg.pose.pose.position.x = point.as_double();
+      }
+      else if(point.qualifier() == mscl::MipTypes::CH_Y)
+      {
+        m_filter_relative_pos_msg.pose.pose.position.y = point.as_double();
+      }
+      else if(point.qualifier() == mscl::MipTypes::CH_Z)
+      {
+        m_filter_relative_pos_msg.pose.pose.position.z = point.as_double();
+      }
+    }break;
+
     default: break;
     }
   }
@@ -1803,11 +1853,18 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
   std::copy(m_imu_angular_cov.begin(), m_imu_angular_cov.end(), m_filtered_imu_msg.angular_velocity_covariance.begin());
 
   //Publish
-  m_filtered_imu_pub.publish(m_filtered_imu_msg);
-  m_filter_pub.publish(m_filter_msg);
-  m_filter_status_pub.publish(m_filter_status_msg);
-  m_filter_heading_pub.publish(m_filter_heading_msg);
-  m_filter_heading_state_pub.publish(m_filter_heading_state_msg);
+  if(m_publish_filter)
+  {
+    m_filtered_imu_pub.publish(m_filtered_imu_msg);
+    m_filter_pub.publish(m_filter_msg);
+    m_filter_status_pub.publish(m_filter_status_msg);
+    m_filter_heading_pub.publish(m_filter_heading_msg);
+    m_filter_heading_state_pub.publish(m_filter_heading_state_msg);
+  }
+  
+  if(m_publish_filter_relative_pos)
+    m_filter_relative_pos_pub.publish(m_filter_relative_pos_msg); 
+
 }
 
 
@@ -1916,11 +1973,14 @@ void Microstrain::parse_gnss_packet(const mscl::MipDataPacket &packet, int gnss_
   }
 
   //Publish
-  m_gnss_pub[gnss_id].publish(m_gnss_msg[gnss_id]);
-  m_gnss_odom_pub[gnss_id].publish(m_gnss_odom_msg[gnss_id]);
+  if(m_publish_gnss[gnss_id])
+  {
+    m_gnss_pub[gnss_id].publish(m_gnss_msg[gnss_id]);
+    m_gnss_odom_pub[gnss_id].publish(m_gnss_odom_msg[gnss_id]);
 
-  if(time_valid)
-    m_gnss_time_pub[gnss_id].publish(m_gnss_time_msg[gnss_id]);
+    if(time_valid)
+      m_gnss_time_pub[gnss_id].publish(m_gnss_time_msg[gnss_id]);
+  }
 }
 
 
@@ -4224,6 +4284,124 @@ bool Microstrain::commanded_ang_rate_zupt(std_srvs::Trigger::Request &req, std_s
     try
     {
       m_inertial_device->cmdedAngRateZUPT();
+      res.success = true;
+    }
+    catch(mscl::Error &e)
+    {
+      ROS_ERROR("Error: %s", e.what());
+    }
+  }
+
+  return res.success;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// External Heading Update Service
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool Microstrain::external_heading_update(ros_mscl::ExternalHeadingUpdate::Request &req,
+                                          ros_mscl::ExternalHeadingUpdate::Response &res)
+{
+  res.success = false;
+
+  if(m_inertial_device)
+  {
+    try
+    {
+      mscl::HeadingData heading_data;
+
+      heading_data.headingAngle            = req.heading_rad;
+      heading_data.headingAngleUncertainty = req.heading_1sigma_rad;
+      heading_data.heading                 = (mscl::HeadingData::HeadingType)req.heading_type;
+
+      mscl::TimeUpdate timestamp(req.gps_tow, req.gps_week_number);
+
+      if(req.use_time)
+      {
+        m_inertial_device->sendExternalHeadingUpdate(heading_data, timestamp);
+        ROS_INFO("Sent External Heading update with timestamp.\n");
+      }
+      else
+      {
+        m_inertial_device->sendExternalHeadingUpdate(heading_data);
+        ROS_INFO("Sent External Heading update.\n");
+      }      
+       
+      res.success = true;
+    }
+    catch(mscl::Error &e)
+    {
+      ROS_ERROR("Error: %s", e.what());
+    }
+  }
+
+  return res.success;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// Set Relative Position Reference Service
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool Microstrain::set_relative_position_reference(ros_mscl::SetRelativePositionReference::Request &req, 
+                                                  ros_mscl::SetRelativePositionReference::Response &res)
+{
+  res.success = false;
+
+  if(m_inertial_device)
+  {
+    try
+    {
+      mscl::PositionReferenceConfiguration ref;
+
+      ref.position   = mscl::Position(req.position.x, req.position.y, req.position.z, static_cast<mscl::PositionVelocityReferenceFrame>(req.frame));
+      ref.autoConfig = !((bool)req.source);
+
+      m_inertial_device->setRelativePositionReference(ref);
+ 
+      if(req.source == 0)
+        ROS_INFO("Setting reference position to RTK base station (automatic)");
+      else
+        ROS_INFO("Setting reference position to: [%f, %f, %f], ref frame = %d", req.position.x, req.position.y, req.position.z, req.frame);
+      
+      res.success = true;
+    }
+    catch(mscl::Error &e)
+    {
+      ROS_ERROR("Error: %s", e.what());
+    }
+  }
+
+  return res.success;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// Get Relative Position Reference Service
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool Microstrain::get_relative_position_reference(ros_mscl::GetRelativePositionReference::Request &req, 
+                                                  ros_mscl::GetRelativePositionReference::Response &res)
+{
+  res.success = false; 
+
+  if(m_inertial_device)
+  {
+    try
+    {
+      mscl::PositionReferenceConfiguration ref = m_inertial_device->getRelativePositionReference();
+
+      if(ref.autoConfig)
+        ROS_INFO("Reference position is set to RTK base station (automatic)");
+      else
+        ROS_INFO("Reference position is: [%f, %f, %f], ref frame = %d", ref.position.x(), ref.position.y(), ref.position.z(), (int)ref.position.referenceFrame);
+      
+      res.source     = !ref.autoConfig;
+      res.frame      = (int)ref.position.referenceFrame;
+      res.position.x = ref.position.x();
+      res.position.y = ref.position.y();
+      res.position.z = ref.position.z();
+       
       res.success = true;
     }
     catch(mscl::Error &e)
