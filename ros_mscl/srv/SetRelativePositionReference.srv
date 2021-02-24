@@ -1,0 +1,10 @@
+uint8  source
+uint8  frame
+geometry_msgs/Vector3 position
+
+uint8 SOURCE_AUTO   = 0  #RTK base station required
+uint8 SOURCE_MANUAL = 1  
+uint8 FRAME_ECEF = 1  
+uint8 FRAME_LLH  = 2  
+---
+bool success

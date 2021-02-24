@@ -100,6 +100,9 @@
 #include "ros_mscl/SetHeadingSource.h"
 #include "ros_mscl/GetHeadingSource.h"
 #include "ros_mscl/GetSensor2VehicleTransformation.h"
+#include "ros_mscl/ExternalHeadingUpdate.h"
+#include "ros_mscl/SetRelativePositionReference.h"
+#include "ros_mscl/GetRelativePositionReference.h"
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -236,7 +239,12 @@ namespace Microstrain
 
     bool set_mag_dip_adaptive_vals(ros_mscl::SetMagDipAdaptiveVals::Request &req, ros_mscl::SetMagDipAdaptiveVals::Response &res);
     bool get_mag_dip_adaptive_vals(ros_mscl::GetMagDipAdaptiveVals::Request &req, ros_mscl::GetMagDipAdaptiveVals::Response &res);
-     
+    
+    bool external_heading_update(ros_mscl::ExternalHeadingUpdate::Request &req, ros_mscl::ExternalHeadingUpdate::Response &res);
+
+    bool set_relative_position_reference(ros_mscl::SetRelativePositionReference::Request &req, ros_mscl::SetRelativePositionReference::Response &res);
+    bool get_relative_position_reference(ros_mscl::GetRelativePositionReference::Request &req, ros_mscl::GetRelativePositionReference::Response &res);
+
     bool device_settings(ros_mscl::DeviceSettings::Request &req, ros_mscl::DeviceSettings::Response &res);
 
     void velocity_zupt_callback(const std_msgs::Bool& state);
@@ -246,7 +254,6 @@ namespace Microstrain
     void ang_zupt();    
 
     void external_gps_time_callback(const sensor_msgs::TimeReference& time);
-
 
   private:
 
@@ -332,6 +339,7 @@ namespace Microstrain
   ros::Publisher m_filter_heading_state_pub;
   ros::Publisher m_filter_pub;
   ros::Publisher m_filtered_imu_pub;
+  ros::Publisher m_filter_relative_pos_pub;
 
   //Device Status Publisher
   ros::Publisher m_device_status_pub;
@@ -359,9 +367,10 @@ namespace Microstrain
   //Filter Messages
   nav_msgs::Odometry                 m_filter_msg;
   sensor_msgs::Imu                   m_filtered_imu_msg;
-  mscl_msgs::FilterHeading           m_filter_heading_msg;
-  mscl_msgs::FilterHeadingState      m_filter_heading_state_msg;
+  nav_msgs::Odometry                 m_filter_relative_pos_msg;
   mscl_msgs::FilterStatus            m_filter_status_msg;
+  mscl_msgs::FilterHeadingState      m_filter_heading_state_msg;
+  mscl_msgs::FilterHeading           m_filter_heading_msg;
 
   //Device Status Message
   mscl_msgs::Status m_device_status_msg;
@@ -382,6 +391,7 @@ namespace Microstrain
   bool m_publish_gps_corr;
   bool m_publish_gnss[NUM_GNSS];
   bool m_publish_filter;
+  bool m_publish_filter_relative_pos;
   bool m_publish_rtk;
 
   //ZUPT, angular ZUPT topic listener variables

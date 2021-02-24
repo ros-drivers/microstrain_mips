@@ -2,6 +2,14 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.2 (2021-02-24)
+------------------
+* BREAKING CHANGE: Switched order of latitude and longitude in /nav/odom message to be correct (now Latitude, Longitude, Height)
+* Added support for external heading messages
+* Added support for relative position ouput on /device_name/nav/relative_pos/odom (GQ7 only)
+* Removed service clients as feedback has been that they are not used and clutter driver code
+* Fixed crash issue identified in https://github.com/LORD-MicroStrain/ROS-MSCL/issues/35
+
 1.1.1 (2020-12-08)
 ------------------
 * Added support for raw binary file output (used for support issues)
