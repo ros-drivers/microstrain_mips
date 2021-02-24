@@ -876,7 +876,7 @@ void Microstrain::run()
 
     if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_DEVICE_STATUS))
     {
-      m_device_status_pub           = node.advertise<ros_mscl::status_msg>("device/status", 100);
+      m_device_status_pub           = node.advertise<mscl_msgs::Status>("device/status", 100);
       get_basic_status_service      = node.advertiseService("get_basic_status",      &Microstrain::get_basic_status, this);
       get_diagnostic_report_service = node.advertiseService("get_diagnostic_report", &Microstrain::get_diagnostic_report, this);
     }
@@ -897,7 +897,7 @@ void Microstrain::run()
     if(m_publish_imu && m_publish_gps_corr)
     {
       ROS_INFO("Publishing IMU GPS correlation timestamp.");
-      m_gps_corr_pub = node.advertise<ros_mscl::GpsCorrelationTimestampStamped>("gps_corr", 100);
+      m_gps_corr_pub = node.advertise<mscl_msgs::GPSCorrelationTimestampStamped>("gps_corr", 100);
     }
 
     //If the device has a magnetometer, publish relevant topics
@@ -928,7 +928,7 @@ void Microstrain::run()
     //If the device has RTK, publish relevant topics
     if(m_publish_rtk && supports_rtk)
     {
-      m_rtk_pub =  node.advertise<ros_mscl::rtk_status_msg>("rtk/status", 100);
+      m_rtk_pub =  node.advertise<mscl_msgs::RTKStatus>("rtk/status", 100);
     }
 
     //If the device has a kalman filter, publish relevant topics
@@ -936,9 +936,9 @@ void Microstrain::run()
     {
       ROS_INFO("Publishing Filter data.");
       m_filter_pub               = node.advertise<nav_msgs::Odometry>("nav/odom", 100);
-      m_filter_status_pub        = node.advertise<ros_mscl::filter_status_msg>("nav/status", 100);
-      m_filter_heading_pub       = node.advertise<ros_mscl::filter_heading_msg>("nav/heading", 100);
-      m_filter_heading_state_pub = node.advertise<ros_mscl::filter_heading_state_msg>("nav/heading_state", 100);
+      m_filter_status_pub        = node.advertise<mscl_msgs::FilterStatus>("nav/status", 100);
+      m_filter_heading_pub       = node.advertise<mscl_msgs::FilterHeading>("nav/heading", 100);
+      m_filter_heading_state_pub = node.advertise<mscl_msgs::FilterHeadingState>("nav/heading_state", 100);
       m_filtered_imu_pub         = node.advertise<sensor_msgs::Imu>("nav/filtered_imu/data", 100);
 
       if(m_publish_filter_relative_pos)

@@ -29,74 +29,12 @@ add_definitions(-std=c++11)
 
 set(CMAKE_C_FLAGS "-Wno-implicit-function-declaration -Wno-incompatible-pointer-types -Wno-format -fno-builtin-memcpy")
 
-add_message_files(
-  FILES
-  status_msg.msg
-  filter_status_msg.msg
-  filter_heading_msg.msg
-  filter_heading_state_msg.msg
-  rtk_status_msg.msg
-  GpsCorrelationTimestamp.msg
-  GpsCorrelationTimestampStamped.msg
-)
+FILE(GLOB SRV_FILES RELATIVE "${${PROJECT_NAME}_SOURCE_DIR}/srv"
+    "${${PROJECT_NAME}_SOURCE_DIR}/srv/*.srv")
 
 add_service_files(
   FILES
-  InitFilterEuler.srv
-  InitFilterHeading.srv
-  DeviceSettings.srv
-  SetAccelBias.srv
-  GetAccelBias.srv
-  SetGyroBias.srv
-  GetGyroBias.srv
-  SetHardIronValues.srv
-  GetHardIronValues.srv
-  SetSoftIronMatrix.srv
-  GetSoftIronMatrix.srv
-  SetComplementaryFilter.srv
-  GetComplementaryFilter.srv
-  SetAccelBiasModel.srv
-  GetAccelBiasModel.srv
-  SetGravityAdaptiveVals.srv
-  GetGravityAdaptiveVals.srv
-  SetSensor2VehicleRotation.srv
-  GetSensor2VehicleRotation.srv
-  SetSensor2VehicleOffset.srv
-  GetSensor2VehicleOffset.srv
-  SetReferencePosition.srv
-  GetReferencePosition.srv
-  SetConingScullingComp.srv
-  GetConingScullingComp.srv
-  SetEstimationControlFlags.srv
-  GetEstimationControlFlags.srv
-  SetDynamicsMode.srv
-  GetDynamicsMode.srv
-  SetZeroAngleUpdateThreshold.srv
-  GetZeroAngleUpdateThreshold.srv
-  SetZeroVelocityUpdateThreshold.srv
-  GetZeroVelocityUpdateThreshold.srv
-  SetTareOrientation.srv
-  GetTareOrientation.srv
-  SetAccelNoise.srv
-  GetAccelNoise.srv
-  SetGyroNoise.srv
-  GetGyroNoise.srv
-  SetMagNoise.srv
-  GetMagNoise.srv
-  SetGyroBiasModel.srv
-  GetGyroBiasModel.srv
-  SetAccelAdaptiveVals.srv
-  GetAccelAdaptiveVals.srv
-  SetMagAdaptiveVals.srv
-  GetMagAdaptiveVals.srv
-  SetMagDipAdaptiveVals.srv
-  GetMagDipAdaptiveVals.srv
-  SetHeadingSource.srv
-  GetHeadingSource.srv
-  GetSensor2VehicleTransformation.srv
-  ExternalHeadingUpdate.srv
-  SetRelativePositionReference.srv
-  GetRelativePositionReference.srv
+  ${SRV_FILES}
 )
 
 ###################################
@@ -139,10 +77,16 @@ include_directories(include/${PROJECT_NAME} ${MIPLIBINC} ${MIPUTILINC} ${MSCL_IN
 add_library(ros_mscl
   src/microstrain_3dm.cpp
 )
-add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}
+  mscl_msgs_generate_messages_cpp
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+)
 
 add_library(microstrain_diagnostic_updater src/microstrain_diagnostic_updater.cpp)
-add_dependencies(microstrain_diagnostic_updater ${${PROJECT_NAME}_EXPORTED_TARGETS})
+add_dependencies(microstrain_diagnostic_updater
+  mscl_msgs_generate_messages_cpp
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+)
 
 # Executables
 
@@ -153,6 +97,7 @@ add_executable(ros_mscl_node
 
 add_dependencies(ros_mscl_node
   ros_mscl_gencpp
+  mscl_msgs_generate_messages_cpp
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
 )
 
