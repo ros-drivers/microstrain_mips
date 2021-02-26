@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2
   tf2_ros
   diagnostic_updater
+	mscl_msgs
 )
 
 find_library(MSCL_LIB_PATH NAMES libmscl.so PATHS "/usr/share/c++-mscl" DOC "MSCL Library" NO_DEFAULT_PATH)
@@ -67,6 +68,7 @@ catkin_package(
     sensor_msgs
     nav_msgs
     message_runtime
+		mscl_msgs
 )
 ###########
 ## Build ##
