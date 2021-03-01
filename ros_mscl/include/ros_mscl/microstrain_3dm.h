@@ -264,6 +264,9 @@ namespace Microstrain
   //Variables/fields
   std::unique_ptr<mscl::InertialNode> m_inertial_device;
 
+  //Flag for using device timestamp instead of PC received time
+  bool m_use_device_timestamp;
+
   //Packet Counters (valid, timeout, and checksum errors)
   uint32_t m_imu_valid_packet_count;
   uint32_t m_gnss_valid_packet_count[NUM_GNSS];

@@ -41,6 +41,12 @@
      
     <param name="save_settings" value="false" type="bool" />
     
+    <!-- Controls if the driver uses the device generated timestamp (if available) for timestamping messages 
+          false - Use PC received time for timestamping
+          true  - Use device generated timestamp
+     -->
+     
+    <param name="use_device_timestamp" value="false" type="bool" />
 
     <!-- Controls if the driver creates a raw binary file
           false - Do not create the file

@@ -38,6 +38,7 @@ namespace Microstrain
 
 Microstrain::Microstrain()
 {
+  m_use_device_timestamp = false;
   m_com_mode = 0;
   m_filter_valid_packet_count = 0;
   m_imu_valid_packet_count= 0;
@@ -177,6 +178,8 @@ void Microstrain::run()
   private_nh.param("baudrate",              baudrate, 115200);
   private_nh.param("device_setup",          device_setup, false);
   private_nh.param("save_settings",         save_settings, true);
+  private_nh.param("use_device_timestamp",  m_use_device_timestamp, false);
+ 
 
   //IMU
   private_nh.param("publish_imu",           m_publish_imu, true);
@@ -1398,8 +1401,8 @@ void Microstrain::parse_imu_packet(const mscl::MipDataPacket &packet)
   //Handle time
   uint64_t time = packet.collectedTimestamp().nanoseconds();
   
-  // Note: validity check removed so time is assigned even if GPS time has not been captured
-  if(packet.hasDeviceTime()) // && packet.deviceTimeValid()) 
+  //Check if the user wants to use the device timestamp instead of PC collected time
+  if(packet.hasDeviceTime() && m_use_device_timestamp) 
   {
      time = packet.deviceTimestamp().nanoseconds();
   }
@@ -1567,8 +1570,8 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
   //Handle time
   uint64_t time = packet.collectedTimestamp().nanoseconds();
   
-  // Note: validity check removed so time is assigned even if GPS time has not been captured
-  if(packet.hasDeviceTime())// && packet.deviceTimeValid()) 
+  //Check if the user wants to use the device timestamp instead of PC collected time
+  if(packet.hasDeviceTime() && m_use_device_timestamp) 
   {
      time = packet.deviceTimestamp().nanoseconds();
   }
@@ -1885,8 +1888,8 @@ void Microstrain::parse_gnss_packet(const mscl::MipDataPacket &packet, int gnss_
   uint64_t time       = packet.collectedTimestamp().nanoseconds();
   bool     time_valid = false;
 
-  // Note: validity check removed so time is assigned even if GPS time has not been captured
-  if(packet.hasDeviceTime()) // && (packet.deviceTimeFlags() >= 3)) 
+  //Check if the user wants to use the device timestamp instead of PC collected time
+  if(packet.hasDeviceTime() && m_use_device_timestamp) 
   {
      time       = packet.deviceTimestamp().nanoseconds();
      time_valid = true;
@@ -1996,8 +1999,8 @@ void Microstrain::parse_rtk_packet(const mscl::MipDataPacket& packet)
   //Handle time
   uint64_t time = packet.collectedTimestamp().nanoseconds();
 
-  // Note: validity check removed so time is assigned even if GPS time has not been captured
-  if(packet.hasDeviceTime()) // && (packet.deviceTimeFlags() >= 3)) 
+  //Check if the user wants to use the device timestamp instead of PC collected time
+  if(packet.hasDeviceTime() && m_use_device_timestamp) 
     time = packet.deviceTimestamp().nanoseconds();
 
   //Get the list of data elements
