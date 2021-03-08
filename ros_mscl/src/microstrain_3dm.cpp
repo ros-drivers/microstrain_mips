@@ -62,7 +62,8 @@ Microstrain::Microstrain()
   m_gps_leap_seconds = 18.0;
   m_publish_gnss[GNSS1_ID]= true;
   m_publish_gnss[GNSS2_ID]= true;
-  m_publish_filter= true;
+  m_publish_filter = true;
+  m_publish_rtk = false;
   m_imu_linear_cov = std::vector<double>(9, 0.0);
   m_imu_angular_cov = std::vector<double>(9, 0.0);
   m_imu_orientation_cov = std::vector<double>(9, 0.0); 
@@ -539,6 +540,8 @@ void Microstrain::run()
       {
         ROS_INFO("Setting RTK dongle enable to %d", rtk_dongle_enable);
         m_inertial_device->enableRtk(rtk_dongle_enable);
+
+        m_publish_rtk = rtk_dongle_enable;
       }
 
       //
@@ -931,6 +934,7 @@ void Microstrain::run()
     //If the device has RTK, publish relevant topics
     if(m_publish_rtk && supports_rtk)
     {
+      ROS_INFO("Publishing RTK data.");
       m_rtk_pub =  node.advertise<mscl_msgs::RTKStatus>("rtk/status", 100);
     }
 
@@ -2031,17 +2035,12 @@ void Microstrain::parse_rtk_packet(const mscl::MipDataPacket& packet)
           //Decode dongle status
           mscl::RTKDeviceStatusFlags dongle_status(point.as_uint32());
 
-          m_rtk_msg.dongle_state 						   = dongle_status.state(); 
-          m_rtk_msg.dongle_status 				     = dongle_status.statusCode(); 
-          m_rtk_msg.dongle_corrections_timeout = dongle_status.correctionsTimedOut();
-          m_rtk_msg.dongle_service_unavailable = dongle_status.serviceUnavailable();
-          m_rtk_msg.dongle_reset_reason 		   = static_cast<uint8_t>(dongle_status.resetReason());
-          m_rtk_msg.dongle_modem_powered 			 = dongle_status.modemPowered(); 
-          m_rtk_msg.dongle_cell_connected 		 = dongle_status.cellConnected();
-          m_rtk_msg.dongle_server_connected 	 = dongle_status.serverConnected();
-          m_rtk_msg.dongle_data_enabled 			 = dongle_status.dataEnabled(); 
-          m_rtk_msg.dongle_rssi 					     = dongle_status.rssi(); 
-          m_rtk_msg.dongle_signal_quality			 = dongle_status.signalQuality(); 
+          m_rtk_msg.dongle_controller_state  = dongle_status.controllerState(); 
+          m_rtk_msg.dongle_platform_state 	 = dongle_status.platformState(); 
+          m_rtk_msg.dongle_controller_status = dongle_status.controllerStatusCode(); 
+          m_rtk_msg.dongle_platform_status 	 = dongle_status.platformStatusCode(); 
+          m_rtk_msg.dongle_reset_reason 	   = dongle_status.resetReason(); 
+          m_rtk_msg.dongle_signal_quality		 = dongle_status.signalQuality(); 
         }
         else if(point.qualifier() == mscl::MipTypes::CH_GPS_CORRECTION_LATENCY)
         {
