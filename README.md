@@ -8,7 +8,9 @@ MSCL is developed by [LORD Sensing - Microstrain](http://microstrain.com) in Wil
 ## Build Instructions
 
 #### MSCL
-MSCL pre-built packages can be found here: [MSCL Packages](https://github.com/LORD-MicroStrain/MSCL#downloads)
+MSCL pre-built packages can be found here: [MSCL Packages](https://github.com/LORD-MicroStrain/MSCL/releases/tag/v61.1.6)
+
+We do our best to keep ROS-MSCL up-to-date with the latest MSCL changes, but sometimes there is a delay. The currently supported version of MSCL is [v61.1.6](https://github.com/LORD-MicroStrain/MSCL/releases/tag/v61.1.6)
 
 Install instructions can be found here: [How to Use MSCL](https://github.com/LORD-MicroStrain/MSCL/blob/master/HowToUseMSCL.md#linux)
 
