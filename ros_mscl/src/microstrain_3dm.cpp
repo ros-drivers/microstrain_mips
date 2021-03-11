@@ -555,6 +555,7 @@ void Microstrain::run()
         ROS_INFO("Setting Filter data to stream at %d hz", m_filter_data_rate);
 
         mscl::MipTypes::MipChannelFields navChannels{
+            mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_GPS_TIMESTAMP,
             mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_FILTER_STATUS,
             mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_ESTIMATED_LLH_POS,
             mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_ESTIMATED_NED_VELOCITY,
