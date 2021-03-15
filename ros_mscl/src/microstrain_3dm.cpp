@@ -614,14 +614,21 @@ void Microstrain::run()
             //Invert the angles for "rotation"
             mscl::EulerAngles angles(-filter_sensor2vehicle_frame_transformation_euler[0], -filter_sensor2vehicle_frame_transformation_euler[1], -filter_sensor2vehicle_frame_transformation_euler[2]);
 
+            ROS_INFO("Setting sensor2vehicle frame rotation with euler angles [%f, %f, %f]", -filter_sensor2vehicle_frame_transformation_euler[0], -filter_sensor2vehicle_frame_transformation_euler[1], -filter_sensor2vehicle_frame_transformation_euler[2]);
             m_inertial_device->setSensorToVehicleRotation_eulerAngles(angles);
           }
           else if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_TRANSFORM_EULER))
           {
-             mscl::EulerAngles angles(filter_sensor2vehicle_frame_transformation_euler[0], filter_sensor2vehicle_frame_transformation_euler[1], filter_sensor2vehicle_frame_transformation_euler[2]);
+            mscl::EulerAngles angles(filter_sensor2vehicle_frame_transformation_euler[0], filter_sensor2vehicle_frame_transformation_euler[1], filter_sensor2vehicle_frame_transformation_euler[2]);
              
-             m_inertial_device->setSensorToVehicleTransform_eulerAngles(angles);
+            ROS_INFO("Setting sensor2vehicle frame transformation with euler angles [%f, %f, %f]", filter_sensor2vehicle_frame_transformation_euler[0], filter_sensor2vehicle_frame_transformation_euler[1], filter_sensor2vehicle_frame_transformation_euler[2]);
+            m_inertial_device->setSensorToVehicleTransform_eulerAngles(angles);
           }
+          else
+          {
+            ROS_ERROR("**Failed to set sensor2vehicle frame transformation with euler angles!");
+          }
+
         }
         //Matrix
         else if(filter_sensor2vehicle_frame_selector == 2)
@@ -634,6 +641,7 @@ void Microstrain::run()
                                  filter_sensor2vehicle_frame_transformation_matrix[1], filter_sensor2vehicle_frame_transformation_matrix[4], filter_sensor2vehicle_frame_transformation_matrix[7],
                                  filter_sensor2vehicle_frame_transformation_matrix[2], filter_sensor2vehicle_frame_transformation_matrix[5], filter_sensor2vehicle_frame_transformation_matrix[8]);
 
+            ROS_INFO("Setting sensor2vehicle frame rotation with a matrix");
             m_inertial_device->setSensorToVehicleRotation_matrix(dcm);
           }
           else if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_DCM))
@@ -642,7 +650,12 @@ void Microstrain::run()
                                  filter_sensor2vehicle_frame_transformation_matrix[3], filter_sensor2vehicle_frame_transformation_matrix[4], filter_sensor2vehicle_frame_transformation_matrix[5],
                                  filter_sensor2vehicle_frame_transformation_matrix[6], filter_sensor2vehicle_frame_transformation_matrix[7], filter_sensor2vehicle_frame_transformation_matrix[8]);
              
-             m_inertial_device->setSensorToVehicleTransform_matrix(dcm);
+            ROS_INFO("Setting sensor2vehicle frame transformation with a matrix");
+            m_inertial_device->setSensorToVehicleTransform_matrix(dcm);
+          }
+          else
+          {
+            ROS_ERROR("**Failed to set sensor2vehicle frame transformation with a matrix!");
           }
         
         }
@@ -652,19 +665,27 @@ void Microstrain::run()
           //Old style - set rotation (inverse of transformation)
           if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_QUAT))
           {
-            //Invert the quaternion for "rotation" (note: device uses aerospace quaternion definition [w, i, j, k])
-            mscl::Quaternion quat(-filter_sensor2vehicle_frame_transformation_quaternion[3], -filter_sensor2vehicle_frame_transformation_quaternion[0],
+            //Invert the quaternion for "rotation" (note: device uses aerospace quaternion definition [w, -i, -j, -k])
+            mscl::Quaternion quat(filter_sensor2vehicle_frame_transformation_quaternion[3], -filter_sensor2vehicle_frame_transformation_quaternion[0],
                                   -filter_sensor2vehicle_frame_transformation_quaternion[1], -filter_sensor2vehicle_frame_transformation_quaternion[2]);
             
+            ROS_INFO("Setting sensor2vehicle frame rotation with quaternion [%f %f %f %f]", -filter_sensor2vehicle_frame_transformation_quaternion[0], -filter_sensor2vehicle_frame_transformation_quaternion[1],
+                                  -filter_sensor2vehicle_frame_transformation_quaternion[2], filter_sensor2vehicle_frame_transformation_quaternion[3]);
             m_inertial_device->setSensorToVehicleRotation_quaternion(quat);
           }
           else if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_TRANSFORM_QUAT))
           {
-            //Invert the quaternion for "rotation" (note: device uses aerospace quaternion definition [w, i, j, k])
+            //No inversion for transformation (note: device uses aerospace quaternion definition [w, i, j, k])
             mscl::Quaternion quat(filter_sensor2vehicle_frame_transformation_quaternion[3], filter_sensor2vehicle_frame_transformation_quaternion[0],
                                   filter_sensor2vehicle_frame_transformation_quaternion[1], filter_sensor2vehicle_frame_transformation_quaternion[2]);
 
-             m_inertial_device->setSensorToVehicleTransform_quaternion(quat);
+            ROS_INFO("Setting sensor2vehicle frame transformation with quaternion [%f %f %f %f]", filter_sensor2vehicle_frame_transformation_quaternion[0], filter_sensor2vehicle_frame_transformation_quaternion[1],
+                                  filter_sensor2vehicle_frame_transformation_quaternion[2], filter_sensor2vehicle_frame_transformation_quaternion[3]);
+            m_inertial_device->setSensorToVehicleTransform_quaternion(quat);
+          }
+          else
+          {
+            ROS_ERROR("**Failed to set sensor2vehicle frame transformation with quaternion!");
           }
         }
 
