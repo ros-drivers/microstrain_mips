@@ -139,7 +139,7 @@
          0 = None, 1 = Euler Angles, 2 - matrix, 3 - quaternion 
          Notes: These are different ways of setting the same parameter in the device.
                 The different options are provided as a convenience.
-                Support for matrix and quaternion options is firmware version dependent (Not currently supported on GQ7)
+                Support for matrix and quaternion options is firmware version dependent (Quaternion not currently supported on GQ7)
                 Quaternion order is [i, j, k, w]
      -->
     <param name="filter_sensor2vehicle_frame_selector" value="0" type="int" />
