@@ -404,6 +404,10 @@ void Microstrain::run()
           ROS_INFO("Setting Declination Source");
           m_inertial_device->setDeclinationSource(mscl::GeographicSourceOptions(static_cast<mscl::InertialTypes::GeographicSourceOption>((uint8_t)declination_source), declination));
         }
+        else
+        {
+          ROS_INFO("Note: Device does not support the declination source command.");
+        }
 
         m_inertial_device->enableDataStream(mscl::MipTypes::DataClass::CLASS_AHRS_IMU);
       }
@@ -461,6 +465,10 @@ void Microstrain::run()
           ROS_INFO("Setting GNSS1 antenna offset to [%f, %f, %f]", antenna_offset.x(), antenna_offset.y(), antenna_offset.z());
           m_inertial_device->setMultiAntennaOffset(1, antenna_offset);
         }
+        else
+        {
+          ROS_ERROR("Could not set GNSS1 antenna offset!");         
+        }        
 
         m_inertial_device->enableDataStream(gnss1_data_class);
       }
@@ -501,7 +509,10 @@ void Microstrain::run()
           ROS_INFO("Setting GNSS2 antenna offset to [%f, %f, %f]", antenna_offset.x(), antenna_offset.y(), antenna_offset.z());
           m_inertial_device->setMultiAntennaOffset(2, antenna_offset);
         }
-
+        else
+        {
+          ROS_ERROR("Could not set GNSS2 antenna offset!");         
+        }
 
         m_inertial_device->enableDataStream(mscl::MipTypes::DataClass::CLASS_GNSS2);
       }
@@ -532,17 +543,23 @@ void Microstrain::run()
         //set the GNSS channel fields
         m_inertial_device->setActiveChannelFields(mscl::MipTypes::DataClass::CLASS_GNSS3, supportedChannels);
 
+
+        if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_GNSS_RTK_CONFIG))
+        {
+          ROS_INFO("Setting RTK dongle enable to %d", rtk_dongle_enable);
+          m_inertial_device->enableRtk(rtk_dongle_enable);
+  
+          m_publish_rtk = rtk_dongle_enable;
+        }
+        else
+        {
+          ROS_INFO("Note: Device does not support the RTK dongle config command");          
+        }
+        
+
         m_inertial_device->enableDataStream(mscl::MipTypes::DataClass::CLASS_GNSS3);
       }
 
-
-      if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_GNSS_RTK_CONFIG))
-      {
-        ROS_INFO("Setting RTK dongle enable to %d", rtk_dongle_enable);
-        m_inertial_device->enableRtk(rtk_dongle_enable);
-
-        m_publish_rtk = rtk_dongle_enable;
-      }
 
       //
       //Filter setup
@@ -592,6 +609,11 @@ void Microstrain::run()
             m_inertial_device->setVehicleDynamicsMode(static_cast<mscl::InertialTypes::VehicleModeType>(dynamics_mode));
           }
         }
+        else
+        {
+          ROS_INFO("Note: The device does not support the vehicle dynamics mode command.");          
+        }
+        
 
         //Set PPS source
         if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_PPS_SOURCE))
@@ -603,7 +625,11 @@ void Microstrain::run()
             m_inertial_device->setPpsSource(static_cast<mscl::InertialTypes::PpsSource>(filter_pps_source));
           }
         }
-
+        else
+        {
+          ROS_INFO("Note: The device does not support the PPS source command.");          
+        }
+ 
         //Set sensor2vehicle frame transformation
         //Euler Angles
         if(filter_sensor2vehicle_frame_selector == 1)
@@ -628,7 +654,6 @@ void Microstrain::run()
           {
             ROS_ERROR("**Failed to set sensor2vehicle frame transformation with euler angles!");
           }
-
         }
         //Matrix
         else if(filter_sensor2vehicle_frame_selector == 2)
@@ -710,6 +735,10 @@ void Microstrain::run()
             m_inertial_device->setInitialHeading(initial_heading);
           }
         }
+        else
+        {
+          ROS_INFO("Note: The device does not support the heading source command.");          
+        }
 
 
         //Set the filter autoinitialization, if suppored
@@ -718,7 +747,11 @@ void Microstrain::run()
           ROS_INFO("Setting autoinitialization to %d", filter_auto_init);
           m_inertial_device->setAutoInitialization(filter_auto_init);
         }
-
+        else
+        {
+          ROS_INFO("Note: The device does not support the filter autoinitialization command.");          
+        }
+ 
 
         //(GQ7 and GX5-45 only) Set the filter adaptive settings
         if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_ADAPTIVE_FILTER_OPTIONS))
@@ -728,6 +761,11 @@ void Microstrain::run()
 
           m_inertial_device->setAdaptiveFilterOptions(options);
         }
+        else
+        {
+          ROS_INFO("Note: The device does not support the filte adaptive settings command.");          
+        }
+ 
 
         //(GQ7 only) Set the filter aiding settings
         if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_AIDING_MEASUREMENT_ENABLE))
@@ -743,7 +781,11 @@ void Microstrain::run()
           m_inertial_device->enableDisableAidingMeasurement(mscl::InertialTypes::AidingMeasurementSource::MAGNETOMETER_AIDING,     filter_enable_magnetometer_aiding);
           m_inertial_device->enableDisableAidingMeasurement(mscl::InertialTypes::AidingMeasurementSource::EXTERNAL_HEADING_AIDING, filter_enable_external_heading_aiding);
         }
-
+        else
+        {
+          ROS_INFO("Note: The device does not support the filter aiding command.");          
+        }
+ 
       
         //(GQ7 only) Set the filter relative position frame settings
         if(m_publish_filter_relative_pos && m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_RELATIVE_POSITION_REF))
@@ -754,14 +796,24 @@ void Microstrain::run()
           ROS_INFO("Setting reference position to: [%f, %f, %f], ref frame = %d", filter_relative_position_ref[0], filter_relative_position_ref[1], filter_relative_position_ref[2], filter_relative_position_frame);
           m_inertial_device->setRelativePositionReference(ref);
         }
+        else
+        {
+          ROS_INFO("Note: The device does not support the relative position command.");          
+        }
+ 
 
         //(GQ7 only) Set the filter speed lever arm
-        /* Waiting on MSCL support
-        if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::))
+        if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SPEED_MEASUREMENT_OFFSET))
         {
-          filter_speed_lever_arm;
+          mscl::PositionOffset offset(filter_speed_lever_arm[0], filter_speed_lever_arm[1], filter_speed_lever_arm[2]);
+
+          m_inertial_device->setSpeedMeasurementOffset(offset);
         }
-        */
+        else
+        {
+          ROS_INFO("Note: The device does not support the filter speed lever arm command.");          
+        }
+
   
         //(GQ7 only) Set the wheeled vehicle constraint
         if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_WHEELED_VEHICLE_CONSTRAINT))
@@ -769,6 +821,11 @@ void Microstrain::run()
           ROS_INFO("Setting wheeled vehicle contraint enable to %d", filter_enable_wheeled_vehicle_constraint);
           m_inertial_device->enableWheeledVehicleConstraint(filter_enable_wheeled_vehicle_constraint);
         }
+        else
+        {
+          ROS_INFO("Note: The device does not support the wheeled vehicle constraint command.");          
+        }
+ 
 
         //(GQ7 only) Set the vertical gyro constraint
         if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_VERTICAL_GYRO_CONSTRAINT))
@@ -776,6 +833,11 @@ void Microstrain::run()
           ROS_INFO("Setting vertical gyro contraint enable to %d", filter_enable_vertical_gyro_constraint);
           m_inertial_device->enableVerticalGyroConstraint(filter_enable_vertical_gyro_constraint);
         }
+        else
+        {
+          ROS_INFO("Note: The device does not support the vertical gyro constraint command.");          
+        }
+
 
         //(GQ7 only) Set the GNSS antenna calibration settings
         if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_GNSS_ANTENNA_LEVER_ARM_CAL))
@@ -787,6 +849,11 @@ void Microstrain::run()
           ROS_INFO("Setting GNSS antenna calibration to: enable = %d, max_offset = %f", filter_enable_gnss_antenna_cal, filter_gnss_antenna_cal_max_offset);
           m_inertial_device->setAntennaLeverArmCal(config);
         }
+        else
+        {
+          ROS_INFO("Note: The device does not support the GNSS antenna calibration command.");          
+        }
+
 
         //(GQ7 only) Set the filter initialization settings 
         if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_INITIALIZATION_CONFIG))
@@ -817,22 +884,33 @@ void Microstrain::run()
 
           m_inertial_device->setInitialFilterConfiguration(filter_config);
         }
+        else
+        {
+          ROS_INFO("Note: The device does not support the next-gen filter initialization command.");          
+        }
 
 
         //Enable the filter datastream
         m_inertial_device->enableDataStream(mscl::MipTypes::DataClass::CLASS_ESTFILTER);
       }
 
+
       //
       //Support channel setup
       //
 
-      if(m_raw_file_enable && m_raw_file_include_support_data &&
-         m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_FACTORY_STREAMING))
+      if(m_raw_file_enable && m_raw_file_include_support_data)
       {
-        ROS_INFO("Enabling factory support channels");
+        if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_FACTORY_STREAMING))
+        {
+          ROS_INFO("Enabling factory support channels");
 
-        m_inertial_device->setFactoryStreamingChannels(mscl::InertialTypes::FACTORY_STREAMING_ADDITIVE);
+          m_inertial_device->setFactoryStreamingChannels(mscl::InertialTypes::FACTORY_STREAMING_ADDITIVE);
+        }
+        else 
+        {
+          ROS_ERROR("**The device does not support the factory streaming channels setup command!");          
+        }
       }
 
 
@@ -850,6 +928,11 @@ void Microstrain::run()
         ROS_INFO("Resetting the filter after the configuration is complete.");
         m_inertial_device->resetFilter();
       }
+      else
+      {
+        ROS_INFO("Note: The filter was not reset after configuration.");          
+      }
+
 
       //Resume the device
       m_inertial_device->resume();

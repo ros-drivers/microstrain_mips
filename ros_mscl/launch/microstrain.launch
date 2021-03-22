@@ -176,7 +176,6 @@
           Time limit: Max duration of measurement rejection prior to recovery, in milliseconds - default = 15000 
      -->
     
-
     <param name="filter_adaptive_level"         value="2" type="int" />
     <param name="filter_adaptive_time_limit_ms" value="15000" type="int" />
 
@@ -295,7 +294,6 @@
          Lever Arm - In vehicle reference frame (meters)
      -->
     
-
     <rosparam param="filter_speed_lever_arm"> [0.0, 0.0, 0.0]</rosparam>    
 
     <!-- (GQ7 only) Wheeled Vehicle Constraint Control 
