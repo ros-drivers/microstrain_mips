@@ -52,11 +52,11 @@ Microstrain::Microstrain()
   m_imu_checksum_error_packet_count= 0;
   m_gnss_checksum_error_packet_count[GNSS1_ID]= 0;
   m_gnss_checksum_error_packet_count[GNSS2_ID]= 0;
-  m_imu_frame_id = "imu_frame";
-  m_gnss_frame_id[GNSS1_ID] = "gnss1_frame";
-  m_gnss_frame_id[GNSS2_ID] = "gnss2_frame";
-  m_filter_frame_id = "filter_frame";
-  m_filter_child_frame_id = "filter_child_frame";
+  m_imu_frame_id = "sensor";
+  m_gnss_frame_id[GNSS1_ID] = "gnss1_antenna_wgs84_ned";
+  m_gnss_frame_id[GNSS2_ID] = "gnss2_antenna_wgs84_ned";
+  m_filter_frame_id = "sensor_wgs84_ned";
+  m_filter_child_frame_id = "sensor";
   m_publish_imu = true;
   m_publish_gps_corr = false;
   m_gps_leap_seconds = 18.0;
@@ -69,6 +69,8 @@ Microstrain::Microstrain()
   m_imu_orientation_cov = std::vector<double>(9, 0.0); 
   m_raw_file_enable = false;
   m_raw_file_include_support_data = false;
+
+  m_t_ned2enu = tf2::Matrix3x3(0,1,0,1,0,0,0,0,-1);
 }
 
 
@@ -158,7 +160,6 @@ void Microstrain::run()
   //Raw datafile 
   std::string raw_file_directory;
 
-
   ///////////////////////////////////////////////////////////////////////////
   // Process the parameters
   ///////////////////////////////////////////////////////////////////////////
@@ -180,13 +181,21 @@ void Microstrain::run()
   private_nh.param("device_setup",          device_setup, false);
   private_nh.param("save_settings",         save_settings, true);
   private_nh.param("use_device_timestamp",  m_use_device_timestamp, false);
- 
+  private_nh.param("use_enu_frame",         m_use_enu_frame, false);
+
+  //If using ENU frame, reflect in the device frame id
+  if(m_use_enu_frame)
+  {
+    m_gnss_frame_id[GNSS1_ID] = "gnss1_antenna_wgs84_enu";
+    m_gnss_frame_id[GNSS2_ID] = "gnss2_antenna_wgs84_enu";
+    m_filter_frame_id         = "sensor_wgs84_enu";
+  }
+
 
   //IMU
   private_nh.param("publish_imu",           m_publish_imu, true);
   private_nh.param("publish_gps_corr",      m_publish_gps_corr, false);
   private_nh.param("imu_data_rate",         m_imu_data_rate, 10);
-  private_nh.param("imu_frame_id",          m_imu_frame_id, std::string("sensor_ned"));
   private_nh.param("imu_orientation_cov",   m_imu_orientation_cov, default_matrix);
   private_nh.param("imu_linear_cov",        m_imu_linear_cov,      default_matrix);
   private_nh.param("imu_angular_cov",       m_imu_angular_cov,     default_matrix);
@@ -196,8 +205,6 @@ void Microstrain::run()
   private_nh.param("publish_gnss2",         m_publish_gnss[GNSS2_ID], false);
   private_nh.param("gnss1_data_rate",       m_gnss_data_rate[GNSS1_ID], 1);
   private_nh.param("gnss2_data_rate",       m_gnss_data_rate[GNSS2_ID], 1);
-  private_nh.param("gnss1_frame_id",        m_gnss_frame_id[GNSS1_ID], std::string("gnss1_antenna_wgs84"));
-  private_nh.param("gnss2_frame_id",        m_gnss_frame_id[GNSS2_ID], std::string("gnss2_antenna_wgs84"));
   private_nh.param("gnss1_antenna_offset",  m_gnss_antenna_offset[GNSS1_ID],  default_vector);
   private_nh.param("gnss2_antenna_offset",  m_gnss_antenna_offset[GNSS2_ID],  default_vector);
 
@@ -209,8 +216,6 @@ void Microstrain::run()
   private_nh.param("filter_reset_after_config",  filter_reset_after_config, true);
   private_nh.param("filter_auto_init",           filter_auto_init, true);
   private_nh.param("filter_data_rate",           m_filter_data_rate, 10);
-  private_nh.param("filter_frame_id",            m_filter_frame_id, std::string("sensor_wgs84"));
-  private_nh.param("filter_child_frame_id",      m_filter_child_frame_id, std::string("sensor_ned"));
   private_nh.param("publish_relative_position",  m_publish_filter_relative_pos, false);
   private_nh.param("filter_sensor2vehicle_frame_selector",                  filter_sensor2vehicle_frame_selector, 0);
   private_nh.param("filter_sensor2vehicle_frame_transformation_euler",      filter_sensor2vehicle_frame_transformation_euler,      default_vector);
@@ -564,7 +569,7 @@ void Microstrain::run()
       //
       //Filter setup
       //
-      
+
       if(m_publish_filter && supports_filter)
       {
         mscl::SampleRate filter_rate = mscl::SampleRate::Hertz(m_filter_data_rate);
@@ -630,91 +635,6 @@ void Microstrain::run()
           ROS_INFO("Note: The device does not support the PPS source command.");          
         }
  
-        //Set sensor2vehicle frame transformation
-        //Euler Angles
-        if(filter_sensor2vehicle_frame_selector == 1)
-        {
-          //Old style - set rotation (inverse of transformation)
-          if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_EULER))
-          {
-            //Invert the angles for "rotation"
-            mscl::EulerAngles angles(-filter_sensor2vehicle_frame_transformation_euler[0], -filter_sensor2vehicle_frame_transformation_euler[1], -filter_sensor2vehicle_frame_transformation_euler[2]);
-
-            ROS_INFO("Setting sensor2vehicle frame rotation with euler angles [%f, %f, %f]", -filter_sensor2vehicle_frame_transformation_euler[0], -filter_sensor2vehicle_frame_transformation_euler[1], -filter_sensor2vehicle_frame_transformation_euler[2]);
-            m_inertial_device->setSensorToVehicleRotation_eulerAngles(angles);
-          }
-          else if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_TRANSFORM_EULER))
-          {
-            mscl::EulerAngles angles(filter_sensor2vehicle_frame_transformation_euler[0], filter_sensor2vehicle_frame_transformation_euler[1], filter_sensor2vehicle_frame_transformation_euler[2]);
-             
-            ROS_INFO("Setting sensor2vehicle frame transformation with euler angles [%f, %f, %f]", filter_sensor2vehicle_frame_transformation_euler[0], filter_sensor2vehicle_frame_transformation_euler[1], filter_sensor2vehicle_frame_transformation_euler[2]);
-            m_inertial_device->setSensorToVehicleTransform_eulerAngles(angles);
-          }
-          else
-          {
-            ROS_ERROR("**Failed to set sensor2vehicle frame transformation with euler angles!");
-          }
-        }
-        //Matrix
-        else if(filter_sensor2vehicle_frame_selector == 2)
-        { 
-          //Old style - set rotation (inverse of transformation)
-          if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_DCM))
-          {
-            //Transpose the matrix for "rotation"
-            mscl::Matrix_3x3 dcm(filter_sensor2vehicle_frame_transformation_matrix[0], filter_sensor2vehicle_frame_transformation_matrix[3], filter_sensor2vehicle_frame_transformation_matrix[6], 
-                                 filter_sensor2vehicle_frame_transformation_matrix[1], filter_sensor2vehicle_frame_transformation_matrix[4], filter_sensor2vehicle_frame_transformation_matrix[7],
-                                 filter_sensor2vehicle_frame_transformation_matrix[2], filter_sensor2vehicle_frame_transformation_matrix[5], filter_sensor2vehicle_frame_transformation_matrix[8]);
-
-            ROS_INFO("Setting sensor2vehicle frame rotation with a matrix");
-            m_inertial_device->setSensorToVehicleRotation_matrix(dcm);
-          }
-          else if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_DCM))
-          {
-            mscl::Matrix_3x3 dcm(filter_sensor2vehicle_frame_transformation_matrix[0], filter_sensor2vehicle_frame_transformation_matrix[1], filter_sensor2vehicle_frame_transformation_matrix[2], 
-                                 filter_sensor2vehicle_frame_transformation_matrix[3], filter_sensor2vehicle_frame_transformation_matrix[4], filter_sensor2vehicle_frame_transformation_matrix[5],
-                                 filter_sensor2vehicle_frame_transformation_matrix[6], filter_sensor2vehicle_frame_transformation_matrix[7], filter_sensor2vehicle_frame_transformation_matrix[8]);
-             
-            ROS_INFO("Setting sensor2vehicle frame transformation with a matrix");
-            m_inertial_device->setSensorToVehicleTransform_matrix(dcm);
-          }
-          else
-          {
-            ROS_ERROR("**Failed to set sensor2vehicle frame transformation with a matrix!");
-          }
-        
-        }
-        //Quaternion
-        else if(filter_sensor2vehicle_frame_selector == 3)
-        {
-          //Old style - set rotation (inverse of transformation)
-          if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_QUAT))
-          {
-            //Invert the quaternion for "rotation" (note: device uses aerospace quaternion definition [w, -i, -j, -k])
-            mscl::Quaternion quat(filter_sensor2vehicle_frame_transformation_quaternion[3], -filter_sensor2vehicle_frame_transformation_quaternion[0],
-                                  -filter_sensor2vehicle_frame_transformation_quaternion[1], -filter_sensor2vehicle_frame_transformation_quaternion[2]);
-            
-            ROS_INFO("Setting sensor2vehicle frame rotation with quaternion [%f %f %f %f]", -filter_sensor2vehicle_frame_transformation_quaternion[0], -filter_sensor2vehicle_frame_transformation_quaternion[1],
-                                  -filter_sensor2vehicle_frame_transformation_quaternion[2], filter_sensor2vehicle_frame_transformation_quaternion[3]);
-            m_inertial_device->setSensorToVehicleRotation_quaternion(quat);
-          }
-          else if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_TRANSFORM_QUAT))
-          {
-            //No inversion for transformation (note: device uses aerospace quaternion definition [w, i, j, k])
-            mscl::Quaternion quat(filter_sensor2vehicle_frame_transformation_quaternion[3], filter_sensor2vehicle_frame_transformation_quaternion[0],
-                                  filter_sensor2vehicle_frame_transformation_quaternion[1], filter_sensor2vehicle_frame_transformation_quaternion[2]);
-
-            ROS_INFO("Setting sensor2vehicle frame transformation with quaternion [%f %f %f %f]", filter_sensor2vehicle_frame_transformation_quaternion[0], filter_sensor2vehicle_frame_transformation_quaternion[1],
-                                  filter_sensor2vehicle_frame_transformation_quaternion[2], filter_sensor2vehicle_frame_transformation_quaternion[3]);
-            m_inertial_device->setSensorToVehicleTransform_quaternion(quat);
-          }
-          else
-          {
-            ROS_ERROR("**Failed to set sensor2vehicle frame transformation with quaternion!");
-          }
-        }
-
-
         //Set heading Source
         if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_HEADING_UPDATE_CTRL))
         {
@@ -894,6 +814,94 @@ void Microstrain::run()
         m_inertial_device->enableDataStream(mscl::MipTypes::DataClass::CLASS_ESTFILTER);
       }
 
+      //
+      //Set sensor2vehicle frame transformation
+      //
+      
+      
+      //Euler Angles
+      if(filter_sensor2vehicle_frame_selector == 1)
+      {
+        //Old style - set rotation (inverse of transformation)
+        if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_EULER))
+        {
+          //Invert the angles for "rotation"
+          mscl::EulerAngles angles(-filter_sensor2vehicle_frame_transformation_euler[0], -filter_sensor2vehicle_frame_transformation_euler[1], -filter_sensor2vehicle_frame_transformation_euler[2]);
+
+          ROS_INFO("Setting sensor2vehicle frame rotation with euler angles [%f, %f, %f]", -filter_sensor2vehicle_frame_transformation_euler[0], -filter_sensor2vehicle_frame_transformation_euler[1], -filter_sensor2vehicle_frame_transformation_euler[2]);
+          m_inertial_device->setSensorToVehicleRotation_eulerAngles(angles);
+        }
+        else if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_TRANSFORM_EULER))
+        {
+          mscl::EulerAngles angles(filter_sensor2vehicle_frame_transformation_euler[0], filter_sensor2vehicle_frame_transformation_euler[1], filter_sensor2vehicle_frame_transformation_euler[2]);
+            
+          ROS_INFO("Setting sensor2vehicle frame transformation with euler angles [%f, %f, %f]", filter_sensor2vehicle_frame_transformation_euler[0], filter_sensor2vehicle_frame_transformation_euler[1], filter_sensor2vehicle_frame_transformation_euler[2]);
+          m_inertial_device->setSensorToVehicleTransform_eulerAngles(angles);
+        }
+        else
+        {
+          ROS_ERROR("**Failed to set sensor2vehicle frame transformation with euler angles!");
+        }
+      }
+      //Matrix
+      else if(filter_sensor2vehicle_frame_selector == 2)
+      { 
+        //Old style - set rotation (inverse of transformation)
+        if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_DCM))
+        {
+          //Transpose the matrix for "rotation"
+          mscl::Matrix_3x3 dcm(filter_sensor2vehicle_frame_transformation_matrix[0], filter_sensor2vehicle_frame_transformation_matrix[3], filter_sensor2vehicle_frame_transformation_matrix[6], 
+                               filter_sensor2vehicle_frame_transformation_matrix[1], filter_sensor2vehicle_frame_transformation_matrix[4], filter_sensor2vehicle_frame_transformation_matrix[7],
+                               filter_sensor2vehicle_frame_transformation_matrix[2], filter_sensor2vehicle_frame_transformation_matrix[5], filter_sensor2vehicle_frame_transformation_matrix[8]);
+
+          ROS_INFO("Setting sensor2vehicle frame rotation with a matrix");
+          m_inertial_device->setSensorToVehicleRotation_matrix(dcm);
+        }
+        else if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_TRANSFORM_DCM))
+        {
+          mscl::Matrix_3x3 dcm(filter_sensor2vehicle_frame_transformation_matrix[0], filter_sensor2vehicle_frame_transformation_matrix[1], filter_sensor2vehicle_frame_transformation_matrix[2], 
+                               filter_sensor2vehicle_frame_transformation_matrix[3], filter_sensor2vehicle_frame_transformation_matrix[4], filter_sensor2vehicle_frame_transformation_matrix[5],
+                               filter_sensor2vehicle_frame_transformation_matrix[6], filter_sensor2vehicle_frame_transformation_matrix[7], filter_sensor2vehicle_frame_transformation_matrix[8]);
+             
+          ROS_INFO("Setting sensor2vehicle frame transformation with a matrix");
+          m_inertial_device->setSensorToVehicleTransform_matrix(dcm);
+        }
+        else
+        {
+          ROS_ERROR("**Failed to set sensor2vehicle frame transformation with a matrix!");
+        }
+        
+      }
+      //Quaternion
+      else if(filter_sensor2vehicle_frame_selector == 3)
+      {
+        //Old style - set rotation (inverse of transformation)
+        if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_ROTATION_QUAT))
+        {
+          //Invert the quaternion for "rotation" (note: device uses aerospace quaternion definition [w, -i, -j, -k])
+          mscl::Quaternion quat(filter_sensor2vehicle_frame_transformation_quaternion[3], -filter_sensor2vehicle_frame_transformation_quaternion[0],
+                                -filter_sensor2vehicle_frame_transformation_quaternion[1], -filter_sensor2vehicle_frame_transformation_quaternion[2]);
+            
+          ROS_INFO("Setting sensor2vehicle frame rotation with quaternion [%f %f %f %f]", -filter_sensor2vehicle_frame_transformation_quaternion[0], -filter_sensor2vehicle_frame_transformation_quaternion[1],
+                                -filter_sensor2vehicle_frame_transformation_quaternion[2], filter_sensor2vehicle_frame_transformation_quaternion[3]);
+          m_inertial_device->setSensorToVehicleRotation_quaternion(quat);
+        }
+        else if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_SENS_VEHIC_FRAME_TRANSFORM_QUAT))
+        {
+          //No inversion for transformation (note: device uses aerospace quaternion definition [w, i, j, k])
+          mscl::Quaternion quat(filter_sensor2vehicle_frame_transformation_quaternion[3], filter_sensor2vehicle_frame_transformation_quaternion[0],
+                                filter_sensor2vehicle_frame_transformation_quaternion[1], filter_sensor2vehicle_frame_transformation_quaternion[2]);
+
+          ROS_INFO("Setting sensor2vehicle frame transformation with quaternion [%f %f %f %f]", filter_sensor2vehicle_frame_transformation_quaternion[0], filter_sensor2vehicle_frame_transformation_quaternion[1],
+                                filter_sensor2vehicle_frame_transformation_quaternion[2], filter_sensor2vehicle_frame_transformation_quaternion[3]);
+          m_inertial_device->setSensorToVehicleTransform_quaternion(quat);
+        }
+        else
+        {
+          ROS_ERROR("**Failed to set sensor2vehicle frame transformation with quaternion!");
+        }
+      }
+
 
       //
       //Support channel setup
@@ -937,6 +945,7 @@ void Microstrain::run()
       //Resume the device
       m_inertial_device->resume();
     }
+
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1613,10 +1622,20 @@ void Microstrain::parse_imu_packet(const mscl::MipDataPacket &packet)
         mscl::Vector quaternion  = point.as_Vector();
         m_curr_filter_quaternion = quaternion;
 
-        m_imu_msg.orientation.x = quaternion.as_floatAt(1);
-        m_imu_msg.orientation.y = quaternion.as_floatAt(2);
-        m_imu_msg.orientation.z = quaternion.as_floatAt(3);
-        m_imu_msg.orientation.w = quaternion.as_floatAt(0);
+        if(m_use_enu_frame)
+        {
+          tf2::Quaternion q_ned2enu, qbody2ned(quaternion.as_floatAt(1), quaternion.as_floatAt(2), quaternion.as_floatAt(3), quaternion.as_floatAt(0));
+          m_t_ned2enu.getRotation(q_ned2enu);
+          m_imu_msg.orientation = tf2::toMsg(q_ned2enu*qbody2ned);
+        }
+        else
+        {
+  
+          m_imu_msg.orientation.x = quaternion.as_floatAt(1);
+          m_imu_msg.orientation.y = quaternion.as_floatAt(2);
+          m_imu_msg.orientation.z = quaternion.as_floatAt(3);
+          m_imu_msg.orientation.w = quaternion.as_floatAt(0);
+        }
       }
     }break;
 
@@ -1733,13 +1752,30 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
 
       if(point.qualifier() == mscl::MipTypes::CH_LATITUDE)
       {
-        m_curr_filter_pos_lat             = point.as_double();
-        m_filter_msg.pose.pose.position.x = m_curr_filter_pos_lat;
+        m_curr_filter_pos_lat = point.as_double();
+
+        if(m_use_enu_frame)
+        {
+          m_filter_msg.pose.pose.position.y = m_curr_filter_pos_lat;
+        }
+        else
+        {
+          m_filter_msg.pose.pose.position.x = m_curr_filter_pos_lat;          
+        }
+        
       }
       else if(point.qualifier() == mscl::MipTypes::CH_LONGITUDE)
       {
-        m_curr_filter_pos_long            = point.as_double();
-        m_filter_msg.pose.pose.position.y = m_curr_filter_pos_long;
+        m_curr_filter_pos_long = point.as_double();
+
+        if(m_use_enu_frame)
+        {
+          m_filter_msg.pose.pose.position.x = m_curr_filter_pos_long;
+        }
+        else
+        {          
+          m_filter_msg.pose.pose.position.y = m_curr_filter_pos_long;
+        }
       }
       else if(point.qualifier() == mscl::MipTypes::CH_HEIGHT_ABOVE_ELLIPSOID)
       {
@@ -1753,21 +1789,48 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
     {
       if(point.qualifier() == mscl::MipTypes::CH_NORTH)
       {
-        m_curr_filter_vel_north           = point.as_float();
-        m_filter_msg.twist.twist.linear.x = m_curr_filter_vel_north;
-        m_filter_relative_pos_msg.twist.twist.linear.x = m_curr_filter_vel_north;
+        m_curr_filter_vel_north = point.as_float();
+
+        if(m_use_enu_frame)
+        {
+          m_filter_msg.twist.twist.linear.y              = m_curr_filter_vel_north;
+          m_filter_relative_pos_msg.twist.twist.linear.y = m_curr_filter_vel_north;          
+        }
+        else
+        {
+          m_filter_msg.twist.twist.linear.x              = m_curr_filter_vel_north;
+          m_filter_relative_pos_msg.twist.twist.linear.x = m_curr_filter_vel_north;          
+        }        
       }
       else if(point.qualifier() == mscl::MipTypes::CH_EAST)
       {
-        m_curr_filter_vel_east            = point.as_float();
-        m_filter_msg.twist.twist.linear.y = m_curr_filter_vel_east;
-        m_filter_relative_pos_msg.twist.twist.linear.y = m_curr_filter_vel_east;
+        m_curr_filter_vel_east = point.as_float();
+
+        if(m_use_enu_frame)
+        {
+          m_filter_msg.twist.twist.linear.x              = m_curr_filter_vel_east;
+          m_filter_relative_pos_msg.twist.twist.linear.x = m_curr_filter_vel_east;
+        }
+        else
+        {
+          m_filter_msg.twist.twist.linear.y              = m_curr_filter_vel_east;
+          m_filter_relative_pos_msg.twist.twist.linear.y = m_curr_filter_vel_east;
+        }
       }
       else if(point.qualifier() == mscl::MipTypes::CH_DOWN)
       {
-        m_curr_filter_vel_down            = point.as_float();
-        m_filter_msg.twist.twist.linear.z = m_curr_filter_vel_down;
-        m_filter_relative_pos_msg.twist.twist.linear.z = m_curr_filter_vel_down;
+        m_curr_filter_vel_down = point.as_float();
+
+        if(m_use_enu_frame)
+        {
+          m_filter_msg.twist.twist.linear.z              = -m_curr_filter_vel_down;
+          m_filter_relative_pos_msg.twist.twist.linear.z = -m_curr_filter_vel_down;
+        }
+        else
+        {
+          m_filter_msg.twist.twist.linear.z              = m_curr_filter_vel_down;
+          m_filter_relative_pos_msg.twist.twist.linear.z = m_curr_filter_vel_down;
+        }
       }
     }break;
 
@@ -1785,8 +1848,15 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
       {
         m_curr_filter_yaw = point.as_float();
 
-        m_filter_heading_msg.heading_deg = m_curr_filter_yaw*180.0/3.14;
-        m_filter_heading_msg.heading_rad = m_curr_filter_yaw;
+        if(m_use_enu_frame)
+        {
+
+        }
+        else
+        {
+          m_filter_heading_msg.heading_deg = m_curr_filter_yaw*180.0/3.14;
+          m_filter_heading_msg.heading_rad = m_curr_filter_yaw;
+        }
       }
       else if(point.qualifier() == mscl::MipTypes::CH_FLAGS)
       {
@@ -1799,11 +1869,21 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
       mscl::Vector quaternion  = point.as_Vector();
       m_curr_filter_quaternion = quaternion;
       
-      m_filter_msg.pose.pose.orientation.x  = quaternion.as_floatAt(1);
-      m_filter_msg.pose.pose.orientation.y  = quaternion.as_floatAt(2);
-      m_filter_msg.pose.pose.orientation.z  = quaternion.as_floatAt(3);
-      m_filter_msg.pose.pose.orientation.w  = quaternion.as_floatAt(0);
-      m_filtered_imu_msg.orientation        = m_filter_msg.pose.pose.orientation;
+      if(m_use_enu_frame)
+      {
+        tf2::Quaternion q_ned2enu, qbody2ned(quaternion.as_floatAt(1), quaternion.as_floatAt(2), quaternion.as_floatAt(3), quaternion.as_floatAt(0));
+        m_t_ned2enu.getRotation(q_ned2enu);
+        m_filter_msg.pose.pose.orientation = tf2::toMsg(q_ned2enu*qbody2ned);
+      }
+      else
+      {
+        m_filter_msg.pose.pose.orientation.x  = quaternion.as_floatAt(1);
+        m_filter_msg.pose.pose.orientation.y  = quaternion.as_floatAt(2);
+        m_filter_msg.pose.pose.orientation.z  = quaternion.as_floatAt(3);
+        m_filter_msg.pose.pose.orientation.w  = quaternion.as_floatAt(0); 
+      }
+      
+      m_filtered_imu_msg.orientation                  = m_filter_msg.pose.pose.orientation;
       m_filter_relative_pos_msg.pose.pose.orientation = m_filter_msg.pose.pose.orientation;
     }break;
 
@@ -1852,15 +1932,33 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
     {
       if(point.qualifier() == mscl::MipTypes::CH_NORTH)
       {
-        m_curr_filter_pos_uncert_north  = point.as_float();
-        m_filter_msg.pose.covariance[0] = pow(m_curr_filter_pos_uncert_north, 2);
-        m_filter_relative_pos_msg.pose.covariance[0] = m_filter_msg.pose.covariance[0];
+        m_curr_filter_pos_uncert_north = point.as_float();
+
+        if(m_use_enu_frame)
+        {
+          m_filter_msg.pose.covariance[7]              = pow(m_curr_filter_pos_uncert_north, 2);
+          m_filter_relative_pos_msg.pose.covariance[7] = m_filter_msg.pose.covariance[7];
+        }
+        else
+        {
+          m_filter_msg.pose.covariance[0]              = pow(m_curr_filter_pos_uncert_north, 2);
+          m_filter_relative_pos_msg.pose.covariance[0] = m_filter_msg.pose.covariance[0];
+        }
       }
       else if(point.qualifier() == mscl::MipTypes::CH_EAST)
       {
-        m_curr_filter_pos_uncert_east   = point.as_float();
-        m_filter_msg.pose.covariance[7] = pow(m_curr_filter_pos_uncert_east, 2);
-        m_filter_relative_pos_msg.pose.covariance[7] = m_filter_msg.pose.covariance[7];
+        m_curr_filter_pos_uncert_east = point.as_float();
+
+        if(m_use_enu_frame)
+        {
+          m_filter_msg.pose.covariance[0]              = pow(m_curr_filter_pos_uncert_east, 2);
+          m_filter_relative_pos_msg.pose.covariance[0] = m_filter_msg.pose.covariance[0];
+        }
+        else
+        {
+          m_filter_msg.pose.covariance[7]              = pow(m_curr_filter_pos_uncert_east, 2);
+          m_filter_relative_pos_msg.pose.covariance[7] = m_filter_msg.pose.covariance[7];
+        }
       }
       else if(point.qualifier() == mscl::MipTypes::CH_DOWN)
       {
@@ -1875,15 +1973,35 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
     {
       if(point.qualifier() == mscl::MipTypes::CH_NORTH)
       {
-        m_curr_filter_vel_uncert_north   = point.as_float();
-        m_filter_msg.twist.covariance[0] = pow(m_curr_filter_vel_uncert_north, 2);
-        m_filter_relative_pos_msg.twist.covariance[0] = m_filter_msg.twist.covariance[0];
+        m_curr_filter_vel_uncert_north = point.as_float();
+
+        if(m_use_enu_frame)
+        {
+          m_filter_msg.twist.covariance[0]              = pow(m_curr_filter_vel_uncert_north, 2);
+          m_filter_relative_pos_msg.twist.covariance[0] = m_filter_msg.twist.covariance[0];
+        }
+        else
+        {
+          m_filter_msg.twist.covariance[7]              = pow(m_curr_filter_vel_uncert_north, 2);
+          m_filter_relative_pos_msg.twist.covariance[7] = m_filter_msg.twist.covariance[7];          
+        }
+        
       }
       else if(point.qualifier() == mscl::MipTypes::CH_EAST)
       {
-        m_curr_filter_vel_uncert_east    = point.as_float();
-        m_filter_msg.twist.covariance[7] = pow(m_curr_filter_vel_uncert_east, 2);
-        m_filter_relative_pos_msg.twist.covariance[7] = m_filter_msg.twist.covariance[7];
+        m_curr_filter_vel_uncert_east = point.as_float();
+
+        if(m_use_enu_frame)
+        {
+          m_filter_msg.twist.covariance[7]              = pow(m_curr_filter_vel_uncert_east, 2);
+          m_filter_relative_pos_msg.twist.covariance[7] = m_filter_msg.twist.covariance[7];
+        }
+        else
+        {
+          m_filter_msg.twist.covariance[0]              = pow(m_curr_filter_vel_uncert_east, 2);
+          m_filter_relative_pos_msg.twist.covariance[0] = m_filter_msg.twist.covariance[0];         
+        }
+        
       }
       else if(point.qualifier() == mscl::MipTypes::CH_DOWN)
       {
@@ -1944,15 +2062,30 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
     {
       if(point.qualifier() == mscl::MipTypes::CH_X)
       {
-        m_filter_relative_pos_msg.pose.pose.position.x = point.as_double();
+        double rel_pos_north = point.as_double();
+
+        if(m_use_enu_frame)
+          m_filter_relative_pos_msg.pose.pose.position.y = rel_pos_north;
+        else
+          m_filter_relative_pos_msg.pose.pose.position.x = rel_pos_north;
       }
       else if(point.qualifier() == mscl::MipTypes::CH_Y)
       {
-        m_filter_relative_pos_msg.pose.pose.position.y = point.as_double();
+        double rel_pos_east = point.as_double();
+
+        if(m_use_enu_frame)
+          m_filter_relative_pos_msg.pose.pose.position.x = rel_pos_east;
+        else
+          m_filter_relative_pos_msg.pose.pose.position.y = rel_pos_east;
       }
       else if(point.qualifier() == mscl::MipTypes::CH_Z)
       {
-        m_filter_relative_pos_msg.pose.pose.position.z = point.as_double();
+        double rel_pos_down = point.as_double();
+
+        if(m_use_enu_frame)
+          m_filter_relative_pos_msg.pose.pose.position.z = -rel_pos_down;
+        else
+          m_filter_relative_pos_msg.pose.pose.position.z = rel_pos_down;
       }
     }break;
 
@@ -2036,13 +2169,22 @@ void Microstrain::parse_gnss_packet(const mscl::MipDataPacket &packet, int gnss_
     {
       if(point.qualifier() == mscl::MipTypes::CH_LATITUDE)
       {
-        m_gnss_msg[gnss_id].latitude                  = point.as_double();
-        m_gnss_odom_msg[gnss_id].pose.pose.position.x = m_gnss_msg[gnss_id].latitude;
+        m_gnss_msg[gnss_id].latitude = point.as_double();
+
+        if(m_use_enu_frame)
+          m_gnss_odom_msg[gnss_id].pose.pose.position.y = m_gnss_msg[gnss_id].latitude;
+        else
+          m_gnss_odom_msg[gnss_id].pose.pose.position.x = m_gnss_msg[gnss_id].latitude;
+          
       }
       else if(point.qualifier() == mscl::MipTypes::CH_LONGITUDE)
       {
-        m_gnss_msg[gnss_id].longitude                 = point.as_double();
-        m_gnss_odom_msg[gnss_id].pose.pose.position.y = m_gnss_msg[gnss_id].longitude;
+        m_gnss_msg[gnss_id].longitude = point.as_double();
+
+        if(m_use_enu_frame)
+          m_gnss_odom_msg[gnss_id].pose.pose.position.x = m_gnss_msg[gnss_id].longitude;
+        else
+          m_gnss_odom_msg[gnss_id].pose.pose.position.y = m_gnss_msg[gnss_id].longitude;
       }
       else if(point.qualifier() == mscl::MipTypes::CH_HEIGHT_ABOVE_ELLIPSOID)
       {
@@ -2052,12 +2194,15 @@ void Microstrain::parse_gnss_packet(const mscl::MipDataPacket &packet, int gnss_
       else if(point.qualifier() == mscl::MipTypes::CH_HORIZONTAL_ACCURACY)
       {
         //Horizontal covariance maps to lat and lon
-        m_gnss_msg[gnss_id].position_covariance[0] = pow(point.as_float(), 2);
-        m_gnss_msg[gnss_id].position_covariance[4] = m_gnss_msg[gnss_id].position_covariance[0];
+        m_gnss_msg[gnss_id].position_covariance[0]  = pow(point.as_float(), 2);
+        m_gnss_msg[gnss_id].position_covariance[4]  = m_gnss_msg[gnss_id].position_covariance[0];
+        m_gnss_odom_msg[gnss_id].pose.covariance[0] = m_gnss_msg[gnss_id].position_covariance[0];
+        m_gnss_odom_msg[gnss_id].pose.covariance[7] = m_gnss_msg[gnss_id].position_covariance[0];
       }
       else if(point.qualifier() == mscl::MipTypes::CH_VERTICAL_ACCURACY)
       {
-        m_gnss_msg[gnss_id].position_covariance[8] = pow(point.as_float(), 2);
+        m_gnss_msg[gnss_id].position_covariance[8]   = pow(point.as_float(), 2);
+        m_gnss_odom_msg[gnss_id].pose.covariance[14] = m_gnss_msg[gnss_id].position_covariance[8];
       }
 
       m_gnss_msg[gnss_id].status.service           = 1;
@@ -2070,15 +2215,30 @@ void Microstrain::parse_gnss_packet(const mscl::MipDataPacket &packet, int gnss_
     {
       if(point.qualifier() == mscl::MipTypes::CH_NORTH)
       {
-        m_gnss_odom_msg[gnss_id].twist.twist.linear.x = point.as_float();
+        float north_velocity = point.as_float();
+
+        if(m_use_enu_frame)
+          m_gnss_odom_msg[gnss_id].twist.twist.linear.y = north_velocity;
+        else
+          m_gnss_odom_msg[gnss_id].twist.twist.linear.x = north_velocity;
       }
       else if(point.qualifier() == mscl::MipTypes::CH_EAST)
       {
-        m_gnss_odom_msg[gnss_id].twist.twist.linear.y = point.as_float();
+        float east_velocity = point.as_float();
+        
+        if(m_use_enu_frame)
+          m_gnss_odom_msg[gnss_id].twist.twist.linear.x = east_velocity;
+        else
+          m_gnss_odom_msg[gnss_id].twist.twist.linear.y = east_velocity;
       }
       else if(point.qualifier() == mscl::MipTypes::CH_DOWN)
       {
-        m_gnss_odom_msg[gnss_id].twist.twist.linear.z = point.as_float();
+        float down_velocity = point.as_float();
+
+        if(m_use_enu_frame)
+          m_gnss_odom_msg[gnss_id].twist.twist.linear.z = -down_velocity;
+        else
+          m_gnss_odom_msg[gnss_id].twist.twist.linear.z = down_velocity;
       }
     }break;
     }

@@ -2,6 +2,13 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.3 (2021-04-05)
+------------------
+* Added a flag to report values with-respect-to the ENU frame instead of the device-native NED frame.  This affects all reported position, velocity, and attitude values.
+* Removed user-settable frame ids so that the code can correctly determine if they should include "NED" or "ENU" frame designators
+* Moved sensor2vehicle transformation code outside of publish_filter check as it applies to IMU data even if not publishing filter data
+
+
 1.1.2 (2021-02-24)
 ------------------
 * BREAKING CHANGE: Switched order of latitude and longitude in /nav/odom message to be correct (now Latitude, Longitude, Height)

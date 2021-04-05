@@ -26,6 +26,14 @@
     <param name="port"     value="$(arg port)"     type="str" />
     <param name="baudrate" value="$(arg baudrate)" type="int" />
     
+    <!-- Controls if the driver outputs data with-respect-to ENU frame
+          false - position, velocity, and orientation are WRT the NED frame (native device frame)
+          true  - position, velocity, and orientation are WRT the ENU frame
+     -->
+     
+    <param name="use_enu_frame" value="false" type="bool" />
+
+
     <!-- Controls if the driver-defined setup is sent to the device
           false - The driver will ignore the settings below and use the device's current settings
           true  - Overwrite the current device settings with those listed below
@@ -80,11 +88,9 @@
     <!-- IMU Settings -->
     <!-- ****************************************************************** -->
     
-    <param name="publish_imu" value="true" type="bool" />
-
-    <param name="imu_data_rate" value="100"      type="int" />
-    <param name="imu_frame_id"  value="gx5_link" type="str" />
-
+    <param name="publish_imu"   value="true" type="bool" />
+    <param name="imu_data_rate" value="100"  type="int" />
+   
     <!-- Static IMU message covariance values (the device does not generate these) -->
     <!-- Since internally these are std::vector we need to use the rosparam tags -->
     <rosparam param="imu_orientation_cov"> [0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01]</rosparam>
@@ -103,8 +109,7 @@
     
     <param name="publish_gnss1"   value="true" type="bool" />
     <param name="gnss1_data_rate" value="2"    type="int" />
-    <param name="gnss1_frame_id"  value="gnss1_antenna_wgs84" type="str" />
-
+ 
     <!-- Antenna #1 lever arm offset vector
          For GQ7 - in the vehicle frame wrt IMU origin (meters)
          For all other models - in the IMU frame wrt IMU origin (meters) 
@@ -115,7 +120,6 @@
     <!-- GNSS2 settings are only applicable for multi-GNSS systems (e.g. GQ7) -->
     <param name="publish_gnss2"   value="true" type="bool" />
     <param name="gnss2_data_rate" value="2"    type="int" />
-    <param name="gnss2_frame_id"  value="gnss2_antenna_wgs84" type="str" />
 
     <!-- Antenna #2 lever arm offset vector (In the vehicle frame wrt IMU origin (meters) )-->
     <!--Note: Make this as accurate as possible for good performance -->
@@ -129,11 +133,8 @@
     <!-- Kalman Filter Settings (only applicable for devices with a Kalman Filter) -->
     <!-- ****************************************************************** -->
     
-    <param name="publish_filter" value="true" type="bool" />
-
-    <param name="filter_data_rate"           value="10" type="int" />
-    <param name="filter_odom_frame_id"       value="sensor_wgs84" type="str" />
-    <param name="filter_odom_child_frame_id" value="sensor_ned" type="str" />
+    <param name="publish_filter"   value="true" type="bool" />
+    <param name="filter_data_rate" value="10"   type="int" />
  
     <!-- Sensor2vehicle frame transformation selector 
          0 = None, 1 = Euler Angles, 2 - matrix, 3 - quaternion 
@@ -142,7 +143,7 @@
                 Support for matrix and quaternion options is firmware version dependent (Quaternion not currently supported on GQ7)
                 Quaternion order is [i, j, k, w]
      -->
-    <param name="filter_sensor2vehicle_frame_selector" value="0" type="int" />
+    <param name="filter_sensor2vehicle_frame_selector" value="1" type="int" />
 
     <rosparam param="filter_sensor2vehicle_frame_transformation_euler">      [0.0, 0.0, 0.0]</rosparam>
     <rosparam param="filter_sensor2vehicle_frame_transformation_matrix">     [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]</rosparam>

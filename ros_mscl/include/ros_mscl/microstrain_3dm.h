@@ -264,6 +264,10 @@ namespace Microstrain
   //Variables/fields
   std::unique_ptr<mscl::InertialNode> m_inertial_device;
 
+  //Info for converting to the ENU frame
+  bool m_use_enu_frame;
+  tf2::Matrix3x3 m_t_ned2enu;
+
   //Flag for using device timestamp instead of PC received time
   bool m_use_device_timestamp;
 
