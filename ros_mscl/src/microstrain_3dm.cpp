@@ -199,6 +199,7 @@ void Microstrain::run()
   private_nh.param("imu_orientation_cov",   m_imu_orientation_cov, default_matrix);
   private_nh.param("imu_linear_cov",        m_imu_linear_cov,      default_matrix);
   private_nh.param("imu_angular_cov",       m_imu_angular_cov,     default_matrix);
+  private_nh.param("imu_frame_id",          m_imu_frame_id, m_imu_frame_id);
 
   //GNSS 1/2
   private_nh.param("publish_gnss1",         m_publish_gnss[GNSS1_ID], false);
@@ -207,6 +208,8 @@ void Microstrain::run()
   private_nh.param("gnss2_data_rate",       m_gnss_data_rate[GNSS2_ID], 1);
   private_nh.param("gnss1_antenna_offset",  m_gnss_antenna_offset[GNSS1_ID],  default_vector);
   private_nh.param("gnss2_antenna_offset",  m_gnss_antenna_offset[GNSS2_ID],  default_vector);
+  private_nh.param("gnss1_frame_id",        m_gnss_frame_id[GNSS1_ID], m_gnss_frame_id[GNSS1_ID]);
+  private_nh.param("gnss2_frame_id",        m_gnss_frame_id[GNSS2_ID], m_gnss_frame_id[GNSS2_ID]);
 
   //RTK Dongle configuration
   private_nh.param("rtk_dongle_enable",  rtk_dongle_enable,  false);
@@ -216,6 +219,7 @@ void Microstrain::run()
   private_nh.param("filter_reset_after_config",  filter_reset_after_config, true);
   private_nh.param("filter_auto_init",           filter_auto_init, true);
   private_nh.param("filter_data_rate",           m_filter_data_rate, 10);
+  private_nh.param("filter_frame_id",            m_filter_frame_id, m_filter_frame_id);
   private_nh.param("publish_relative_position",  m_publish_filter_relative_pos, false);
   private_nh.param("filter_sensor2vehicle_frame_selector",                  filter_sensor2vehicle_frame_selector, 0);
   private_nh.param("filter_sensor2vehicle_frame_transformation_euler",      filter_sensor2vehicle_frame_transformation_euler,      default_vector);

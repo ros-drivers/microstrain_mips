@@ -88,9 +88,10 @@
     <!-- IMU Settings -->
     <!-- ****************************************************************** -->
     
-    <param name="publish_imu"   value="true" type="bool" />
-    <param name="imu_data_rate" value="100"  type="int" />
-   
+    <param name="publish_imu"   value="true"     type="bool" />
+    <param name="imu_data_rate" value="100"      type="int" />
+    <param name="imu_frame_id"  value="sensor"   type="str" />
+
     <!-- Static IMU message covariance values (the device does not generate these) -->
     <!-- Since internally these are std::vector we need to use the rosparam tags -->
     <rosparam param="imu_orientation_cov"> [0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01]</rosparam>
@@ -109,17 +110,19 @@
     
     <param name="publish_gnss1"   value="true" type="bool" />
     <param name="gnss1_data_rate" value="2"    type="int" />
- 
+    <param name="gnss1_frame_id"  value="gnss1_antenna_wgs84" type="str" />
+
     <!-- Antenna #1 lever arm offset vector
          For GQ7 - in the vehicle frame wrt IMU origin (meters)
          For all other models - in the IMU frame wrt IMU origin (meters) 
-         Note: Make this as accurate as possible for good performance -->
+         Note: Make this as accurate as possible for good performance 
      -->
     <rosparam param="gnss1_antenna_offset"> [0.0, -0.7, -1.0]</rosparam>
 
     <!-- GNSS2 settings are only applicable for multi-GNSS systems (e.g. GQ7) -->
     <param name="publish_gnss2"   value="true" type="bool" />
     <param name="gnss2_data_rate" value="2"    type="int" />
+    <param name="gnss2_frame_id"  value="gnss2_antenna_wgs84" type="str" />
 
     <!-- Antenna #2 lever arm offset vector (In the vehicle frame wrt IMU origin (meters) )-->
     <!--Note: Make this as accurate as possible for good performance -->
@@ -133,9 +136,10 @@
     <!-- Kalman Filter Settings (only applicable for devices with a Kalman Filter) -->
     <!-- ****************************************************************** -->
     
-    <param name="publish_filter"   value="true" type="bool" />
-    <param name="filter_data_rate" value="10"   type="int" />
- 
+    <param name="publish_filter"       value="true"         type="bool" />
+    <param name="filter_data_rate"     value="10"           type="int" />
+    <param name="filter_frame_id"      value="sensor_wgs84" type="str" />
+
     <!-- Sensor2vehicle frame transformation selector 
          0 = None, 1 = Euler Angles, 2 - matrix, 3 - quaternion 
          Notes: These are different ways of setting the same parameter in the device.
