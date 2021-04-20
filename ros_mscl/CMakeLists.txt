@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_srvs
   tf2
   tf2_ros
+  tf2_geometry_msgs
   diagnostic_updater
 	mscl_msgs
 )
@@ -62,6 +63,7 @@ catkin_package(
     cmake_modules
     tf2
     tf2_ros
+    tf2_geometry_msgs
     std_msgs
     std_srvs
     geometry_msgs
