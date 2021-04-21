@@ -15,6 +15,7 @@
   <arg name="gnss1_frame_id"  default = "gnss1_antenna_wgs84" />
   <arg name="gnss2_frame_id"  default = "gnss2_antenna_wgs84" />
   <arg name="filter_frame_id" default = "sensor_wgs84" />
+  <arg name="use_enu_frame"   default = "false" />
 
   <!-- ****************************************************************** -->
   <!-- Microstrain sensor node -->
@@ -34,7 +35,7 @@
           true  - position, velocity, and orientation are WRT the ENU frame
      -->
 
-    <param name="use_enu_frame" value="false" type="bool" />
+    <param name="use_enu_frame" value="$(arg use_enu_frame)" type="bool" />
 
 
     <!-- Controls if the driver-defined setup is sent to the device
