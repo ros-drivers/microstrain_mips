@@ -19,7 +19,7 @@ If you choose to install MSCL at a location other than /usr/share, [CMakeLists.t
 #### Building from source
 1. Install ROS and create a workspace: [Installing and Configuring Your ROS Environment](http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment)
 
-2. Move the ros_mscl and mscl_msgs folders to the your_workspace/src directory.
+2. Move the entire ROS-MSCL folder (ros_mscl and mscl_msgs for just source) to the your_workspace/src directory.
 
 3. Locate and register the ros_mscl package: `rospack find ros_mscl`
 
