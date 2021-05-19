@@ -51,6 +51,7 @@
 #include "mscl_msgs/FilterHeading.h"
 #include "mscl_msgs/FilterHeadingState.h"
 #include "mscl_msgs/GPSCorrelationTimestampStamped.h"
+#include "mscl_msgs/GNSSAidingStatus.h"
 #include "ros_mscl/SetAccelBias.h"
 #include "ros_mscl/GetAccelBias.h"
 #include "ros_mscl/SetGyroBias.h"
@@ -336,6 +337,7 @@ namespace Microstrain
   ros::Publisher m_gnss_pub[NUM_GNSS];
   ros::Publisher m_gnss_odom_pub[NUM_GNSS];
   ros::Publisher m_gnss_time_pub[NUM_GNSS];
+  ros::Publisher m_gnss_aiding_status_pub[NUM_GNSS];
 
   //RTK Data publisher
   ros::Publisher m_rtk_pub;
@@ -364,9 +366,10 @@ namespace Microstrain
   mscl_msgs::GPSCorrelationTimestampStamped m_gps_corr_msg;
 
   //GNSS Messages
-  sensor_msgs::NavSatFix     m_gnss_msg[NUM_GNSS];
-  nav_msgs::Odometry         m_gnss_odom_msg[NUM_GNSS];
-  sensor_msgs::TimeReference m_gnss_time_msg[NUM_GNSS];
+  sensor_msgs::NavSatFix      m_gnss_msg[NUM_GNSS];
+  nav_msgs::Odometry          m_gnss_odom_msg[NUM_GNSS];
+  sensor_msgs::TimeReference  m_gnss_time_msg[NUM_GNSS];
+  mscl_msgs::GNSSAidingStatus m_gnss_aiding_status_msg[NUM_GNSS];
 
   //RTK Messages
   mscl_msgs::RTKStatus   m_rtk_msg;
@@ -397,6 +400,7 @@ namespace Microstrain
   bool m_publish_imu;
   bool m_publish_gps_corr;
   bool m_publish_gnss[NUM_GNSS];
+  bool m_publish_gnss_aiding_status[NUM_GNSS];
   bool m_publish_filter;
   bool m_publish_filter_relative_pos;
   bool m_publish_rtk;

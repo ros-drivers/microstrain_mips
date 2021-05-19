@@ -2,6 +2,11 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.4 (2021-05-19)
+------------------
+* MSCL Version now reported when node starts
+* Aiding measurement summary added for each GNSS (GQ7 only) 
+
 1.1.3 (2021-04-05)
 ------------------
 * Added a flag to report values with-respect-to the ENU frame instead of the device-native NED frame.  This affects all reported position, velocity, and attitude values.

@@ -75,10 +75,12 @@
 
     <!-- (GQ7 only) Controls if the driver requests additional factory support data to be included in the raw data file
           false - Do not request the additional data
-          true  - Request the additional channels
+          true  - Request the additional channels (please see notes below!)
 
-          Notes: Including this feature increases communication bandwidth requirements... for serial data connections,
-                 please ensure the baudrate is sufficient for the added data channels.
+          Notes: **We recommend only enabling this feature when specifically requested by Microstrain.**
+          
+                 Including this feature increases communication bandwidth requirements significantly... for serial data connections,
+                 please ensure the baudrate is sufficient for the added data channels.     
      -->
 
     <param name="raw_file_include_support_data" value="false" type="bool" />

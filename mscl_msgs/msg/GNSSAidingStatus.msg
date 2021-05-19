@@ -1,0 +1,9 @@
+float64 gps_tow_last_aiding_measurement
+bool    has_position_fix
+bool    tight_coupling
+bool    differential_corrections
+bool    integer_fix
+bool    using_gps 
+bool    using_glonass
+bool    using_galileo
+bool    using_beidou

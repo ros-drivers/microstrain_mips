@@ -62,6 +62,8 @@ Microstrain::Microstrain()
   m_gps_leap_seconds = 18.0;
   m_publish_gnss[GNSS1_ID]= true;
   m_publish_gnss[GNSS2_ID]= true;
+  m_publish_gnss_aiding_status[GNSS1_ID] = false;
+  m_publish_gnss_aiding_status[GNSS2_ID] = false;
   m_publish_filter = true;
   m_publish_rtk = false;
   m_imu_linear_cov = std::vector<double>(9, 0.0);
@@ -290,7 +292,8 @@ void Microstrain::run()
   private_nh.param("raw_file_include_support_data", m_raw_file_include_support_data, false);
   private_nh.param("raw_file_directory",            raw_file_directory, std::string("."));
 
-   
+  ROS_INFO("Using MSCL Version: %s", mscl::MSCL_VERSION.str().c_str());
+ 
   
   ///////////////////////////////////////////////////////////////////////////
   // Setup the inertial device, ROS publishers, and subscribers 
@@ -591,11 +594,14 @@ void Microstrain::run()
             mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_ESTIMATED_ATT_UNCERT_QUAT,
             mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_ESTIMATED_ANGULAR_RATE,
             mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_ESTIMATED_ATT_UNCERT_EULER,
-            mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_ESTIMATED_LINEAR_ACCEL,
+            mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_COMPENSATED_ACCEL,
             mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_ESTIMATED_ORIENT_EULER,
             mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_HEADING_UPDATE_SOURCE,
             mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_NED_RELATIVE_POS};
 
+            if(filter_enable_gnss_pos_vel_aiding)
+              navChannels.push_back(mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_POSITION_AIDING_STATUS);
+        
         mscl::MipChannels supportedChannels;
         for(mscl::MipTypes::ChannelField channel : m_inertial_device->features().supportedChannelFields(mscl::MipTypes::DataClass::CLASS_ESTFILTER))
         {
@@ -697,7 +703,7 @@ void Microstrain::run()
                     filter_enable_gnss_heading_aiding, filter_enable_gnss_heading_aiding, filter_enable_altimeter_aiding, filter_enable_odometer_aiding,
                     filter_enable_magnetometer_aiding, filter_enable_external_heading_aiding);
 
-          m_inertial_device->enableDisableAidingMeasurement(mscl::InertialTypes::AidingMeasurementSource::GNSS_POS_VEL_AIDING,     filter_enable_gnss_heading_aiding);
+          m_inertial_device->enableDisableAidingMeasurement(mscl::InertialTypes::AidingMeasurementSource::GNSS_POS_VEL_AIDING,     filter_enable_gnss_pos_vel_aiding);
           m_inertial_device->enableDisableAidingMeasurement(mscl::InertialTypes::AidingMeasurementSource::GNSS_HEADING_AIDING,     filter_enable_gnss_heading_aiding);
           m_inertial_device->enableDisableAidingMeasurement(mscl::InertialTypes::AidingMeasurementSource::ALTIMETER_AIDING,        filter_enable_altimeter_aiding);
           m_inertial_device->enableDisableAidingMeasurement(mscl::InertialTypes::AidingMeasurementSource::ODOMETER_AIDING,         filter_enable_odometer_aiding);
@@ -1037,6 +1043,12 @@ void Microstrain::run()
       m_gnss_pub[GNSS1_ID]      = node.advertise<sensor_msgs::NavSatFix>("gnss1/fix", 100);
       m_gnss_odom_pub[GNSS1_ID] = node.advertise<nav_msgs::Odometry>("gnss1/odom", 100);
       m_gnss_time_pub[GNSS1_ID] = node.advertise<sensor_msgs::TimeReference>("gnss1/time_ref", 100);
+
+      if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_AIDING_MEASUREMENT_ENABLE))
+      {
+        m_gnss_aiding_status_pub[GNSS1_ID]     = node.advertise<mscl_msgs::GNSSAidingStatus>("gnss1/aiding_status", 100);
+        m_publish_gnss_aiding_status[GNSS1_ID] = true;
+      }
     }
 
     //If the device has GNSS2, publish relevant topics
@@ -1046,6 +1058,12 @@ void Microstrain::run()
       m_gnss_pub[GNSS2_ID]      = node.advertise<sensor_msgs::NavSatFix>("gnss2/fix", 100);
       m_gnss_odom_pub[GNSS2_ID] = node.advertise<nav_msgs::Odometry>("gnss2/odom", 100);
       m_gnss_time_pub[GNSS2_ID] = node.advertise<sensor_msgs::TimeReference>("gnss2/time_ref", 100);
+
+      if(m_inertial_device->features().supportsCommand(mscl::MipTypes::Command::CMD_EF_AIDING_MEASUREMENT_ENABLE))
+      {
+        m_gnss_aiding_status_pub[GNSS2_ID]     = node.advertise<mscl_msgs::GNSSAidingStatus>("gnss2/aiding_status", 100);
+        m_publish_gnss_aiding_status[GNSS2_ID] = true;
+      }
     }
 
     //If the device has RTK, publish relevant topics
@@ -1532,7 +1550,7 @@ void Microstrain::parse_imu_packet(const mscl::MipDataPacket &packet)
   m_imu_msg.header.seq      = m_imu_valid_packet_count;
   m_imu_msg.header.stamp    = ros::Time().fromNSec(time);
   m_imu_msg.header.frame_id = m_imu_frame_id;
-  
+
   //Magnetometer timestamp
   m_mag_msg.header      = m_imu_msg.header;
 
@@ -1695,6 +1713,9 @@ void Microstrain::parse_imu_packet(const mscl::MipDataPacket &packet)
 
 void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
 {
+  bool gnss_aiding_status_received[NUM_GNSS] = {false};
+  int  i;
+
   //Update diagnostics
   m_filter_valid_packet_count++;
 
@@ -1722,7 +1743,6 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
   m_filter_relative_pos_msg.header.stamp    = ros::Time().fromNSec(time);
   m_filter_relative_pos_msg.header.frame_id = m_filter_child_frame_id;
   m_filter_relative_pos_msg.child_frame_id  = m_filter_child_frame_id;
-
 
   //Get the list of data elements
   const mscl::MipDataPoints &points = packet.data();
@@ -1915,7 +1935,7 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
       }
     }break;
     
-    case mscl::MipTypes::CH_FIELD_ESTFILTER_ESTIMATED_LINEAR_ACCEL:
+    case mscl::MipTypes::CH_FIELD_ESTFILTER_COMPENSATED_ACCEL:
     {
       if (point.qualifier() == mscl::MipTypes::CH_X)
       {
@@ -2092,6 +2112,39 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
       }
     }break;
 
+    case mscl::MipTypes::CH_FIELD_ESTFILTER_POSITION_AIDING_STATUS:
+    {
+      if(point.hasAddlIdentifiers())
+      {
+        int gnss_id = static_cast<int>(point.addlIdentifiers()[0].id()) - 1;
+
+        if(gnss_id < 0 || gnss_id >= NUM_GNSS)
+        {}
+        else if(point.qualifier() == mscl::MipTypes::CH_TIME_OF_WEEK)
+        {        
+          m_gnss_aiding_status_msg[gnss_id].gps_tow_last_aiding_measurement = point.as_double();
+          gnss_aiding_status_received[gnss_id] = true;
+        }
+        else if(point.qualifier() == mscl::MipTypes::CH_STATUS)
+        {
+          uint16_t status_flags = point.as_uint16(); 
+           
+          m_gnss_aiding_status_msg[gnss_id].has_position_fix         = (status_flags & mscl::InertialTypes::GnssAidingStatus::GNSS_AIDING_NO_FIX) == 0;
+          m_gnss_aiding_status_msg[gnss_id].tight_coupling           = status_flags & mscl::InertialTypes::GnssAidingStatus::GNSS_AIDING_TIGHT_COUPLING;
+          m_gnss_aiding_status_msg[gnss_id].differential_corrections = status_flags & mscl::InertialTypes::GnssAidingStatus::GNSS_AIDING_DIFFERENTIAL;
+          m_gnss_aiding_status_msg[gnss_id].integer_fix              = status_flags & mscl::InertialTypes::GnssAidingStatus::GNSS_AIDING_INTEGER_FIX;
+          m_gnss_aiding_status_msg[gnss_id].using_gps                = status_flags & mscl::InertialTypes::GnssAidingStatus::GNSS_AIDING_GPS;
+          m_gnss_aiding_status_msg[gnss_id].using_glonass            = status_flags & mscl::InertialTypes::GnssAidingStatus::GNSS_AIDING_GLONASS;
+          m_gnss_aiding_status_msg[gnss_id].using_galileo            = status_flags & mscl::InertialTypes::GnssAidingStatus::GNSS_AIDING_GALILEO;
+          m_gnss_aiding_status_msg[gnss_id].using_beidou             = status_flags & mscl::InertialTypes::GnssAidingStatus::GNSS_AIDING_BEIDOU;        
+        }
+        else
+        {
+          ROS_INFO("Point Qualifier %d", (int)point.qualifier());
+        }
+      }
+    }break;
+    
     default: break;
     }
   }
@@ -2113,6 +2166,11 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
   if(m_publish_filter_relative_pos)
     m_filter_relative_pos_pub.publish(m_filter_relative_pos_msg); 
 
+  for(i=0; i<NUM_GNSS; i++)
+  {
+    if(m_publish_gnss_aiding_status[i] && gnss_aiding_status_received[i])
+      m_gnss_aiding_status_pub[i].publish(m_gnss_aiding_status_msg[i]); 
+  }
 }
 
 
