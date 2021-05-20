@@ -1,4 +1,4 @@
-float64 gps_tow_last_aiding_measurement
+float64 gps_tow
 bool    has_position_fix
 bool    tight_coupling
 bool    differential_corrections
