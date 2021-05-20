@@ -8,9 +8,9 @@ MSCL is developed by [LORD Sensing - Microstrain](http://microstrain.com) in Wil
 ## Build Instructions
 
 #### MSCL
-MSCL pre-built packages can be found here: [MSCL Packages](https://github.com/LORD-MicroStrain/MSCL/releases/tag/v61.1.6)
+MSCL pre-built packages can be found here: [MSCL Packages](https://github.com/LORD-MicroStrain/MSCL/releases/tag/v62.0.0)
 
-We do our best to keep ROS-MSCL up-to-date with the latest MSCL changes, but sometimes there is a delay. The currently supported version of MSCL is [v61.1.6](https://github.com/LORD-MicroStrain/MSCL/releases/tag/v61.1.6)
+We do our best to keep ROS-MSCL up-to-date with the latest MSCL changes, but sometimes there is a delay. The currently supported version of MSCL is [v62.0.0](https://github.com/LORD-MicroStrain/MSCL/releases/tag/v62.0.0)
 
 Install instructions can be found here: [How to Use MSCL](https://github.com/LORD-MicroStrain/MSCL/blob/master/HowToUseMSCL.md#linux)
 
@@ -61,5 +61,5 @@ An example subscriber node can be found here: [ROS-MSCL Examples](https://github
 ## License
 ROS-MSCL is released under the MIT License - see the `LICENSE` file in the source distribution.
 
-Copyright (c)  2020, Parker Hannifin Corp.
+Copyright (c)  2021, Parker Hannifin Corp.
 
