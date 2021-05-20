@@ -2122,7 +2122,7 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
         {}
         else if(point.qualifier() == mscl::MipTypes::CH_TIME_OF_WEEK)
         {        
-          m_gnss_aiding_status_msg[gnss_id].gps_tow_last_aiding_measurement = point.as_double();
+          m_gnss_aiding_status_msg[gnss_id].gps_tow = point.as_double();
           gnss_aiding_status_received[gnss_id] = true;
         }
         else if(point.qualifier() == mscl::MipTypes::CH_STATUS)
