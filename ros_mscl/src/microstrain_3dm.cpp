@@ -533,7 +533,7 @@ void Microstrain::run()
       // RTK Dongle
       //
       
-      if(m_publish_rtk && supports_rtk)
+      if(rtk_dongle_enable && supports_rtk)
       {
 
         mscl::SampleRate gnss3_rate = mscl::SampleRate::Hertz(1);
