@@ -2387,7 +2387,7 @@ void Microstrain::parse_rtk_packet(const mscl::MipDataPacket& packet)
       }break;
     }
   }
-
+ 
   //Publish
   if(m_publish_rtk)
     m_rtk_pub.publish(m_rtk_msg);
@@ -2542,8 +2542,7 @@ void Microstrain::external_gps_time_callback(const sensor_msgs::TimeReference& t
       m_inertial_device->setGPSTimeUpdate(mscl::MipTypes::TimeFrame::TIME_FRAME_WEEKS, weeks);
       m_inertial_device->setGPSTimeUpdate(mscl::MipTypes::TimeFrame::TIME_FRAME_SECONDS, secs);
 
-      ROS_INFO("GPS Update: w%i, s%i",
-               weeks, secs);
+      ROS_INFO("GPS Update: w%i, s%ld", weeks, secs);
     }
     catch(mscl::Error &e)
     {
@@ -3531,7 +3530,7 @@ bool Microstrain::get_basic_status(std_srvs::Trigger::Request &req, std_srvs::Tr
     }
     else
     {
-      ROS_INFO("Model Number: \t\t\t\t\t%04u\n", m_inertial_device->modelNumber().c_str());
+      ROS_INFO("Model Number: \t\t\t\t\t%s\n", m_inertial_device->modelNumber().c_str());
       return true;
     }
     
@@ -3595,7 +3594,7 @@ bool Microstrain::get_diagnostic_report(std_srvs::Trigger::Request &req,
     }
     else
     {
-      ROS_INFO("Model Number: \t\t\t\t\t%04u\n", m_inertial_device->modelNumber().c_str());
+      ROS_INFO("Model Number: \t\t\t\t\t%s\n", m_inertial_device->modelNumber().c_str());
       return true;
     }
     
@@ -4400,8 +4399,7 @@ bool Microstrain::set_mag_dip_adaptive_vals(ros_mscl::SetMagDipAdaptiveVals::Req
       ROS_INFO("mag dip angle error adaptive measurement values successfully set.\n");
       ROS_INFO("Returned values: Enable: %i, Parameters: %f %f %f %f\n",
                adaptiveData.mode, adaptiveData.lowPassFilterCutoff,
-               adaptiveData.minUncertainty, adaptiveData.lowLimit,
-               adaptiveData.highLimit, adaptiveData.lowLimitUncertainty,
+               adaptiveData.minUncertainty, adaptiveData.highLimit, 
                adaptiveData.highLimitUncertainty);
 
       res.success = true;
