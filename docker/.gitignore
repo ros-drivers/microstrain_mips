@@ -1,0 +1,4 @@
+# Build artifacts
+/.image*
+/devel
+/build
