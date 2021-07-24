@@ -52,7 +52,7 @@ clean: $(image_artifact)
 		$(run_args) \
 		$(run_mounts) \
 		$$(cat $<) -c " \
-			rm -rf '$(docker_catkin_build_dir)/*' '$(docker_catkin_devel_dir)/*' \
+			chown -R $(shell id -u):$(shell id -g) $(docker_catkin_build_dir) $(docker_catkin_install_dir) $(docker_catkin_log_dir) \
 		"
 	@rm -rf "$(build_dir)" "$(devel_dir)"
 	@rm -f "$(image_artifact)"
