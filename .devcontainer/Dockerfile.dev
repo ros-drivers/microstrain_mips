@@ -1,11 +1,16 @@
-FROM ros:noetic-ros-base-focal
+ARG ARCH="amd64"
+ARG ROS_VERSION="noetic"
+FROM ${ARCH}/ros:${ROS_VERSION}-ros-base
 
 # Install MSCL (github deb install is kind of a pain)
 ENV DEBIAN_FRONTEND="noninteractive"
 RUN set -ex \
     && apt-get update && apt-get install -y \
         jq \
+        gdb \
+        git \
         curl \
+        sudo \
     && install_github_deb () { \
         org="${1}"; \
         repo="${2}"; \
@@ -25,3 +30,15 @@ COPY mscl_msgs /tmp/src/mscl_msgs
 RUN set -ex \
     && rosdep install --from-paths /tmp/src --ignore-src -r -y \
     && rm -rf /tmp/src
+
+# Add a user that will be used when shelling into this container and allow them to use devices
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+RUN set -ex \
+    && groupadd -g ${USER_ID} microstrain \
+    && useradd -N -m -u ${USER_ID} -g ${GROUP_ID} -G "dialout" microstrain
+
+# Make the directory where we will mount all the files into
+USER microstrain
+RUN set -ex \
+    && mkdir -p ${HOME}/src
