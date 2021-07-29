@@ -1,0 +1,27 @@
+{
+    "name": "amd64/ros-mscl-dev:noetic",
+    "context": "..",
+    "dockerFile": "Dockerfile.dev",
+    "extensions": [
+        "ms-iot.vscode-ros",
+        "ms-vscode.cpptools",
+        "ms-python.python",
+        "ms-vscode.cmake-tools"
+    ],
+    "containerUser": "root",
+    "remoteUser": "microstrain",
+    "runArgs": [
+        "--privileged",
+        "--security-opt", "seccomp=unconfined"
+    ],
+    "settings": {},
+    "postAttachCommand": "/ros_entrypoint.sh roscore",
+    "mounts": [
+        "source=/dev,target=/dev,type=bind,consistency=cached",
+        "source=${localWorkspaceFolder}/ros_mscl,target=/home/microstrain/src/ros_mscl,type=bind,consistency=cached",
+        "source=${localWorkspaceFolder}/mscl_msgs,target=/home/microstrain/src/mscl_msgs,type=bind,consistency=cached",
+        "source=${localWorkspaceFolder}/.devcontainer/.vscode-docker,target=/home/microstrain/.vscode,type=bind,consistency=cached"
+    ],
+    "workspaceMount": "",
+    "workspaceFolder": "/home/microstrain",
+}

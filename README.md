@@ -58,6 +58,36 @@ This will launch two nodes that publish data to different namespaces:
 An example subscriber node can be found here: [ROS-MSCL Examples](https://github.com/LORD-MicroStrain/ROS-MSCL/tree/master/Examples)  
 
 
+## Docker Integration
+
+### VSCode
+
+The easiest way to use docker while still using an IDE is to use VSCode as an IDE. Follow the steps below to develop on this repo in a docker container
+
+1. Install the following dependencies:
+    1. [VSCode](https://code.visualstudio.com/)
+    1. [Docker](https://docs.docker.com/get-docker/)
+1. Open VSCode and install the following [plugins](https://code.visualstudio.com/docs/editor/extension-marketplace):
+    1. [VSCode Docker plugin](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker)
+    1. [VSCode Remote Containers plugin](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+1. Open this directory in a container by following [this guide](https://code.visualstudio.com/docs/remote/containers#_quick-start-open-an-existing-folder-in-a-container)
+1. Once the folder is open in VSCode, you can build the project by running `Ctrl+Shift+B` to trigger a build, or `Ctrl+p` to open quick open, then type `task build` and hit enter
+1. Once the project is built, you can run the project by following [this guide](https://code.visualstudio.com/docs/editor/debugging)
+
+### Make
+
+If you are comfortable working from the command line, or want to produce runtime images, the [Makefile](./devcontainer/Makefile) in the [.devcontainer](./devcontainer) directory
+can be used to build docker images, run a shell inside the docker images and produce a runtime image. Follow the steps below to setup your environment to use the `Makefile`
+
+1. Install the following dependencies:
+    1. [Make](https://www.gnu.org/software/make/)
+    1. [Docker](https://docs.docker.com/get-docker/)
+
+The `Makefile` exposes the following tasks. They can all be run from the `.devcontainer` directory:
+* `make build-shell` - Builds the docker image and starts a shell session in the image allowing the user to develop and build the ROS project using common commands such as `catkin_make`
+* `make image` - Builds the runtim image that contains only the required dependencies and the ROS node. The resulting image is names `ros-mscl`
+* `make clean` - Cleans up after the above two tasks
+
 ## License
 ROS-MSCL is released under the MIT License - see the `LICENSE` file in the source distribution.
 
