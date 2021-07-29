@@ -7,7 +7,7 @@
 
   <node name="listener_cpp"
     pkg="ros_mscl_cpp_example"
-    type="listener" output="screen" ns="$(arg name)">
+    type="listener_cpp" output="screen" ns="$(arg name)">
       <param name="device" value="$(arg device)" type="str" />
   </node>
 
