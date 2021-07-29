@@ -71,8 +71,9 @@ The easiest way to use docker while still using an IDE is to use VSCode as an ID
     1. [VSCode Docker plugin](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker)
     1. [VSCode Remote Containers plugin](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 1. Open this directory in a container by following [this guide](https://code.visualstudio.com/docs/remote/containers#_quick-start-open-an-existing-folder-in-a-container)
+    1. Due to a bug in the remote container plugin, you will need to refresh the window once it comes up. To do this, type `Ctrl+Shift+p` and type `Reload Window` and hit enter. Note that this will have to be repeated every time the container is rebuilt
 1. Once the folder is open in VSCode, you can build the project by running `Ctrl+Shift+B` to trigger a build, or `Ctrl+p` to open quick open, then type `task build` and hit enter
-1. Once the project is built, you can run the project by following [this guide](https://code.visualstudio.com/docs/editor/debugging)
+1. You can run the project by following [this guide](https://code.visualstudio.com/docs/editor/debugging)
 
 ### Make
 
