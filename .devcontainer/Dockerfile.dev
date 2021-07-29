@@ -38,7 +38,11 @@ RUN set -ex \
     && groupadd -g ${USER_ID} microstrain \
     && useradd -N -m -u ${USER_ID} -g ${GROUP_ID} -G "dialout" microstrain
 
-# Make the directory where we will mount all the files into
+# Make the directory where we will mount all the files into and build a single time
 USER microstrain
+RUN mkdir "${HOME}/src"
+COPY ros_mscl "/home/microstrain/src/ros_mscl"
+COPY mscl_msgs "/home/microstrain/src/mscl_msgs"
 RUN set -ex \
-    && mkdir -p ${HOME}/src
+    && cd "${HOME}" \
+    && /ros_entrypoint.sh catkin_make -DCMAKE_BUILD_TYPE="DEBUG"

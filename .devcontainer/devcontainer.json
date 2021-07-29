@@ -14,16 +14,8 @@
         "--privileged",
         "--security-opt", "seccomp=unconfined"
     ],
-    "settings": {
-        "terminal.integrated.profiles.linux": {
-            "bash": {
-                "path": "/ros_entrypoint.sh",
-                "args": ["/bin/bash"]
-            }
-        },
-        "terminal.integrated.defaultProfile.windows": "bash"
-    },
-    "postCreateCommand": "/ros_entrypoint.sh roscore",
+    "settings": {},
+    "postAttachCommand": "/ros_entrypoint.sh roscore",
     "mounts": [
         "source=/dev,target=/dev,type=bind,consistency=cached",
         "source=${localWorkspaceFolder}/ros_mscl,target=/home/microstrain/src/ros_mscl,type=bind,consistency=cached",
@@ -31,5 +23,5 @@
         "source=${localWorkspaceFolder}/.devcontainer/.vscode-docker,target=/home/microstrain/.vscode,type=bind,consistency=cached"
     ],
     "workspaceMount": "",
-    "workspaceFolder": "/home/microstrain"
+    "workspaceFolder": "/home/microstrain",
 }
