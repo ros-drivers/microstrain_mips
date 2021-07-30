@@ -2,8 +2,8 @@
 Changelog for package ros_mscl_py_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.4 (2021-07-30)
+------------------
 * Merge branch 'master' of https://github.com/LORD-MicroStrain/ROS-MSCL into develop
 * Properly installs examples to match instructions
 * Contributors: robbiefish

@@ -2,8 +2,8 @@
 Changelog for package mscl_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.4 (2021-07-30)
+------------------
 * Please see changelog
 * Added aiding measurement summary for each GNSS (GQ7 only)
   Added MSCL version output when node starts

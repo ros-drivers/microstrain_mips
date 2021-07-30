@@ -2,8 +2,8 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.4 (2021-07-30)
+------------------
 * Installs MSCL from CMake to hopefully allow this package to be built in the buildfarm
 * Merge pull request `#70 <https://github.com/LORD-MicroStrain/ROS-MSCL/issues/70>`_ from ori-drs/master
   [ros_mscl] Turn filter_data_rate and imu_data_rate into an argument
