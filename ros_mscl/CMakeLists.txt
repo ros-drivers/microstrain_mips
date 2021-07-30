@@ -17,16 +17,42 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_ros
   tf2_geometry_msgs
   diagnostic_updater
-	mscl_msgs
+  mscl_msgs
 )
 
-find_library(MSCL_LIB_PATH NAMES libmscl.so PATHS "/usr/share/c++-mscl" DOC "MSCL Library" NO_DEFAULT_PATH)
-find_library(BOOST_LIB_PATH NAMES libboost_chrono.so PATHS "/usr/share/c++-mscl/Boost/lib" NO_DEFAULT_PATH)
-set(MSCL_INC_PATH "/usr/share/c++-mscl/source")
-set(BOOST_INC_PATH "/usr/share/c++-mscl/Boost/include")
-#find_path(MSCL_INC_PATH NAMES mscl.h PATHS "/usr/share/c++-mscl/source/mscl" DOC "MSCL Includes" NO_DEFAULT_PATH)
+# Install MSCL from github
+set(MSCL_GITHUB_ORG "LORD-MicroStrain")
+set(MSCL_GITHUB_REPO "MSCL")
+set(MSCL_GITHUB_TAG "v62.0.0")
+set(MSCL_GITHUB_ARTIFACT "c++-mscl_62.0.0_amd64.deb")
 
-set(MSCL_LIB "usr/share/c++-mscl")
+# Get the release ID for the version we are trying to download
+set(MSCL_LIST_REPO_URL "https://api.github.com/repos/${MSCL_GITHUB_ORG}/${MSCL_GITHUB_REPO}/releases/tags/${MSCL_GITHUB_TAG}")
+execute_process(
+  COMMAND ${CMAKE_COMMAND} -E env /bin/bash -c "curl -fsSl '${MSCL_LIST_REPO_URL}' | jq '.assets[] | select(.name==\"${MSCL_GITHUB_ARTIFACT}\") | .url' | sed 's/\"//g'"
+  OUTPUT_VARIABLE MSCL_DOWNLOAD_LINK
+)
+
+# Download the deb file
+set(MSCL_DEB_ARTIFACT "${PROJECT_BINARY_DIR}/${MSCL_GITHUB_ARTIFACT}")
+execute_process(
+  COMMAND ${CMAKE_COMMAND} -E env /bin/bash -c "curl -fsSLJo ${MSCL_DEB_ARTIFACT} -H 'Accept: application/octet-stream' ${MSCL_DOWNLOAD_LINK}"
+)
+
+# Extract the deb file into the workspace
+get_filename_component(MSCL_DEB_EXTRACTED_DIR_NAME "${MSCL_GITHUB_ARTIFACT}" NAME_WE)
+set(MSCL_DEB_EXTRACTED_DIR "${PROJECT_BINARY_DIR}/${MSCL_DEB_EXTRACTED_DIR_NAME}")
+execute_process(
+  COMMAND ${CMAKE_COMMAND} -E env /bin/bash -c "dpkg-deb -x '${MSCL_DEB_ARTIFACT}' '${MSCL_DEB_EXTRACTED_DIR}'"
+)
+set(MSCL_DIR "${MSCL_DEB_EXTRACTED_DIR}/usr/share/c++-mscl")
+
+
+find_library(MSCL_LIB_PATH NAMES libmscl.so PATHS "${MSCL_DIR}" DOC "MSCL Library" NO_DEFAULT_PATH)
+find_library(BOOST_LIB_PATH NAMES libboost_chrono.so PATHS "${MSCL_DIR}/Boost/lib" NO_DEFAULT_PATH)
+set(MSCL_INC_PATH "${MSCL_DIR}/source")
+set(BOOST_INC_PATH "${MSCL_DIR}/Boost/include")
+
 add_definitions(-std=c++11)
 
 set(CMAKE_C_FLAGS "-Wno-implicit-function-declaration -Wno-incompatible-pointer-types -Wno-format -fno-builtin-memcpy")
@@ -70,7 +96,7 @@ catkin_package(
     sensor_msgs
     nav_msgs
     message_runtime
-		mscl_msgs
+    mscl_msgs
 )
 ###########
 ## Build ##
@@ -128,6 +154,12 @@ install(TARGETS ros_mscl ros_mscl_node
 
 install(DIRECTORY launch config
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+# We also have to install MSCL and it's dependencies so it can be found at runtime
+file(GLOB BOOST_LIBS "${MSCL_DIR}/Boost/lib/*")
+install(FILES ${BOOST_LIBS} ${MSCL_DIR}/libmscl.so
+  DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 
 #############

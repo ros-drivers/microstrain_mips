@@ -24,9 +24,12 @@
   <depend>mscl_msgs</depend>
   <depend>tf2_geometry_msgs</depend>
 
+  <!-- Dependencies needed to install MSCL from the CMake file  -->
+  <build_depend>jq</build_depend>
+  <build_depend>curl</build_depend>
+
   <build_depend>message_generation</build_depend>
   <build_depend>roslint</build_depend>
-  <build_depend>libmscl</build_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>diagnostic_aggregator</exec_depend>
 

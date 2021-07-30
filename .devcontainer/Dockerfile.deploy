@@ -22,10 +22,6 @@ FROM ${ARCH}/ros:${ROS_VERSION}-ros-core
 ARG ROS_MSCL_DIR
 ENV ROS_MSCL_DIR "${ROS_MSCL_DIR}"
 COPY --from=builder ${ROS_MSCL_DIR}/install ${ROS_MSCL_DIR}/install
-COPY --from=builder /usr/share/c++-mscl/libmscl.so /usr/share/c++-mscl/libmscl.so
-
-# Make sure that MSCL is loadable
-ENV LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/usr/share/c++-mscl"
 
 # Default command will be to run ros launch file
 CMD ["/bin/bash", "-c", ". ${ROS_MSCL_DIR}/install/setup.bash && roslaunch ros_mscl microstrain.launch"]
