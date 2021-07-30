@@ -111,6 +111,7 @@ void Microstrain::run()
   int filter_adaptive_time_limit_ms;
   bool filter_enable_gnss_pos_vel_aiding;
   bool filter_enable_gnss_heading_aiding;
+  bool filter_enable_gnss_dual_antenna_status;
   bool filter_enable_altimeter_aiding;
   bool filter_enable_odometer_aiding;
   bool filter_enable_magnetometer_aiding;
@@ -246,6 +247,7 @@ void Microstrain::run()
   private_nh.param("filter_adaptive_time_limit_ms" ,           filter_adaptive_time_limit_ms, 15000);
   private_nh.param("filter_enable_gnss_pos_vel_aiding",        filter_enable_gnss_pos_vel_aiding, true);
   private_nh.param("filter_enable_gnss_heading_aiding",        filter_enable_gnss_heading_aiding, true);
+  private_nh.param("filter_enable_gnss_dual_antenna_status",   filter_enable_gnss_dual_antenna_status, false);
   private_nh.param("filter_enable_altimeter_aiding",           filter_enable_altimeter_aiding, false);
   private_nh.param("filter_enable_odometer_aiding",            filter_enable_odometer_aiding, false);
   private_nh.param("filter_enable_magnetometer_aiding",        filter_enable_magnetometer_aiding, false);
@@ -601,6 +603,8 @@ void Microstrain::run()
 
             if(filter_enable_gnss_pos_vel_aiding)
               navChannels.push_back(mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_POSITION_AIDING_STATUS);
+            if(filter_enable_gnss_dual_antenna_status)
+              navChannels.push_back(mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_GNSS_DUAL_ANTENNA_STATUS);
         
         mscl::MipChannels supportedChannels;
         for(mscl::MipTypes::ChannelField channel : m_inertial_device->features().supportedChannelFields(mscl::MipTypes::DataClass::CLASS_ESTFILTER))
@@ -1077,11 +1081,12 @@ void Microstrain::run()
     if(m_publish_filter && supports_filter)
     {
       ROS_INFO("Publishing Filter data.");
-      m_filter_pub               = node.advertise<nav_msgs::Odometry>("nav/odom", 100);
-      m_filter_status_pub        = node.advertise<mscl_msgs::FilterStatus>("nav/status", 100);
-      m_filter_heading_pub       = node.advertise<mscl_msgs::FilterHeading>("nav/heading", 100);
-      m_filter_heading_state_pub = node.advertise<mscl_msgs::FilterHeadingState>("nav/heading_state", 100);
-      m_filtered_imu_pub         = node.advertise<sensor_msgs::Imu>("nav/filtered_imu/data", 100);
+      m_filter_pub                   = node.advertise<nav_msgs::Odometry>("nav/odom", 100);
+      m_filter_status_pub            = node.advertise<mscl_msgs::FilterStatus>("nav/status", 100);
+      m_filter_heading_pub           = node.advertise<mscl_msgs::FilterHeading>("nav/heading", 100);
+      m_filter_heading_state_pub     = node.advertise<mscl_msgs::FilterHeadingState>("nav/heading_state", 100);
+      m_filtered_imu_pub             = node.advertise<sensor_msgs::Imu>("nav/filtered_imu/data", 100);
+      m_gnss_dual_antenna_status_pub = node.advertise<mscl_msgs::GNSSDualAntennaStatus>("nav/dual_antenna_status", 100);
 
       if(m_publish_filter_relative_pos)
         m_filter_relative_pos_pub = node.advertise<nav_msgs::Odometry>("nav/relative_pos/odom", 100); 
@@ -2144,6 +2149,34 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
         }
       }
     }break;
+
+    case mscl::MipTypes::CH_FIELD_ESTFILTER_GNSS_DUAL_ANTENNA_STATUS:
+    {
+      if (point.qualifier() == mscl::MipTypes::CH_TIME_OF_WEEK)
+      {
+        m_gnss_dual_antenna_status_msg.gps_tow = point.as_float();
+      }
+      else if (point.qualifier() == mscl::MipTypes::CH_HEADING)
+      {
+        m_gnss_dual_antenna_status_msg.heading = point.as_float();
+      }
+      else if (point.qualifier() == mscl::MipTypes::CH_HEADING_UNCERTAINTY)
+      {
+        m_gnss_dual_antenna_status_msg.heading_uncertainty = point.as_float();
+      }
+      else if (point.qualifier() == mscl::MipTypes::CH_FIX_TYPE)
+      {
+        m_gnss_dual_antenna_status_msg.fix_type = point.as_uint8();
+      }
+      else if (point.qualifier() == mscl::MipTypes::CH_STATUS)
+      {
+        uint16_t status_flags = point.as_uint16();
+
+        m_gnss_dual_antenna_status_msg.rcv_1_valid           = status_flags & mscl::InertialTypes::DualAntennaStatusFlags::DATA_VALID_REC_1;
+        m_gnss_dual_antenna_status_msg.rcv_2_valid           = status_flags & mscl::InertialTypes::DualAntennaStatusFlags::DATA_VALID_REC_2;
+        m_gnss_dual_antenna_status_msg.antenna_offsets_valid = status_flags & mscl::InertialTypes::DualAntennaStatusFlags::ANTENNA_OFFSETS_VALID;
+      }
+    }break;
     
     default: break;
     }
@@ -2171,6 +2204,7 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
     if(m_publish_gnss_aiding_status[i] && gnss_aiding_status_received[i])
       m_gnss_aiding_status_pub[i].publish(m_gnss_aiding_status_msg[i]); 
   }
+  m_gnss_dual_antenna_status_pub.publish(m_gnss_dual_antenna_status_msg);
 }
 
 
