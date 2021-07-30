@@ -2194,6 +2194,7 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
     m_filter_status_pub.publish(m_filter_status_msg);
     m_filter_heading_pub.publish(m_filter_heading_msg);
     m_filter_heading_state_pub.publish(m_filter_heading_state_msg);
+    m_gnss_dual_antenna_status_pub.publish(m_gnss_dual_antenna_status_msg);
   }
   
   if(m_publish_filter_relative_pos)
@@ -2204,7 +2205,6 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
     if(m_publish_gnss_aiding_status[i] && gnss_aiding_status_received[i])
       m_gnss_aiding_status_pub[i].publish(m_gnss_aiding_status_msg[i]); 
   }
-  m_gnss_dual_antenna_status_pub.publish(m_gnss_dual_antenna_status_msg);
 }
 
 

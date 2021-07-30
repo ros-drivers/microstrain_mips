@@ -193,12 +193,13 @@
     <param name="filter_adaptive_time_limit_ms" value="15000" type="int" />
 
     <!-- (GQ7 only) Aiding measurement control -->
-    <param name="filter_enable_gnss_pos_vel_aiding"     value="true"  type="bool" />
-    <param name="filter_enable_gnss_heading_aiding"     value="true"  type="bool" />
-    <param name="filter_enable_altimeter_aiding"        value="false" type="bool" />
-    <param name="filter_enable_odometer_aiding"         value="false" type="bool" />
-    <param name="filter_enable_magnetometer_aiding"     value="false" type="bool" />
-    <param name="filter_enable_external_heading_aiding" value="false" type="bool" />
+    <param name="filter_enable_gnss_pos_vel_aiding"      value="true"  type="bool" />
+    <param name="filter_enable_gnss_heading_aiding"      value="true"  type="bool" />
+    <param name="filter_enable_gnss_dual_antenna_status" value="true"  type="bool" />
+    <param name="filter_enable_altimeter_aiding"         value="false" type="bool" />
+    <param name="filter_enable_odometer_aiding"          value="false" type="bool" />
+    <param name="filter_enable_magnetometer_aiding"      value="false" type="bool" />
+    <param name="filter_enable_external_heading_aiding"  value="false" type="bool" />
 
     <!--  External GPS Time Update Control
           Notes:    filter_external_gps_time_topic should publish at no more than 1 Hz.
