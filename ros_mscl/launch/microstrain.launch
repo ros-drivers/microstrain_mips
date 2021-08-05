@@ -195,7 +195,6 @@
     <!-- (GQ7 only) Aiding measurement control -->
     <param name="filter_enable_gnss_pos_vel_aiding"      value="true"  type="bool" />
     <param name="filter_enable_gnss_heading_aiding"      value="true"  type="bool" />
-    <param name="filter_enable_gnss_dual_antenna_status" value="true"  type="bool" />
     <param name="filter_enable_altimeter_aiding"         value="false" type="bool" />
     <param name="filter_enable_odometer_aiding"          value="false" type="bool" />
     <param name="filter_enable_magnetometer_aiding"      value="false" type="bool" />

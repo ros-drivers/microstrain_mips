@@ -64,6 +64,7 @@ Microstrain::Microstrain()
   m_publish_gnss[GNSS2_ID]= true;
   m_publish_gnss_aiding_status[GNSS1_ID] = false;
   m_publish_gnss_aiding_status[GNSS2_ID] = false;
+  m_publish_gnss_dual_antenna_status = false;
   m_publish_filter = true;
   m_publish_rtk = false;
   m_imu_linear_cov = std::vector<double>(9, 0.0);
@@ -111,7 +112,6 @@ void Microstrain::run()
   int filter_adaptive_time_limit_ms;
   bool filter_enable_gnss_pos_vel_aiding;
   bool filter_enable_gnss_heading_aiding;
-  bool filter_enable_gnss_dual_antenna_status;
   bool filter_enable_altimeter_aiding;
   bool filter_enable_odometer_aiding;
   bool filter_enable_magnetometer_aiding;
@@ -247,7 +247,6 @@ void Microstrain::run()
   private_nh.param("filter_adaptive_time_limit_ms" ,           filter_adaptive_time_limit_ms, 15000);
   private_nh.param("filter_enable_gnss_pos_vel_aiding",        filter_enable_gnss_pos_vel_aiding, true);
   private_nh.param("filter_enable_gnss_heading_aiding",        filter_enable_gnss_heading_aiding, true);
-  private_nh.param("filter_enable_gnss_dual_antenna_status",   filter_enable_gnss_dual_antenna_status, false);
   private_nh.param("filter_enable_altimeter_aiding",           filter_enable_altimeter_aiding, false);
   private_nh.param("filter_enable_odometer_aiding",            filter_enable_odometer_aiding, false);
   private_nh.param("filter_enable_magnetometer_aiding",        filter_enable_magnetometer_aiding, false);
@@ -603,7 +602,7 @@ void Microstrain::run()
 
             if(filter_enable_gnss_pos_vel_aiding)
               navChannels.push_back(mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_POSITION_AIDING_STATUS);
-            if(filter_enable_gnss_dual_antenna_status)
+            if(filter_enable_gnss_heading_aiding)
               navChannels.push_back(mscl::MipTypes::ChannelField::CH_FIELD_ESTFILTER_GNSS_DUAL_ANTENNA_STATUS);
         
         mscl::MipChannels supportedChannels;
@@ -1086,7 +1085,12 @@ void Microstrain::run()
       m_filter_heading_pub           = node.advertise<mscl_msgs::FilterHeading>("nav/heading", 100);
       m_filter_heading_state_pub     = node.advertise<mscl_msgs::FilterHeadingState>("nav/heading_state", 100);
       m_filtered_imu_pub             = node.advertise<sensor_msgs::Imu>("nav/filtered_imu/data", 100);
-      m_gnss_dual_antenna_status_pub = node.advertise<mscl_msgs::GNSSDualAntennaStatus>("nav/dual_antenna_status", 100);
+
+      if(filter_enable_gnss_heading_aiding)
+      {
+        m_gnss_dual_antenna_status_pub = node.advertise<mscl_msgs::GNSSDualAntennaStatus>("nav/dual_antenna_status", 100);
+        m_publish_gnss_dual_antenna_status = true;
+      }
 
       if(m_publish_filter_relative_pos)
         m_filter_relative_pos_pub = node.advertise<nav_msgs::Odometry>("nav/relative_pos/odom", 100); 
@@ -1719,6 +1723,7 @@ void Microstrain::parse_imu_packet(const mscl::MipDataPacket &packet)
 void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
 {
   bool gnss_aiding_status_received[NUM_GNSS] = {false};
+  bool gnss_dual_antenna_status_received = false;
   int  i;
 
   //Update diagnostics
@@ -2154,6 +2159,7 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
     {
       if (point.qualifier() == mscl::MipTypes::CH_TIME_OF_WEEK)
       {
+        gnss_dual_antenna_status_received = true;
         m_gnss_dual_antenna_status_msg.gps_tow = point.as_float();
       }
       else if (point.qualifier() == mscl::MipTypes::CH_HEADING)
@@ -2194,7 +2200,9 @@ void Microstrain::parse_filter_packet(const mscl::MipDataPacket &packet)
     m_filter_status_pub.publish(m_filter_status_msg);
     m_filter_heading_pub.publish(m_filter_heading_msg);
     m_filter_heading_state_pub.publish(m_filter_heading_state_msg);
-    m_gnss_dual_antenna_status_pub.publish(m_gnss_dual_antenna_status_msg);
+
+    if(m_publish_gnss_dual_antenna_status && gnss_dual_antenna_status_received)
+      m_gnss_dual_antenna_status_pub.publish(m_gnss_dual_antenna_status_msg);
   }
   
   if(m_publish_filter_relative_pos)

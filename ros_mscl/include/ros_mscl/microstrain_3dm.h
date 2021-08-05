@@ -404,6 +404,7 @@ namespace Microstrain
   bool m_publish_gps_corr;
   bool m_publish_gnss[NUM_GNSS];
   bool m_publish_gnss_aiding_status[NUM_GNSS];
+  bool m_publish_gnss_dual_antenna_status;
   bool m_publish_filter;
   bool m_publish_filter_relative_pos;
   bool m_publish_rtk;

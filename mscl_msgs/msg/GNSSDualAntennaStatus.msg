@@ -1,6 +1,6 @@
-float64 gps_tow
-float64 heading
-float64 heading_uncertainty
+float32 gps_tow
+float32 heading
+float32 heading_uncertainty
 uint8   fix_type
 uint8   rcv_1_valid
 uint8   rcv_2_valid
