@@ -6,7 +6,7 @@ Changelog for package ros_mscl
 ------------------
 * BREAKING CHANGE: CMakeLists.txt was changed to install MSCL automatically. This requires a clean catkin build environment to build.
 * Added docker development and deployment support
-* Gual Antenna Message added
+* Dual Antenna Message added
 
 1.1.4 (2021-05-19)
 ------------------
