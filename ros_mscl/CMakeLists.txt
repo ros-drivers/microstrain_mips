@@ -24,7 +24,7 @@ find_package(catkin REQUIRED COMPONENTS
 set(MSCL_VERSION "62.0.0" CACHE STRING "Version of MSCL to download and build with")
 
 # Convert the CMake architecture to the format that MSCL uses
-if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "amd64")
+if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
   set(MSCL_ARCH "amd64")
 elseif("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64")
   set(MSCL_ARCH "arm64")
