@@ -29,7 +29,7 @@ group_id := $(shell id -g)
 # Set up some variables for the docker build
 dev_dockerfile := $(docker_dir)/Dockerfile.dev
 deploy_dockerfile := $(docker_dir)/Dockerfile.deploy
-build_args := --build-arg http_proxy --build-arg https_proxy --build-arg no_proxy --build-arg USER_ID=$(user_id) --build-arg GROUP_ID=$(group_id)
+build_args := --build-arg http_proxy --build-arg https_proxy --build-arg no_proxy --build-arg ARCH=$(arch) --build-arg USER_ID=$(user_id) --build-arg GROUP_ID=$(group_id)
 run_args := -e http_proxy -e https_proxy -e no_proxy
 run_mounts := -v "$(project_dir):/tmp/$(project_name)_release_workspace" -v "$(project_dir)/ros_mscl:$(docker_catkin_src_dir)/ros_mscl" -v "$(project_dir)/mscl_msgs:$(docker_catkin_src_dir)/mscl_msgs" -v "$(project_dir)/Examples:$(docker_catkin_src_dir)/Examples" -v "$(build_dir):$(docker_catkin_build_dir)" -v "$(devel_dir):$(docker_catkin_devel_dir)"
 dev_image_name := $(arch)/$(project_name)-dev:$(ros_version)

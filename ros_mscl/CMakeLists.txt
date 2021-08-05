@@ -20,11 +20,25 @@ find_package(catkin REQUIRED COMPONENTS
   mscl_msgs
 )
 
+# Allow the MSCL version to be overridden
+set(MSCL_VERSION "62.0.0" CACHE STRING "Version of MSCL to download and build with")
+
+# Convert the CMake architecture to the format that MSCL uses
+if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "amd64")
+  set(MSCL_ARCH "amd64")
+elseif("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "aarch64")
+  set(MSCL_ARCH "arm64")
+elseif("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "armhf")
+  set(MSCL_ARCH "armhf")
+else()
+  message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
+endif()
+
 # Install MSCL from github
 set(MSCL_GITHUB_ORG "LORD-MicroStrain")
 set(MSCL_GITHUB_REPO "MSCL")
-set(MSCL_GITHUB_TAG "v62.0.0")
-set(MSCL_GITHUB_ARTIFACT "c++-mscl_62.0.0_amd64.deb")
+set(MSCL_GITHUB_TAG "v${MSCL_VERSION}")
+set(MSCL_GITHUB_ARTIFACT "c++-mscl_${MSCL_VERSION}_${MSCL_ARCH}.deb")
 
 # Get the release ID for the version we are trying to download
 set(MSCL_LIST_REPO_URL "https://api.github.com/repos/${MSCL_GITHUB_ORG}/${MSCL_GITHUB_REPO}/releases/tags/${MSCL_GITHUB_TAG}")

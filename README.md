@@ -83,6 +83,8 @@ can be used to build docker images, run a shell inside the docker images and pro
 1. Install the following dependencies:
     1. [Make](https://www.gnu.org/software/make/)
     1. [Docker](https://docs.docker.com/get-docker/)
+    1. [qemu-user-static](https://packages.ubuntu.com/bionic/qemu-user-static) (for multiarch builds)
+        1. Run the following command to register the qemu binaries with docker: `docker run --rm --privileged multiarch/qemu-user-static:register`
 
 The `Makefile` exposes the following tasks. They can all be run from the `.devcontainer` directory:
 * `make build-shell` - Builds the docker image and starts a shell session in the image allowing the user to develop and build the ROS project using common commands such as `catkin_make`
