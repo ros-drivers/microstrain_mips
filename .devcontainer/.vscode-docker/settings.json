@@ -6,5 +6,6 @@
     "python.analysis.extraPaths": [
         "/home/ros-mscl/devel/lib/python3/dist-packages",
         "/opt/ros/noetic/lib/python3/dist-packages"
-    ]
+    ],
+    "editor.tabSize": 2
 }

@@ -7,13 +7,25 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
-catkin_package()
+catkin_package(
+  CATKIN_DEPENDS
+    roscpp
+    ros_mscl
+    cmake_modules
+    std_msgs
+    std_srvs
+)
 
 include_directories(
-# include
+  /home/microstrain/devel/include
   ${catkin_INCLUDE_DIRS}
 )
 
-
 add_executable(listener_cpp src/listener.cpp)
 target_link_libraries(listener_cpp ${catkin_LIBRARIES})
+
+add_dependencies(listener_cpp
+  ros_mscl
+  mscl_msgs_generate_messages_cpp
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+)

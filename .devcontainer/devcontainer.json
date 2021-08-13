@@ -19,7 +19,9 @@
     "mounts": [
         "source=/dev,target=/dev,type=bind,consistency=cached",
         "source=${localWorkspaceFolder}/ros_mscl,target=/home/microstrain/src/ros_mscl,type=bind,consistency=cached",
+        "source=${localWorkspaceFolder}/ros_mscl_common,target=/home/microstrain/src/ros_mscl_common,type=bind,consistency=cached",
         "source=${localWorkspaceFolder}/mscl_msgs,target=/home/microstrain/src/mscl_msgs,type=bind,consistency=cached",
+        "source=${localWorkspaceFolder}/Examples,target=/home/microstrain/src/Examples,type=bind,consistency=cached",
         "source=${localWorkspaceFolder}/.devcontainer/.vscode-docker,target=/home/microstrain/.vscode,type=bind,consistency=cached"
     ],
     "workspaceMount": "",

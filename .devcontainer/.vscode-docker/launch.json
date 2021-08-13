@@ -10,6 +10,13 @@
             "target": "/home/microstrain/src/ros_mscl/launch/microstrain.launch",
             "type": "ros",
             "preLaunchTask": "build"
+        },
+        {
+            "name": "example launch",
+            "request": "launch",
+            "target": "/home/microstrain/src/Examples/ros_mscl_cpp_example/launch/listener.launch",
+            "type": "ros",
+            "preLaunchTask": "build"
         }
     ]
 }

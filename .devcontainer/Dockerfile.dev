@@ -28,8 +28,3 @@ USER microstrain
 RUN mkdir "${HOME}/src"
 RUN mkdir "${HOME}/build"
 RUN mkdir "${HOME}/devel"
-COPY ros_mscl "/home/microstrain/src/ros_mscl"
-COPY mscl_msgs "/home/microstrain/src/mscl_msgs"
-RUN set -ex \
-    && cd "${HOME}" \
-    && /ros_entrypoint.sh catkin_make -DCMAKE_BUILD_TYPE="DEBUG"

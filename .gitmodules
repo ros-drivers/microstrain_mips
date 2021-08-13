@@ -1,0 +1,3 @@
+[submodule "ros_mscl_common"]
+	path = ros_mscl_common
+	url = https://github.com/LORD-MicroStrain/ROS-MSCL-Common.git
