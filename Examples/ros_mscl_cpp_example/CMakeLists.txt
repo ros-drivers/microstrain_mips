@@ -21,7 +21,8 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(listener_cpp src/listener.cpp)
+set(EXAMPLE_SRC_FILES src/listener.cpp)
+add_executable(listener_cpp ${EXAMPLE_SRC_FILES})
 target_link_libraries(listener_cpp ${catkin_LIBRARIES})
 
 add_dependencies(listener_cpp
@@ -29,3 +30,5 @@ add_dependencies(listener_cpp
   mscl_msgs_generate_messages_cpp
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
 )
+
+roslint_cpp(${EXAMPLE_SRC_FILES})

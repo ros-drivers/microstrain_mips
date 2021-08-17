@@ -38,3 +38,6 @@ api/manifest.yaml
 *.exe
 *.out
 *.app
+
+# Ignore the ROS generated CMakeLists.txt
+/CMakeLists.txt

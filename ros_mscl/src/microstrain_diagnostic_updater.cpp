@@ -1,14 +1,22 @@
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// Parker-Lord GX5-Series Driver Definition File
+//
+// Copyright (c) 2017, Brian Bingham
+// Copyright (c)  2020, Parker Hannifin Corp
+//
+// This code is licensed under MIT license (see LICENSE file for details)
+//
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include "diagnostic_updater/diagnostic_updater.h"
 #include "diagnostic_updater/update_functions.h"
-#include "microstrain_diagnostic_updater.h"
-#include "microstrain_3dm.h"
+#include "ros_mscl/microstrain_diagnostic_updater.h"
+#include "ros_mscl/microstrain_3dm.h"
 #include <string>
-
-
 
 namespace ros_mscl
 {
-
 RosDiagnosticUpdater::RosDiagnosticUpdater()
 {
   setHardwareID("unknown");
@@ -17,13 +25,10 @@ RosDiagnosticUpdater::RosDiagnosticUpdater()
   add("port", this, &RosDiagnosticUpdater::portDiagnostics);
   add("imu", this, &RosDiagnosticUpdater::imuDiagnostics);
 
-
-
   status_sub_ = nh_.subscribe("device/status", 5, &RosDiagnosticUpdater::statusCallback, this);
 }
 
-
-void RosDiagnosticUpdater::generalDiagnostics(diagnostic_updater::DiagnosticStatusWrapper &stat)
+void RosDiagnosticUpdater::generalDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& stat)
 {
   stat.add("Device Model", last_status_.device_model);
   stat.add("Status Selector", last_status_.status_selector);
@@ -40,14 +45,12 @@ void RosDiagnosticUpdater::generalDiagnostics(diagnostic_updater::DiagnosticStat
   {
     stat.summary(diagnostic_msgs::DiagnosticStatus::OK, "Status ok");
   }
-  
 }
 
-void RosDiagnosticUpdater::packetDiagnostics(diagnostic_updater::DiagnosticStatusWrapper &stat)
+void RosDiagnosticUpdater::packetDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& stat)
 {
   stat.add("IMU Dropped Packets", last_status_.imu_dropped_packets);
   stat.add("Filter Dropped Packets", last_status_.filter_dropped_packets);
-
 
   if (last_status_.imu_dropped_packets > 0 || last_status_.filter_dropped_packets > 0)
   {
@@ -59,7 +62,7 @@ void RosDiagnosticUpdater::packetDiagnostics(diagnostic_updater::DiagnosticStatu
   }
 }
 
-void RosDiagnosticUpdater::portDiagnostics(diagnostic_updater::DiagnosticStatusWrapper &stat)
+void RosDiagnosticUpdater::portDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& stat)
 {
   stat.add("COM1 Port Bytes Written", last_status_.com1_port_bytes_written);
   stat.add("COM1 Port Bytes Read", last_status_.com1_port_bytes_read);
@@ -76,7 +79,7 @@ void RosDiagnosticUpdater::portDiagnostics(diagnostic_updater::DiagnosticStatusW
   }
 }
 
-void RosDiagnosticUpdater::imuDiagnostics(diagnostic_updater::DiagnosticStatusWrapper &stat)
+void RosDiagnosticUpdater::imuDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& stat)
 {
   stat.add("IMU Parser Errors", last_status_.imu_parser_errors);
   stat.add("IMU Message Count", last_status_.imu_message_count);
@@ -92,12 +95,10 @@ void RosDiagnosticUpdater::imuDiagnostics(diagnostic_updater::DiagnosticStatusWr
   }
 }
 
-
 void RosDiagnosticUpdater::statusCallback(const mscl_msgs::Status::ConstPtr& status)
 {
   last_status_ = *status;
   update();
 }
 
-
-}
+}  // namespace ros_mscl

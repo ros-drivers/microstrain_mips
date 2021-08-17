@@ -1,17 +1,16 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //
 // Parker-Lord GX5-Series Driver Definition File
-// 
+//
 // Copyright (c) 2017, Brian Bingham
 // Copyright (c)  2020, Parker Hannifin Corp
-// 
+//
 // This code is licensed under MIT license (see LICENSE file for details)
-// 
+//
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-#ifndef _MICROSTRAIN_3DM_H
-#define _MICROSTRAIN_3DM_H
+#ifndef ROS_MSCL_MICROSTRAIN_3DM_H
+#define ROS_MSCL_MICROSTRAIN_3DM_H
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -25,7 +24,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "microstrain_node_base.h"
+#include "ros_mscl_common/microstrain_node_base.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
@@ -35,20 +34,18 @@
 
 namespace Microstrain
 {
-
 ///
 /// \brief Microstrain class
 ///
 class Microstrain : public MicrostrainNodeBase
 {
- public:
+public:
   Microstrain() = default;
   ~Microstrain() = default;
 
   void run();
+};  // Microstrain class
 
-}; //Microstrain class
+}  // namespace Microstrain
 
-} // namespace Microstrain
-
-#endif  // _MICROSTRAIN_3DM_GX5_45_H
+#endif  // ROS_MSCL_MICROSTRAIN_3DM_H
