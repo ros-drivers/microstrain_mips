@@ -32,7 +32,7 @@
 ///
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace Microstrain
+namespace microstrain
 {
 ///
 /// \brief Microstrain class
@@ -46,6 +46,6 @@ public:
   void run();
 };  // Microstrain class
 
-}  // namespace Microstrain
+}  // namespace microstrain
 
 #endif  // ROS_MSCL_MICROSTRAIN_3DM_H

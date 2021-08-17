@@ -33,7 +33,7 @@
 // Initialization
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace Microstrain
+namespace microstrain
 {
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // Run Function
@@ -54,7 +54,7 @@ void Microstrain::run()
     if (!MicrostrainNodeBase::configure(&private_nh))
       ROS_FATAL("Unable to configure node base");
 
-    ros::Rate r(static_cast<int64_t>(m_timer_update_rate_hz));
+    ros::Rate r(static_cast<int64_t>(timer_update_rate_hz_));
 
     ros_mscl::RosDiagnosticUpdater ros_diagnostic_updater;
 
@@ -87,17 +87,17 @@ void Microstrain::run()
   }
 
   // Release the inertial node, if necessary
-  if (m_config.m_inertial_device)
+  if (config_.inertial_device_)
   {
-    m_config.m_inertial_device->setToIdle();
-    m_config.m_inertial_device->connection().disconnect();
+    config_.inertial_device_->setToIdle();
+    config_.inertial_device_->connection().disconnect();
   }
 
   // Close raw data file if enabled
-  if (m_config.m_raw_file_enable)
+  if (config_.raw_file_enable_)
   {
-    m_config.m_raw_file.close();
+    config_.raw_file_.close();
   }
 }
 
-}  // namespace Microstrain
+}  // namespace microstrain
