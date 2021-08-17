@@ -49,17 +49,6 @@ int main(int argc, char** argv)
   //   callback - callback function to handle this data
   ros::Subscriber sub = n.subscribe(("/" + deviceName + "/imu/data"), 3, imuDataCallback);
 
-  ros::ServiceClient client = n.serviceClient<std_srvs::Trigger>("/gx5/device_report");
-  std_srvs::Trigger srv;
-  if (client.call(srv))
-  {
-    ROS_INFO("Device Status: %s", srv.response.message.c_str());
-  }
-  else
-  {
-    ROS_ERROR("Failed to call service");
-  }
-
   // start listening for data
   ros::spin();
 

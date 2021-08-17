@@ -16,7 +16,7 @@
         "--security-opt", "seccomp=unconfined"
     ],
     "settings": {},
-    "postAttachCommand": "/ros_entrypoint.sh roscore",
+    "postAttachCommand": "sudo apt-get update && rosdep install --from-paths ~/catkin_ws/src --ignore-src -r -y",
         "mounts": [
         "source=/dev,target=/dev,type=bind,consistency=cached",
         "source=${localWorkspaceFolder},target=/home/microstrain/catkin_ws/src,type=bind,consistency=cached",
