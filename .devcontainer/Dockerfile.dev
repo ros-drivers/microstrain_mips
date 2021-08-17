@@ -10,9 +10,9 @@ RUN set -ex \
         git
 
 # Use rosdep to install the dependencies of the packages
-COPY ros_mscl /tmp/src/ros_mscl
-COPY mscl_msgs /tmp/src/mscl_msgs
+COPY . /tmp/src/
 RUN set -ex \
+    && apt-get update -y \
     && rosdep install --from-paths /tmp/src --ignore-src -r -y \
     && rm -rf /tmp/src
 
@@ -21,10 +21,11 @@ ARG USER_ID=1000
 ARG GROUP_ID=1000
 RUN set -ex \
     && groupadd -g ${USER_ID} microstrain \
-    && useradd -N -m -u ${USER_ID} -g ${GROUP_ID} -G "dialout" microstrain
+    && useradd -N -m -u ${USER_ID} -g ${GROUP_ID} -G "dialout" -s "/bin/bash" microstrain
 
 # Make the directory where we will mount all the files into and build a single time
 USER microstrain
-RUN mkdir "${HOME}/src"
-RUN mkdir "${HOME}/build"
-RUN mkdir "${HOME}/devel"
+RUN echo "source /opt/ros/\${ROS_DISTRO}/setup.bash" >> ${HOME}/.bashrc
+RUN mkdir -p "${HOME}/catkin_ws/src"
+RUN mkdir -p "${HOME}/catkin_ws/build"
+RUN mkdir -p "${HOME}/catkin_ws/devel"
