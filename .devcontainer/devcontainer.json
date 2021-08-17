@@ -1,7 +1,15 @@
 {
     "name": "amd64/ros-mscl-dev:noetic",
-    "context": "..",
-    "dockerFile": "Dockerfile.dev",
+    "build": {
+        "context": "..",
+        "dockerfile": "Dockerfile.dev",
+        "args": {
+            "ARCH": "amd64",
+            "ROS_VERSION": "noetic",
+            "USER_ID": "1000",
+            "GROUP_ID": "1000"
+        }
+    },
     "extensions": [
         "ms-iot.vscode-ros",
         "ms-vscode.cpptools",
@@ -16,8 +24,8 @@
         "--security-opt", "seccomp=unconfined"
     ],
     "settings": {},
-    "postAttachCommand": "sudo apt-get update && rosdep install --from-paths ~/catkin_ws/src --ignore-src -r -y",
-        "mounts": [
+    "postCreateCommand": "sudo apt-get update && rosdep install --from-paths ~/catkin_ws/src --ignore-src -r -y",
+    "mounts": [
         "source=/dev,target=/dev,type=bind,consistency=cached",
         "source=${localWorkspaceFolder},target=/home/microstrain/catkin_ws/src,type=bind,consistency=cached",
         "source=${localWorkspaceFolder}/.devcontainer/.vscode-docker,target=/home/microstrain/catkin_ws/.vscode,type=bind,consistency=cached",
