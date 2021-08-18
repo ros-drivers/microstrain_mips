@@ -22,7 +22,6 @@
 
   <depend>cmake_modules</depend>
   <depend>std_srvs</depend>
-  <depend>mscl_msgs</depend>
   <depend>microstrain_msgs</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
