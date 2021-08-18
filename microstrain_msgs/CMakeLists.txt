@@ -11,6 +11,27 @@ find_package(catkin REQUIRED COMPONENTS
 set(COMMON_NAME "microstrain_common")
 set(COMMON_DIR "${${PROJECT_NAME}_SOURCE_DIR}/../${COMMON_NAME}")
 
+# Make sure that the submodule has been properly initialized
+if(NOT EXISTS "${COMMON_DIR}/.git")
+  message(STATUS "Initializing ${COMMON_DIR} submodule. This should only happen once.")
+
+  # Make sure we can find the git executable
+  find_package(Git)
+  if(NOT Git_FOUND)
+    message(FATAL_ERROR "Unable to initialize submodule because we could not find the git executable. Please clone this repo using 'git clone --recursive'")
+  endif()
+
+  # Initialize and update the submodule
+  execute_process(
+    WORKING_DIRECTORY "${${PROJECT_NAME}_SOURCE_DIR}/.."
+    COMMAND ${CMAKE_COMMAND} -E env ${GIT_EXECUTABLE} submodule init
+  )
+  execute_process(
+    WORKING_DIRECTORY "${${PROJECT_NAME}_SOURCE_DIR}/.."
+    COMMAND ${CMAKE_COMMAND} -E env ${GIT_EXECUTABLE} submodule update --recursive
+  )
+endif()
+
 # Generate Service Files
 set(SRV_DIR "${COMMON_DIR}/srv")
 FILE(GLOB SRV_FILES RELATIVE "${SRV_DIR}"
