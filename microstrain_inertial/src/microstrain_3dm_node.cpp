@@ -6,7 +6,7 @@ This code is licensed under MIT license (see LICENSE file for details)
 
 */
 
-#include "ros_mscl/microstrain_3dm.h"
+#include "microstrain_inertial/microstrain_3dm.h"
 #include <ros/ros.h>
 
 int main(int argc, char** argv)

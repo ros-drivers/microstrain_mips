@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(ros_mscl)
+project(microstrain_inertial)
 
 # Locate the common code and messages
-set(COMMON_NAME "ros_mscl_common")
+set(COMMON_NAME "microstrain_common")
 set(COMMON_DIR "${${PROJECT_NAME}_SOURCE_DIR}/../${COMMON_NAME}")
 set(COMMON_SRC_DIR "${COMMON_DIR}/src")
 set(COMMON_INC_DIR "${COMMON_DIR}/include/${COMMON_NAME}")
@@ -27,7 +27,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_ros
   tf2_geometry_msgs
   diagnostic_updater
-  mscl_msgs
+  microstrain_msgs
 )
 
 ###################################
@@ -54,7 +54,7 @@ catkin_package(
     sensor_msgs
     nav_msgs
     message_runtime
-    mscl_msgs
+    microstrain_msgs
 )
 ###########
 ## Build ##
@@ -67,7 +67,7 @@ include_directories(${catkin_INCLUDE_DIRS} include ${COMMON_DIR}/include)
 add_definitions(-std=c++11)
 set(CMAKE_C_FLAGS "-Wno-implicit-function-declaration -Wno-incompatible-pointer-types -Wno-format -fno-builtin-memcpy")
 
-set(ROS_MSCL_SRC_FILES
+set(LIB_SRC_FILES
   ${COMMON_SRC_DIR}/microstrain_subscribers.cpp
   ${COMMON_SRC_DIR}/microstrain_publishers.cpp
   ${COMMON_SRC_DIR}/microstrain_node_base.cpp
@@ -76,7 +76,7 @@ set(ROS_MSCL_SRC_FILES
   ${COMMON_SRC_DIR}/microstrain_config.cpp
   src/microstrain_3dm.cpp
 )
-set(ROS_MSCL_INC_FILES
+set(LIB_INC_FILES
   ${COMMON_INC_DIR}/microstrain_subscribers.h
   ${COMMON_INC_DIR}/microstrain_publishers.h
   ${COMMON_INC_DIR}/microstrain_node_base.h
@@ -87,28 +87,28 @@ set(ROS_MSCL_INC_FILES
   ${COMMON_INC_DIR}/microstrain_ros_funcs.h
   include/${PROJECT_NAME}/microstrain_3dm.h
 )
-add_library(${PROJECT_NAME} ${ROS_MSCL_SRC_FILES} ${ROS_MSCL_INC_FILES})
+add_library(${PROJECT_NAME} ${LIB_SRC_FILES} ${LIB_INC_FILES})
 add_dependencies(${PROJECT_NAME}
-  mscl_msgs_generate_messages
+  microstrain_msgs_generate_messages
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
 )
 
 add_library(microstrain_diagnostic_updater src/microstrain_diagnostic_updater.cpp)
 add_dependencies(microstrain_diagnostic_updater
-  mscl_msgs_generate_messages
+  microstrain_msgs_generate_messages
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
 )
 
 # Executables
-set(ROS_MSCL_NODE_SRC_FILES
+set(NODE_SRC_FILES
   src/microstrain_3dm_node.cpp
   src/microstrain_diagnostic_updater.cpp
 )
-set(ROS_MSCL_NODE_INC_FILES
+set(NODE_INC_FILES
   include/${PROJECT_NAME}/microstrain_3dm.h
   include/${PROJECT_NAME}/microstrain_diagnostic_updater.h
 )
-add_executable(ros_mscl_node ${ROS_MSCL_NODE_SRC_FILES} ${ROS_MSCL_NODE_INC_FILES})
+add_executable(${PROJECT_NAME}_node ${NODE_SRC_FILES} ${NODE_INC_FILES})
 
 # Let the code know if it is being compiled with ROS1 or ROS2
 if(DEFINED ENV{ROS_VERSION})
@@ -117,16 +117,16 @@ else()
   message(FATAL_ERROR "ROS_VERSION environment variable is not set.")
 endif()
 
-# Include the common code
+# Allow the MSCL include directory to be accessed
 include_directories(${MSCL_INC_PATH} ${BOOST_INC_PATH})
 
 # Linking
-target_link_libraries(ros_mscl
+target_link_libraries(${PROJECT_NAME}
   ${MSCL_LIB_PATH}
   ${catkin_LIBRARIES}
 )
-target_link_libraries(ros_mscl_node
-  ros_mscl
+target_link_libraries(${PROJECT_NAME}_node
+  ${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 
@@ -134,7 +134,7 @@ target_link_libraries(ros_mscl_node
 ## Install ##
 #############
 
-install(TARGETS ros_mscl ros_mscl_node
+install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -156,4 +156,4 @@ install(FILES ${BOOST_LIBS} ${MSCL_DIR}/libmscl.so
 #############
 
 ## Run roslint on only the node files for now
-roslint_cpp(${ROS_MSCL_SRC_FILES} ${ROS_MSCL_INC_FILES} ${ROS_MSCL_NODE_SRC_FILES} ${ROS_MSCL_NODE_INC_FILES})
+roslint_cpp(${LIB_SRC_FILES} ${LIB_INC_FILES} ${NODE_SRC_FILES} ${NODE_INC_FILES})

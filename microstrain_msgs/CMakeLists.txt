@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(mscl_msgs)
+project(microstrain_msgs)
 
 find_package(catkin REQUIRED COMPONENTS
   message_generation
@@ -8,7 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 # Locate the common code and messages
-set(COMMON_NAME "ros_mscl_common")
+set(COMMON_NAME "microstrain_common")
 set(COMMON_DIR "${${PROJECT_NAME}_SOURCE_DIR}/../${COMMON_NAME}")
 
 # Generate Service Files

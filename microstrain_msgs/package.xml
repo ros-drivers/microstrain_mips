@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>mscl_msgs</name>
+  <name>microstrain_msgs</name>
   <version>1.1.4</version>
   <description>A package that contains ROS message corresponding to microstrain message types.</description>
 
@@ -15,7 +15,7 @@
   <!-- One license tag required, multiple allowed, one license per tag -->
   <!-- Commonly used license strings: -->
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
-  <license>TODO</license>
+  <license>MIT</license>
 
 
   <buildtool_depend>catkin</buildtool_depend>

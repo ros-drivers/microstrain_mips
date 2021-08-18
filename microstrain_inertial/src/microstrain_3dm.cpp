@@ -26,8 +26,8 @@
 #include <tf2/LinearMath/Transform.h>
 
 #include "mscl/mscl.h"
-#include "ros_mscl/microstrain_3dm.h"
-#include "ros_mscl/microstrain_diagnostic_updater.h"
+#include "microstrain_inertial/microstrain_3dm.h"
+#include "microstrain_inertial/microstrain_diagnostic_updater.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // Initialization
