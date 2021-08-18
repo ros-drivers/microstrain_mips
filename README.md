@@ -10,14 +10,16 @@ MSCL is developed by [LORD Sensing - Microstrain](http://microstrain.com) in Wil
 #### MSCL
 MSCL is now installed in the [CMakeLists.txt](./ros_mscl/CMakeLists.txt). The version installed can be changed by passing the flag `-DMSCL_VERSION="62.0.0"`
 
+If you already have MSCL installed and want to use your installed version instead of the one automatically downloaded, you can specify the location by passing the flag `-DMSCL_DIR=/usr/share/c++-mscl`
+
 We do our best to keep ROS-MSCL up-to-date with the latest MSCL changes, but sometimes there is a delay. The currently supported version of MSCL is [v62.0.0](https://github.com/LORD-MicroStrain/MSCL/releases/tag/v62.0.0)
 
 #### Building from source
 1. Install ROS and create a workspace: [Installing and Configuring Your ROS Environment](http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment)
 
-2. Move the entire ROS-MSCL folder (ros_mscl and mscl_msgs for just source) to the your_workspace/src directory.
+2. Move the entire ROS-MSCL folder (microstrain_inertial, microstrain_msgs , and microstrain_common for just source) to the your_workspace/src directory.
 
-3. Locate and register the ros_mscl package: `rospack find ros_mscl`
+3. Locate and register the ros_mscl package: `rospack find microstrain_inertial`
 
 4. Build your workspace:
         
@@ -28,7 +30,7 @@ We do our best to keep ROS-MSCL up-to-date with the latest MSCL changes, but som
 #### Launch the node and publish data
 The following command will launch the driver. Keep in mind each instance needs to be run in a separate terminal.
             
-        roslaunch ros_mscl microstrain.launch
+        roslaunch microstrain_inertial microstrain.launch
 Optional launch parameters:
 - name: namespace the node will publish messages to, default: gx5
 - port: serial port name to connect to the device over, default: /dev/ttyACM0
@@ -44,14 +46,14 @@ To check published topics:
 **Example**: Connect to and publish data from two devices simultaneously  
 In two different terminals:
     
-    roslaunch ros_mscl microstrain.launch name:=sensor1234
+    roslaunch microstrain_inertial microstrain.launch name:=sensor1234
 
-    roslaunch ros_mscl microstrain.launch name:=bestSensor port:=/dev/ttyACM1
+    roslaunch microstrain_inertial microstrain.launch name:=bestSensor port:=/dev/ttyACM1
 This will launch two nodes that publish data to different namespaces:
 - sensor1234, connected over port: /dev/ttyACM0
 - bestSensor, connected over port: /dev/ttyACM1
 
-An example subscriber node can be found here: [ROS-MSCL Examples](https://github.com/LORD-MicroStrain/ROS-MSCL/tree/master/Examples)  
+An example subscriber node can be found here: [ROS-MSCL Examples](./microstrain_examples)  
 
 
 ## Docker Integration
