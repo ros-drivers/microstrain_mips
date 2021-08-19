@@ -13,14 +13,16 @@
 // Include Files
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include <string>
-#include <algorithm>
 #include <time.h>
 #include <math.h>
-#include <vector>
 #include <stdlib.h>
+#include <signal.h>
+
 #include <ctime>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <functional>
 
 #include <ros/callback_queue.h>
 #include <tf2/LinearMath/Transform.h>
@@ -35,17 +37,18 @@
 
 namespace microstrain
 {
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // Run Function
 /////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void Microstrain::run()
+int Microstrain::run()
 {
   // ROS setup
   ros::Time::init();
   ros::NodeHandle node;
   ros::NodeHandle private_nh("~");
 
+  int status = 0;  // Success status. If we fail at any point this will be set to 1 and returned
   try
   {
     // Configure the device and setup publishers/services/subscribers
@@ -53,51 +56,37 @@ void Microstrain::run()
       ROS_FATAL("Unable to initialize node base");
     if (!MicrostrainNodeBase::configure(&private_nh))
       ROS_FATAL("Unable to configure node base");
+    if (!MicrostrainNodeBase::activate())
+      ROS_FATAL("Unable to activate node base");
 
-    ros::Rate r(static_cast<int64_t>(timer_update_rate_hz_));
-
-    ros_mscl::RosDiagnosticUpdater ros_diagnostic_updater;
-
-    ros::AsyncSpinner spinner(4);
-    spinner.start();
-
-    //
-    // Main packet processing loop
-    //
+    // Spin until we are shutdown
     ROS_INFO("Starting Data Parsing");
-    while (ros::ok())
-    {
-      // Parse the data from the device and publish it
-      parse_and_publish();
-
-      // Take care of service requests
-      ros::spinOnce();
-
-      // Be nice
-      r.sleep();
-    }
+    ros::spin();
   }
   catch (mscl::Error_Connection)
   {
+    status = 1;
     ROS_ERROR("Device Disconnected");
   }
   catch (mscl::Error& e)
   {
-    ROS_FATAL("Error: %s", e.what());
+    status = 1;
+    ROS_ERROR("Error: %s", e.what());
   }
 
-  // Release the inertial node, if necessary
-  if (config_.inertial_device_)
+  // Deactivate and shutdown
+  if (!MicrostrainNodeBase::deactivate())
   {
-    config_.inertial_device_->setToIdle();
-    config_.inertial_device_->connection().disconnect();
+    status = 1;
+    ROS_ERROR("Error while deactivating node");
+  }
+  if (!MicrostrainNodeBase::shutdown())
+  {
+    status = 1;
+    ROS_ERROR("Error while shutting down node");
   }
 
-  // Close raw data file if enabled
-  if (config_.raw_file_enable_)
-  {
-    config_.raw_file_.close();
-  }
+  return status;
 }
 
 }  // namespace microstrain

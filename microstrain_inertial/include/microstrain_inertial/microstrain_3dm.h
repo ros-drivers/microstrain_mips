@@ -9,14 +9,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef ROS_MSCL_MICROSTRAIN_3DM_H
-#define ROS_MSCL_MICROSTRAIN_3DM_H
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-//
-// Include Files
-//
-/////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifndef MICROSTRAIN_INERTIAL_MICROSTRAIN_3DM_H
+#define MICROSTRAIN_INERTIAL_MICROSTRAIN_3DM_H
 
 #include <cstdio>
 #include <unistd.h>
@@ -26,26 +20,32 @@
 
 #include "microstrain_common/microstrain_node_base.h"
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-///
-/// \brief Contains functions for micostrain driver
-///
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-
 namespace microstrain
 {
-///
-/// \brief Microstrain class
-///
+
+/**
+ * Implements node functionality for microstrain inertial node
+ */
 class Microstrain : public MicrostrainNodeBase
 {
 public:
+  /**
+   * \brief Default Constructor
+   */
   Microstrain() = default;
+
+  /**
+   * \brief Default Destructor
+   */
   ~Microstrain() = default;
 
-  void run();
+  /**
+   * \brief Runs the node
+   * \return 0 on success, and 1 in failure
+   */
+  int run();
 };  // Microstrain class
 
 }  // namespace microstrain
 
-#endif  // ROS_MSCL_MICROSTRAIN_3DM_H
+#endif  // MICROSTRAIN_INERTIAL_MICROSTRAIN_3DM_H

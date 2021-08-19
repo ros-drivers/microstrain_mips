@@ -9,8 +9,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef ROS_MSCL_MICROSTRAIN_DIAGNOSTIC_UPDATER_H
-#define ROS_MSCL_MICROSTRAIN_DIAGNOSTIC_UPDATER_H
+#ifndef MICROSTRAIN_INERTIAL_MICROSTRAIN_DIAGNOSTIC_UPDATER_H
+#define MICROSTRAIN_INERTIAL_MICROSTRAIN_DIAGNOSTIC_UPDATER_H
 
 #include "ros/ros.h"
 #include "diagnostic_updater/diagnostic_updater.h"
@@ -41,4 +41,4 @@ private:
 };
 }  // namespace ros_mscl
 
-#endif  // ROS_MSCL_MICROSTRAIN_DIAGNOSTIC_UPDATER_H
+#endif  // MICROSTRAIN_INERTIAL_MICROSTRAIN_DIAGNOSTIC_UPDATER_H
