@@ -48,24 +48,24 @@ int Microstrain::run()
   ros::NodeHandle node;
   ros::NodeHandle private_nh("~");
 
+  // Configure the device and setup publishers/services/subscribers
+  if (!MicrostrainNodeBase::initialize(&node))
+    ROS_FATAL("Unable to initialize node base");
+  if (!MicrostrainNodeBase::configure(&private_nh))
+    ROS_FATAL("Unable to configure node base");
+  if (!MicrostrainNodeBase::activate())
+    ROS_FATAL("Unable to activate node base");
+  
+  // Start the timers that will do the actual processing
+  parsing_timer_ = create_timer<MicrostrainNodeBase>(&node, timer_update_rate_hz_,
+    &MicrostrainNodeBase::parseAndPublish, this);
+  device_status_timer_ = create_timer<MicrostrainPublishers>(&node, 1.0,
+    &MicrostrainPublishers::publishDeviceStatus, &publishers_);
+
+  // Spin until we are shutdown
   int status = 0;  // Success status. If we fail at any point this will be set to 1 and returned
   try
   {
-    // Configure the device and setup publishers/services/subscribers
-    if (!MicrostrainNodeBase::initialize(&node))
-      ROS_FATAL("Unable to initialize node base");
-    if (!MicrostrainNodeBase::configure(&private_nh))
-      ROS_FATAL("Unable to configure node base");
-    if (!MicrostrainNodeBase::activate())
-      ROS_FATAL("Unable to activate node base");
-    
-    // Start the timers that will do the actual processing
-    parsing_timer_ = create_timer<MicrostrainNodeBase>(&node, timer_update_rate_hz_,
-      &MicrostrainNodeBase::parseAndPublish, this);
-    device_status_timer_ = create_timer<MicrostrainPublishers>(&node, 1.0,
-      &MicrostrainPublishers::publishDeviceStatus, &publishers_);
-
-    // Spin until we are shutdown
     ROS_INFO("Starting Data Parsing");
     ros::spin();
   }

@@ -32,6 +32,12 @@
     <param name="port"     value="$(arg port)"     type="str" />
     <param name="baudrate" value="$(arg baudrate)" type="int" />
 
+    <!-- Waits for a configurable amount of time until the device exists. -->
+    <!-- If poll_max_tries is set to -1 we will poll forever until the device exists -->
+    <param name="poll_port"      value="true" type="bool" />
+    <param name="poll_rate_hz"   value="1.0"   type="double" />
+    <param name="poll_max_tries" value="60"    type="int" />
+
     <!-- Controls if the driver outputs data with-respect-to ENU frame
           false - position, velocity, and orientation are WRT the NED frame (native device frame)
           true  - position, velocity, and orientation are WRT the ENU frame
