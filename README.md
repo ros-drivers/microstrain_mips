@@ -4,8 +4,41 @@ Interface (driver) software, including ROS node, for inertial sensors compatible
 
 MSCL is developed by [LORD Sensing - Microstrain](http://microstrain.com) in Williston, VT. 
 
+## Different Codebases
+
+This repo is now structured differently as of `2.0.0`.
+
+#### Important Branches
+There are three important branches that you may want to checkout:
+
+* [master](https://github.com/LORD-MicroStrain/ROS-MSCL/tree/master) -- Contains the most recent ROS1 changes before the transition to `2.0.0`. Kept for backwards compatibility, but no longer updated or supported
+* [main](https://github.com/LORD-MicroStrain/ROS-MSCL/tree/main) -- Contains ROS1 implementation for this node as of `2.0.0`. This version is being actively updated and supported
+* [ros2](https://github.com/LORD-MicroStrain/ROS-MSCL/tree/ros2) -- Contains ROS2 implementation for this node as of `2.0.0`. This version is being actively updated and supported
+
+Both the `main` and `ros2` branches share most of their code by using the [ROS-MSCL-Common](https://github.com/LORD-MicroStrain/ROS-MSCL-Common) submodule which is submoduled in this repo at [microstrain_common](./microstrain_common)
+
+#### Different Package Names
+
+Prior to version `2.0.0`, this repo contained the following ROS packages:
+* `ros_mscl` -- ROS node that will communicate with the devices
+* `mscl_msgs` -- Collection of messages produced by the `ros_mscl` node
+* `ros_mscl_cpp_example` -- Simple subscriber written in C++ that will consume a message produced by `ros_mscl`
+* `ros_mscl_py_example` -- Simple subscriber written in Python that will consume a message produced by `ros_mscl`
+
+Due to requirements laid out by the ROS maintainers [here](https://www.ros.org/reps/rep-0144.html), as of version `2.0.0`, this repo contains the following ROS packages:
+* `microstrain_inertial` -- ROS node that will communicate with the devices
+* `microstrain_msgs` -- Collection of messages produces by the `microstrain_inertial` node
+* `microstrain_examples` -- Collection of examples that show how to interact with the `microstrain_inertial` node. Currently contains one simple C++ and python subscriber node
 
 ## Build Instructions
+
+#### Submoduels
+This repo now takes advantage of git submodules in order to share code between ROS versions. When cloning the repo, you should clone with the `--recursive` flag to get all of the submodules.
+
+If you have already cloned the repo, you can checkout the submodules by running `git submodule init && git submodule update --recursive` from the project directory
+
+The [CMakeLists.txt](./microstrain_msgs/CMakeLists.txt) will automatically checkout the submodule if it does not exist, but it will not keep it up to date. In order to keep up to date, every
+time you pull changes you should pull with the `--recurse-submodules` flag, or alternatively run `git submodule update --recursive` after you have pulled changes
 
 #### MSCL
 MSCL is now installed in the [CMakeLists.txt](./ros_mscl/CMakeLists.txt). The version installed can be changed by passing the flag `-DMSCL_VERSION="62.0.0"`
