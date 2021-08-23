@@ -55,7 +55,7 @@ int Microstrain::run()
     ROS_FATAL("Unable to configure node base");
   if (!MicrostrainNodeBase::activate())
     ROS_FATAL("Unable to activate node base");
-  
+
   // Start the timers that will do the actual processing
   parsing_timer_ = create_timer<MicrostrainNodeBase>(&node, timer_update_rate_hz_,
     &MicrostrainNodeBase::parseAndPublish, this);
