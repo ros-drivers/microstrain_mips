@@ -23,7 +23,7 @@
   <!-- Microstrain sensor node -->
   <!-- ****************************************************************** -->
 
-  <node name="microstrain_inertial_node" pkg="microstrain_inertial" type="microstrain_inertial_node" output="screen" ns="$(arg name)">
+  <node name="microstrain_inertial_driver_node" pkg="microstrain_inertial_driver" type="microstrain_inertial_driver_node" output="screen" ns="$(arg name)">
 
     <!-- ****************************************************************** -->
     <!-- General Settings -->
@@ -363,7 +363,7 @@
 
     <!-- Diagnostic Aggregator for robot monitor usage -->
     <node pkg="diagnostic_aggregator" type="aggregator_node" name="imu_diagnostic_aggregator">
-      <rosparam command="load" file="$(find microstrain_inertial)/config/diagnostic_analyzers.yaml" />
+      <rosparam command="load" file="$(find microstrain_inertial_driver)/config/diagnostic_analyzers.yaml" />
     </node>
   </group>
 
@@ -374,6 +374,6 @@
 
   <group if="$(arg debug)">
     <env name="ROSCONSOLE_CONFIG_FILE"
-       value="$(find microstrain_inertial)/config/custom_rosconsole.conf"/>
+       value="$(find microstrain_inertial_driver)/config/custom_rosconsole.conf"/>
   </group>
 </launch>

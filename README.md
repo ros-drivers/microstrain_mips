@@ -12,10 +12,10 @@ This repo is now structured differently as of `2.0.0`.
 There are three important branches that you may want to checkout:
 
 * [master](https://github.com/LORD-MicroStrain/ROS-MSCL/tree/master) -- Contains the most recent ROS1 changes before the transition to `2.0.0`. Kept for backwards compatibility, but no longer updated or supported
-* [main](https://github.com/LORD-MicroStrain/ROS-MSCL/tree/main) -- Contains ROS1 implementation for this node as of `2.0.0`. This version is being actively updated and supported
+* [ros](https://github.com/LORD-MicroStrain/ROS-MSCL/tree/ros) -- Contains ROS1 implementation for this node as of `2.0.0`. This version is being actively updated and supported
 * [ros2](https://github.com/LORD-MicroStrain/ROS-MSCL/tree/ros2) -- Contains ROS2 implementation for this node as of `2.0.0`. This version is being actively updated and supported
 
-Both the `main` and `ros2` branches share most of their code by using the [ROS-MSCL-Common](https://github.com/LORD-MicroStrain/ROS-MSCL-Common) submodule which is submoduled in this repo at [microstrain_common](./microstrain_common)
+Both the `ros` and `ros2` branches share most of their code by using the [ROS-MSCL-Common](https://github.com/LORD-MicroStrain/ROS-MSCL-Common) submodule which is submoduled in this repo at `microstrain_common`
 
 #### Different Package Names
 
@@ -26,9 +26,9 @@ Prior to version `2.0.0`, this repo contained the following ROS packages:
 * `ros_mscl_py_example` -- Simple subscriber written in Python that will consume a message produced by `ros_mscl`
 
 Due to requirements laid out by the ROS maintainers [here](https://www.ros.org/reps/rep-0144.html), as of version `2.0.0`, this repo contains the following ROS packages:
-* `microstrain_inertial` -- ROS node that will communicate with the devices
-* `microstrain_msgs` -- Collection of messages produces by the `microstrain_inertial` node
-* `microstrain_examples` -- Collection of examples that show how to interact with the `microstrain_inertial` node. Currently contains one simple C++ and python subscriber node
+* `microstrain_inertial_driver` -- ROS node that will communicate with the devices
+* `microstrain_inertial_msgs` -- Collection of messages produces by the `microstrain_inertial_driver` node
+* `microstrain_inretial_examples` -- Collection of examples that show how to interact with the `microstrain_inertial_driver` node. Currently contains one simple C++ and python subscriber node
 
 ## Build Instructions
 
@@ -37,11 +37,11 @@ This repo now takes advantage of git submodules in order to share code between R
 
 If you have already cloned the repo, you can checkout the submodules by running `git submodule init && git submodule update --recursive` from the project directory
 
-The [CMakeLists.txt](./microstrain_msgs/CMakeLists.txt) will automatically checkout the submodule if it does not exist, but it will not keep it up to date. In order to keep up to date, every
+The [CMakeLists.txt](./microstrain_inertial_msgs/CMakeLists.txt) will automatically checkout the submodule if it does not exist, but it will not keep it up to date. In order to keep up to date, every
 time you pull changes you should pull with the `--recurse-submodules` flag, or alternatively run `git submodule update --recursive` after you have pulled changes
 
 #### MSCL
-MSCL is now installed in the [CMakeLists.txt](./ros_mscl/CMakeLists.txt). The version installed can be changed by passing the flag `-DMSCL_VERSION="62.0.0"`
+MSCL is now installed in the [CMakeLists.txt](./microstrain_inertial_driver/CMakeLists.txt). The version installed can be changed by passing the flag `-DMSCL_VERSION="62.0.0"`
 
 If you already have MSCL installed and want to use your installed version instead of the one automatically downloaded, you can specify the location by passing the flag `-DMSCL_DIR=/usr/share/c++-mscl`
 
@@ -50,9 +50,9 @@ We do our best to keep ROS-MSCL up-to-date with the latest MSCL changes, but som
 #### Building from source
 1. Install ROS and create a workspace: [Installing and Configuring Your ROS Environment](http://wiki.ros.org/ROS/Tutorials/InstallingandConfiguringROSEnvironment)
 
-2. Move the entire ROS-MSCL folder (microstrain_inertial, microstrain_msgs , and microstrain_common for just source) to the your_workspace/src directory.
+2. Move the entire microstrain_inertial folder (microstrain_inertial_driver, microstrain_inertial_msgs , and microstrain_common for just source) to the your_workspace/src directory.
 
-3. Locate and register the ros_mscl package: `rospack find microstrain_inertial`
+3. Locate and register the ros_mscl package: `rospack find microstrain_inertial_driver`
 
 4. Build your workspace:
         
@@ -63,7 +63,7 @@ We do our best to keep ROS-MSCL up-to-date with the latest MSCL changes, but som
 #### Launch the node and publish data
 The following command will launch the driver. Keep in mind each instance needs to be run in a separate terminal.
             
-        roslaunch microstrain_inertial microstrain.launch
+        roslaunch microstrain_inertial_driver microstrain.launch
 Optional launch parameters:
 - name: namespace the node will publish messages to, default: gx5
 - port: serial port name to connect to the device over, default: /dev/ttyACM0
@@ -79,14 +79,14 @@ To check published topics:
 **Example**: Connect to and publish data from two devices simultaneously  
 In two different terminals:
     
-    roslaunch microstrain_inertial microstrain.launch name:=sensor1234
+    roslaunch microstrain_inertial_driver microstrain.launch name:=sensor1234
 
-    roslaunch microstrain_inertial microstrain.launch name:=bestSensor port:=/dev/ttyACM1
+    roslaunch microstrain_inertial_driver microstrain.launch name:=bestSensor port:=/dev/ttyACM1
 This will launch two nodes that publish data to different namespaces:
 - sensor1234, connected over port: /dev/ttyACM0
 - bestSensor, connected over port: /dev/ttyACM1
 
-An example subscriber node can be found here: [ROS-MSCL Examples](./microstrain_examples)  
+An example subscriber node can be found here: [Microstrain Examples](./microstrain_inertial_examples)  
 
 
 ## Docker Integration
@@ -123,7 +123,7 @@ The `Makefile` exposes the following tasks. They can all be run from the `.devco
 * `make clean` - Cleans up after the above two tasks
 
 ## License
-ROS-MSCL is released under the MIT License - see the `LICENSE` file in the source distribution.
+microstrain_inertial is released under the MIT License - see the `LICENSE` file in the source distribution.
 
 Copyright (c)  2021, Parker Hannifin Corp.
 

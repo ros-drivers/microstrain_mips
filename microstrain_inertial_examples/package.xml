@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>microstrain_examples</name>
+  <name>microstrain_inertial_examples</name>
   <version>1.1.4</version>
   <description>Example listener for Parker LORD Sensing inertial device driver ros_mscl (C++).</description>
   <maintainer email="melissa_gill@lord.com">mgill</maintainer>
   <license>MIT</license>
 
-  <url type="website">https://github.com/LORD-MicroStrain/ROS-MSCL</url>
+  <url type="website">https://github.com/LORD-MicroStrain/microstrain_inertial</url>
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>roscpp</build_depend>
@@ -21,8 +21,7 @@
   <exec_depend>std_msgs</exec_depend>
 
   <depend>cmake_modules</depend>
-  <depend>std_srvs</depend>
-  <depend>microstrain_msgs</depend>
+  <depend>microstrain_inertial_msgs</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(microstrain_msgs)
+project(microstrain_inertial_msgs)
 
 find_package(catkin REQUIRED COMPONENTS
   message_generation

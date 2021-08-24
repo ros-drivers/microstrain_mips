@@ -9,8 +9,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifndef MICROSTRAIN_INERTIAL_MICROSTRAIN_3DM_H
-#define MICROSTRAIN_INERTIAL_MICROSTRAIN_3DM_H
+#ifndef MICROSTRAIN_INERTIAL_DRIVER_MICROSTRAIN_INERTIAL_DRIVER_H
+#define MICROSTRAIN_INERTIAL_DRIVER_MICROSTRAIN_INERTIAL_DRIVER_H
 
 #include <cstdio>
 #include <unistd.h>
@@ -48,4 +48,4 @@ public:
 
 }  // namespace microstrain
 
-#endif  // MICROSTRAIN_INERTIAL_MICROSTRAIN_3DM_H
+#endif  // MICROSTRAIN_INERTIAL_DRIVER_MICROSTRAIN_INERTIAL_DRIVER_H

@@ -11,8 +11,8 @@
 
 #include "diagnostic_updater/diagnostic_updater.h"
 #include "diagnostic_updater/update_functions.h"
-#include "microstrain_inertial/microstrain_diagnostic_updater.h"
-#include "microstrain_inertial/microstrain_3dm.h"
+#include "microstrain_inertial_driver/microstrain_diagnostic_updater.h"
+#include "microstrain_inertial_driver/microstrain_inertial_driver.h"
 #include <string>
 
 namespace ros_mscl
@@ -95,7 +95,7 @@ void RosDiagnosticUpdater::imuDiagnostics(diagnostic_updater::DiagnosticStatusWr
   }
 }
 
-void RosDiagnosticUpdater::statusCallback(const microstrain_msgs::Status::ConstPtr& status)
+void RosDiagnosticUpdater::statusCallback(const microstrain_inertial_msgs::Status::ConstPtr& status)
 {
   last_status_ = *status;
   update();

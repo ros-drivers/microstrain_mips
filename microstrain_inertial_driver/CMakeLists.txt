@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(microstrain_inertial)
+project(microstrain_inertial_driver)
 
 # Locate the common code and messages
 set(COMMON_NAME "microstrain_common")
@@ -27,7 +27,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_ros
   tf2_geometry_msgs
   diagnostic_updater
-  microstrain_msgs
+  microstrain_inertial_msgs
 )
 
 ###################################
@@ -54,7 +54,7 @@ catkin_package(
     sensor_msgs
     nav_msgs
     message_runtime
-    microstrain_msgs
+    microstrain_inertial_msgs
 )
 ###########
 ## Build ##
@@ -74,7 +74,7 @@ set(LIB_SRC_FILES
   ${COMMON_SRC_DIR}/microstrain_services.cpp
   ${COMMON_SRC_DIR}/microstrain_parser.cpp
   ${COMMON_SRC_DIR}/microstrain_config.cpp
-  src/microstrain_3dm.cpp
+  src/microstrain_inertial_driver.cpp
 )
 set(LIB_INC_FILES
   ${COMMON_INC_DIR}/microstrain_subscribers.h
@@ -85,27 +85,27 @@ set(LIB_INC_FILES
   ${COMMON_INC_DIR}/microstrain_config.h
   ${COMMON_INC_DIR}/microstrain_defs.h
   ${COMMON_INC_DIR}/microstrain_ros_funcs.h
-  include/${PROJECT_NAME}/microstrain_3dm.h
+  include/${PROJECT_NAME}/microstrain_inertial_driver.h
 )
 add_library(${PROJECT_NAME} ${LIB_SRC_FILES} ${LIB_INC_FILES})
 add_dependencies(${PROJECT_NAME}
-  microstrain_msgs_generate_messages
+  microstrain_inertial_msgs_generate_messages
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
 )
 
 add_library(microstrain_diagnostic_updater src/microstrain_diagnostic_updater.cpp)
 add_dependencies(microstrain_diagnostic_updater
-  microstrain_msgs_generate_messages
+  microstrain_inertial_msgs_generate_messages
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
 )
 
 # Executables
 set(NODE_SRC_FILES
-  src/microstrain_3dm_node.cpp
+  src/microstrain_inertial_driver_node.cpp
   src/microstrain_diagnostic_updater.cpp
 )
 set(NODE_INC_FILES
-  include/${PROJECT_NAME}/microstrain_3dm.h
+  include/${PROJECT_NAME}/microstrain_inertial_driver.h
   include/${PROJECT_NAME}/microstrain_diagnostic_updater.h
 )
 add_executable(${PROJECT_NAME}_node ${NODE_SRC_FILES} ${NODE_INC_FILES})

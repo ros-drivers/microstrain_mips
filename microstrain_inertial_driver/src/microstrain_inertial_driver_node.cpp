@@ -9,7 +9,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "microstrain_inertial/microstrain_3dm.h"
+#include "microstrain_inertial_driver/microstrain_inertial_driver.h"
 #include <ros/ros.h>
 
 int main(int argc, char** argv)
