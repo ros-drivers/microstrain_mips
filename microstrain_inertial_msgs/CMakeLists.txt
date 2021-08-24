@@ -8,11 +8,11 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 # Locate the common code and messages
-set(COMMON_NAME "microstrain_common")
-set(COMMON_DIR "${${PROJECT_NAME}_SOURCE_DIR}/../${COMMON_NAME}")
+set(COMMON_NAME "microstrain_inertial_msgs_common")
+set(COMMON_DIR "${${PROJECT_NAME}_SOURCE_DIR}/${COMMON_NAME}")
 
 # Make sure that the submodule has been properly initialized
-if(NOT EXISTS "${COMMON_DIR}/.git")
+if(NOT EXISTS "${COMMON_DIR}/msg")
   message(STATUS "Initializing ${COMMON_DIR} submodule. This should only happen once.")
 
   # Make sure we can find the git executable
@@ -23,11 +23,11 @@ if(NOT EXISTS "${COMMON_DIR}/.git")
 
   # Initialize and update the submodule
   execute_process(
-    WORKING_DIRECTORY "${${PROJECT_NAME}_SOURCE_DIR}/.."
+    WORKING_DIRECTORY "${${PROJECT_NAME}_SOURCE_DIR}"
     COMMAND ${CMAKE_COMMAND} -E env ${GIT_EXECUTABLE} submodule init
   )
   execute_process(
-    WORKING_DIRECTORY "${${PROJECT_NAME}_SOURCE_DIR}/.."
+    WORKING_DIRECTORY "${${PROJECT_NAME}_SOURCE_DIR}"
     COMMAND ${CMAKE_COMMAND} -E env ${GIT_EXECUTABLE} submodule update --recursive
   )
 endif()

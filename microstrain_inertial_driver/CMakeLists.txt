@@ -2,10 +2,31 @@ cmake_minimum_required(VERSION 2.8.3)
 project(microstrain_inertial_driver)
 
 # Locate the common code and messages
-set(COMMON_NAME "microstrain_common")
-set(COMMON_DIR "${${PROJECT_NAME}_SOURCE_DIR}/../${COMMON_NAME}")
+set(COMMON_NAME "microstrain_inertial_driver_common")
+set(COMMON_DIR "${${PROJECT_NAME}_SOURCE_DIR}/${COMMON_NAME}")
 set(COMMON_SRC_DIR "${COMMON_DIR}/src")
 set(COMMON_INC_DIR "${COMMON_DIR}/include/${COMMON_NAME}")
+
+# Make sure that the submodule has been properly initialized
+if(NOT EXISTS "${COMMON_DIR}/msg")
+  message(STATUS "Initializing ${COMMON_DIR} submodule. This should only happen once.")
+
+  # Make sure we can find the git executable
+  find_package(Git)
+  if(NOT Git_FOUND)
+    message(FATAL_ERROR "Unable to initialize submodule because we could not find the git executable. Please clone this repo using 'git clone --recursive'")
+  endif()
+
+  # Initialize and update the submodule
+  execute_process(
+    WORKING_DIRECTORY "${${PROJECT_NAME}_SOURCE_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E env ${GIT_EXECUTABLE} submodule init
+  )
+  execute_process(
+    WORKING_DIRECTORY "${${PROJECT_NAME}_SOURCE_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E env ${GIT_EXECUTABLE} submodule update --recursive
+  )
+endif()
 
 # Download and install MSCL
 include(${COMMON_DIR}/cmake/download_mscl.cmake)
