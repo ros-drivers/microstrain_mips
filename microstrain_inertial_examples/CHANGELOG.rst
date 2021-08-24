@@ -2,6 +2,9 @@
 Changelog for package ros_mscl_cpp_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.0.0 (2021-08-24)
 ------------------
 * Consolidates examples to single package

@@ -2,6 +2,11 @@
 Changelog for package mscl_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Moves submodules to accomodate ROS build farm
+* Contributors: Rob Fisher
+
 2.0.0 (2021-08-24)
 ------------------
 * Moves service messages to msgs package
