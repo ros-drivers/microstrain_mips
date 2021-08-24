@@ -6,7 +6,7 @@
   <arg name="device" default="gx5" />
 
   <node name="listener_cpp"
-    pkg="microstrain_examples"
+    pkg="microstrain_inertial_examples"
     type="listener_cpp" output="screen" ns="$(arg name)">
       <param name="device" value="$(arg device)" type="str" />
   </node>
