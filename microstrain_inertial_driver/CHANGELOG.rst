@@ -2,8 +2,8 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.1 (2021-08-24)
+------------------
 * Moves submodules to accomodate ROS build farm
 * Contributors: Rob Fisher
 
