@@ -2,8 +2,8 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.0 (2021-08-24)
+------------------
 * Optionally polls and waits for device to exist before trying to connect
 * Adds tolerance for streaming devices on startup by retrying connections until the device can be communicated with
 * Moves common code to submodule to reduce code duplication

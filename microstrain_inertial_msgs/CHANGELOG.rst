@@ -2,8 +2,8 @@
 Changelog for package mscl_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.0 (2021-08-24)
+------------------
 * Moves service messages to msgs package
 * Contributors: Rob Fisher
 
