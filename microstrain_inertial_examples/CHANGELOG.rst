@@ -2,6 +2,11 @@
 Changelog for package ros_mscl_cpp_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Consolidates examples to single package
+* Contributors: Rob Fisher
+
 1.1.4 (2021-07-30)
 ------------------
 * Merge branch 'master' of https://github.com/LORD-MicroStrain/ROS-MSCL into develop

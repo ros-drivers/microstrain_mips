@@ -2,6 +2,15 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Optionally polls and waits for device to exist before trying to connect
+* Adds tolerance for streaming devices on startup by retrying connections until the device can be communicated with
+* Moves common code to submodule to reduce code duplication
+* Renames packages to be compatible with ROS build farm
+* Gracefully exits on device disconnect
+* Contributors: Rob Fisher
+
 1.1.4 (2021-07-30)
 ------------------
 * Installs MSCL from CMake to hopefully allow this package to be built in the buildfarm
