@@ -8,7 +8,7 @@ set(COMMON_SRC_DIR "${COMMON_DIR}/src")
 set(COMMON_INC_DIR "${COMMON_DIR}/include/${COMMON_NAME}")
 
 # Make sure that the submodule has been properly initialized
-if(NOT EXISTS "${COMMON_DIR}/msg")
+if(NOT EXISTS "${COMMON_SRC_DIR}")
   message(STATUS "Initializing ${COMMON_DIR} submodule. This should only happen once.")
 
   # Make sure we can find the git executable
@@ -110,14 +110,14 @@ set(LIB_INC_FILES
 )
 add_library(${PROJECT_NAME} ${LIB_SRC_FILES} ${LIB_INC_FILES})
 add_dependencies(${PROJECT_NAME}
-  microstrain_inertial_msgs_generate_messages
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
 )
 
 add_library(microstrain_diagnostic_updater src/microstrain_diagnostic_updater.cpp)
 add_dependencies(microstrain_diagnostic_updater
-  microstrain_inertial_msgs_generate_messages
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
 )
 
 # Executables

@@ -5,7 +5,8 @@
   <description>The ros_mscl package provides a driver for the LORD/Microstrain inertial products.</description>
   <author>Brian Bingham</author>
   <author>Parker Hannifin Corp</author>
-  <maintainer email="sensing_support@lord.com">Parker Hannifin Corp</maintainer>
+  <maintainer email="rob.fisher@parker.com">Rob Fisher</maintainer>
+  <maintainer email="melissa.gill@parker.com">Melissa Gill</maintainer>
   <license>MIT</license>
   <url type="website">https://github.com/LORD-MicroStrain/microstrain_inertial</url>
 

@@ -3,7 +3,8 @@
   <name>microstrain_inertial_examples</name>
   <version>2.0.1</version>
   <description>Example listener for Parker LORD Sensing inertial device driver ros_mscl (C++).</description>
-  <maintainer email="melissa_gill@lord.com">mgill</maintainer>
+  <maintainer email="rob.fisher@parker.com">Rob Fisher</maintainer>
+  <maintainer email="melissa.gill@parker.com">Melissa Gill</maintainer>
   <license>MIT</license>
 
   <url type="website">https://github.com/LORD-MicroStrain/microstrain_inertial</url>
