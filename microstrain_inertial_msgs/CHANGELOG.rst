@@ -2,6 +2,11 @@
 Changelog for package mscl_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixes cmake warnings and updates maintainers
+* Contributors: robbiefish
+
 2.0.1 (2021-08-24)
 ------------------
 * Moves submodules to accomodate ROS build farm

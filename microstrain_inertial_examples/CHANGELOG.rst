@@ -2,6 +2,11 @@
 Changelog for package ros_mscl_cpp_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixes cmake warnings and updates maintainers
+* Contributors: robbiefish
+
 2.0.1 (2021-08-24)
 ------------------
 
