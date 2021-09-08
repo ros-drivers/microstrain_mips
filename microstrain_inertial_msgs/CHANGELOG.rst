@@ -2,6 +2,9 @@
 Changelog for package mscl_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.0.2 (2021-08-30)
 ------------------
 * Fixes cmake warnings and updates maintainers

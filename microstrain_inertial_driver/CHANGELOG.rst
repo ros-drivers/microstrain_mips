@@ -2,6 +2,11 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixes missing dependencies in example and checks gcc directly for architecture
+* Contributors: robbiefish
+
 2.0.2 (2021-08-30)
 ------------------
 * Fixes cmake warnings and updates maintainers
