@@ -2,7 +2,7 @@ ARG ARCH="amd64"
 ARG ROS_VERSION="noetic"
 FROM ${ARCH}/ros:${ROS_VERSION}-ros-base
 
-# Install MSCL (github deb install is kind of a pain)
+# Install some general tools not installed by rosdep
 ENV DEBIAN_FRONTEND="noninteractive"
 RUN set -ex \
     && apt-get update && apt-get install -y \

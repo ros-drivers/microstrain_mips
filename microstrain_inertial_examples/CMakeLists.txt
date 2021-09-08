@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   roslint
+  sensor_msgs
   microstrain_inertial_msgs
 )
 
@@ -12,6 +13,7 @@ catkin_package(
   CATKIN_DEPENDS
     roscpp
     rospy
+    sensor_msgs
     microstrain_inertial_msgs
     cmake_modules
 )
@@ -26,7 +28,7 @@ set(LISTENER_CPP_SRC_FILES src/listener.cpp)
 add_executable(${LISTENER_CPP} ${LISTENER_CPP_SRC_FILES})
 target_link_libraries(${LISTENER_CPP} ${catkin_LIBRARIES})
 add_dependencies(${LISTENER_CPP}
-  microstrain_inertial_msgs_generate_messages_cpp
+  ${catkin_EXPORTED_TARGETS}
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
 )
 
