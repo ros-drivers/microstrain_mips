@@ -11,7 +11,6 @@
 
 #include "ros/ros.h"
 #include "sensor_msgs/Imu.h"
-#include "std_srvs/Trigger.h"
 
 void imuDataCallback(const sensor_msgs::Imu::ConstPtr& imu)
 {
