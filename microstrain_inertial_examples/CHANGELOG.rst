@@ -2,8 +2,8 @@
 Changelog for package ros_mscl_cpp_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.4 (2021-09-08)
+------------------
 * Upgrade CMake version and removes unused include in examples
 * Contributors: robbiefish
 
