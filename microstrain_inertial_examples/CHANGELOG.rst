@@ -2,8 +2,8 @@
 Changelog for package ros_mscl_cpp_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.3 (2021-09-08)
+------------------
 * Fixes missing dependencies in example and checks gcc directly for architecture
 * Contributors: robbiefish
 
