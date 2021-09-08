@@ -2,6 +2,11 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Upgrade CMake version and removes unused include in examples
+* Contributors: robbiefish
+
 2.0.3 (2021-09-08)
 ------------------
 * Fixes missing dependencies in example and checks gcc directly for architecture
