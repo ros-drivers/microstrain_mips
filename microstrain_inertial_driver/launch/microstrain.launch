@@ -6,18 +6,19 @@
      <!--  Please consult your device's documentation for supported features -->
 
   <!-- Declare arguments with default values -->
-  <arg name="name"             default = "gx5" />
-  <arg name="port"             default = "/dev/ttyACM0" />
-  <arg name="baudrate"         default = "115200" />
-  <arg name="debug"            default = "false" />
-  <arg name="diagnostics"      default = "true" />
-  <arg name="imu_frame_id"     default = "sensor" />
-  <arg name="imu_data_rate"    default = "100" />
-  <arg name="filter_data_rate" default = "10" />
-  <arg name="gnss1_frame_id"   default = "gnss1_antenna_wgs84" />
-  <arg name="gnss2_frame_id"   default = "gnss2_antenna_wgs84" />
-  <arg name="filter_frame_id"  default = "sensor_wgs84" />
-  <arg name="use_enu_frame"    default = "false" />
+  <arg name="name"                   default = "gx5" />
+  <arg name="port"                   default = "/dev/ttyACM0" />
+  <arg name="baudrate"               default = "115200" />
+  <arg name="debug"                  default = "false" />
+  <arg name="diagnostics"            default = "true" />
+  <arg name="imu_frame_id"           default = "sensor" />
+  <arg name="imu_data_rate"          default = "100" />
+  <arg name="filter_data_rate"       default = "10" />
+  <arg name="gnss1_frame_id"         default = "gnss1_antenna_wgs84" />
+  <arg name="gnss2_frame_id"         default = "gnss2_antenna_wgs84" />
+  <arg name="filter_frame_id"        default = "sensor_wgs84" />
+  <arg name="filter_child_frame_id"  default = "sensor" />
+  <arg name="use_enu_frame"          default = "false" />
 
   <!-- ****************************************************************** -->
   <!-- Microstrain sensor node -->
@@ -150,9 +151,10 @@
     <!-- Kalman Filter Settings (only applicable for devices with a Kalman Filter) -->
     <!-- ****************************************************************** -->
 
-    <param name="publish_filter"       value="true"                    type="bool" />
-    <param name="filter_data_rate"     value="$(arg filter_data_rate)" type="int" />
-    <param name="filter_frame_id"      value="$(arg filter_frame_id)"  type="str" />
+    <param name="publish_filter"        value="true"                         type="bool" />
+    <param name="filter_data_rate"      value="$(arg filter_data_rate)"      type="int" />
+    <param name="filter_frame_id"       value="$(arg filter_frame_id)"       type="str" />
+    <param name="filter_child_frame_id" value="$(arg filter_child_frame_id)" type="str" />
 
     <!-- Sensor2vehicle frame transformation selector
          0 = None, 1 = Euler Angles, 2 - matrix, 3 - quaternion
