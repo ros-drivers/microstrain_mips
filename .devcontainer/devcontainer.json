@@ -23,12 +23,16 @@
         "--privileged",
         "--security-opt", "seccomp=unconfined"
     ],
+    "remoteEnv": {
+        "DISPLAY": "${localEnv:DISPLAY}"
+    },
     "settings": {},
     "postCreateCommand": "sudo apt-get update && rosdep install --from-paths ~/catkin_ws/src --ignore-src -r -y",
     "mounts": [
         "source=/dev,target=/dev,type=bind,consistency=cached",
         "source=${localWorkspaceFolder},target=/home/microstrain/catkin_ws/src,type=bind,consistency=cached",
         "source=${localWorkspaceFolder}/.devcontainer/.vscode-docker,target=/home/microstrain/catkin_ws/.vscode,type=bind,consistency=cached",
+        "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,consistency=cached",
     ],
     "workspaceMount": "",
     "workspaceFolder": "/home/microstrain/catkin_ws"
