@@ -200,6 +200,9 @@
     <param name="filter_adaptive_level"         value="2" type="int" />
     <param name="filter_adaptive_time_limit_ms" value="15000" type="int" />
 
+    <!-- Publish Filter Aiding Summary -->
+    <param name="publish_aiding_measurement_summary" value="true" type="bool" />
+
     <!-- (GQ7 only) Aiding measurement control -->
     <param name="filter_enable_gnss_pos_vel_aiding"      value="true"  type="bool" />
     <param name="filter_enable_gnss_heading_aiding"      value="true"  type="bool" />
