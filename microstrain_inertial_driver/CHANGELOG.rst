@@ -2,8 +2,8 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.5 (2021-10-19)
+------------------
 * Update MSCL version to fix ROS buildfarm errors hopefully
 * Contributors: robbiefish
 
