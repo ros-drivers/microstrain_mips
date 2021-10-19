@@ -2,6 +2,11 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Update MSCL version to fix ROS buildfarm errors hopefully
+* Contributors: robbiefish
+
 2.0.4 (2021-09-08)
 ------------------
 * Upgrade CMake version and removes unused include in examples
