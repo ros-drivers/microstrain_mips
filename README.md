@@ -15,7 +15,10 @@ There are three important branches that you may want to checkout:
 * [ros](https://github.com/LORD-MicroStrain/ROS-MSCL/tree/ros) -- Contains ROS1 implementation for this node as of `2.0.0`. This version is being actively updated and supported
 * [ros2](https://github.com/LORD-MicroStrain/ROS-MSCL/tree/ros2) -- Contains ROS2 implementation for this node as of `2.0.0`. This version is being actively updated and supported
 
-Both the `ros` and `ros2` branches share most of their code by using the [ROS-MSCL-Common](https://github.com/LORD-MicroStrain/ROS-MSCL-Common) submodule which is submoduled in this repo at `microstrain_common`
+Both the `ros` and `ros2` branches share most of their code by using gis submodules. The following submodules contain most of the actual implementations:
+
+* [microstrain_inertial_driver_common](https://github.com/LORD-MicroStrain/microstrain_inertial_driver_common/tree/main) submoduled in this repo at `microstrain_inertial_driver/microstrain_inertial_driver_common`
+* [microstrain_inertial_msgs_common](https://github.com/LORD-MicroStrain/microstrain_inertial_msgs_common/tree/main) submoduled in this repo at `microstrain_inertial_msgs/microstrain_inertial_msgs_common`
 
 #### Different Package Names
 
@@ -54,7 +57,9 @@ We do our best to keep ROS-MSCL up-to-date with the latest MSCL changes, but som
 
 3. Locate and register the ros_mscl package: `rospack find microstrain_inertial_driver`
 
-4. Build your workspace:
+4. Install rosdeps for this package: `rosdep install --from-paths ~/your_workspace/src --ignore-src -r -y`
+
+5. Build your workspace:
         
         cd ~/your_workspace
         catkin_make
