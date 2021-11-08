@@ -1,5 +1,6 @@
 # Convenience rule for GX and GQ Devices
-SUBSYSTEM=="tty", SUBSYSTEMS=="usb", ATTRS{product}=="Lord Inertial Sensor", SYMLINK="microstrain", MODE="0666"
+# Uncomment this line if you want the legacy rule which will set up a single link to /dev/microstrain. If more than one device is connected, this rule will get continuously overridden which is why it is commented out by default
+#SUBSYSTEM=="tty", SUBSYSTEMS=="usb", ATTRS{product}=="Lord Inertial Sensor", SYMLINK="microstrain", MODE="0666"
 
 # Rule to create links for multiple different devices
 SUBSYSTEM=="tty", ATTRS{idVendor}=="199b", ATTRS{idProduct}=="3065", PROGRAM="/bin/sh -c 'echo \"%s{serial}\" | sed \"s/^0000__/rtk/g; s/^0000/main/g; s/^2-00/aux/g;\"'", SYMLINK+="microstrain_%c", MODE="0666"
