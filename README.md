@@ -35,6 +35,21 @@ Due to requirements laid out by the ROS maintainers [here](https://www.ros.org/r
 
 ## Build Instructions
 
+### Buildfarm
+
+As of `v2.0.5` this package is being built and distributed by the ROS build farm. If you do not need to modify the source, it is recommended to install directly from the buildfarm by running the following commands where `ROS_DISTRO` is the version of ROS you are using such as `melodic` or `noetic`:
+
+```bash
+sudo apt-get update && sudo apt-get install ros-ROS_DISTRO-microstrain-inertial-driver
+```
+
+For more information on the ROS distros and platforms we support, please see [index.ros.org](https://index.ros.org/r/microstrain_inertial/github-LORD-MicroStrain-microstrain_inertial/#noetic)
+
+
+### Source
+
+If you need to modify the source of this repository, or are running on a platform that we do not support, you can build from source by following these instructions
+
 #### Submoduels
 This repo now takes advantage of git submodules in order to share code between ROS versions. When cloning the repo, you should clone with the `--recursive` flag to get all of the submodules.
 
