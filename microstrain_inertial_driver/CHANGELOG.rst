@@ -2,6 +2,14 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.1.0 (2021-11-12)
+------------------
+* Adds transform broadcaster that will publish transform between filter_frame_id and filter_child_frame_id
+* Corrects some ENU conversions that were not being properly made
+* Properly disables/enables RTK dongle based on launch config
+* Publishes RTK data even when device_setup is set to false if the device was configured to send RTK data
+* Contributors: ianmooreparker, robbiefish
+
 2.0.5 (2021-10-19)
 ------------------
 * Update MSCL version to fix ROS buildfarm errors hopefully
