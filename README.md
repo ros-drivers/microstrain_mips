@@ -50,7 +50,7 @@ For more information on the ROS distros and platforms we support, please see [in
 
 If you need to modify the source of this repository, or are running on a platform that we do not support, you can build from source by following these instructions
 
-#### Submoduels
+#### Submodules
 This repo now takes advantage of git submodules in order to share code between ROS versions. When cloning the repo, you should clone with the `--recursive` flag to get all of the submodules.
 
 If you have already cloned the repo, you can checkout the submodules by running `git submodule init && git submodule update --recursive` from the project directory
