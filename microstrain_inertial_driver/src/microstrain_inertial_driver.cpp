@@ -66,7 +66,7 @@ int Microstrain::run()
   if (config_.supports_rtk_ && config_.publish_nmea_)
   {
     ROS_INFO("Starting aux port parsing");
-    aux_parsing_timer_ = create_timer<MicrostrainNodeBase>(&node, 1.0,
+    aux_parsing_timer_ = create_timer<MicrostrainNodeBase>(&node, 2.0,
       &MicrostrainNodeBase::parseAndPublishAux, this);
   }
 
