@@ -19,6 +19,7 @@
   <arg name="gnss2_frame_id"         default = "gnss2_antenna_wgs84" />
   <arg name="filter_frame_id"        default = "sensor_wgs84" />
   <arg name="filter_child_frame_id"  default = "sensor" />
+  <arg name="nmea_frame_id"          default = "nmea" />
   <arg name="use_enu_frame"          default = "false" />
 
   <!-- ****************************************************************** -->
@@ -49,6 +50,7 @@
     <param name="gnss2_frame_id"        value="$(arg gnss2_frame_id)"        type="str" />
     <param name="filter_frame_id"       value="$(arg filter_frame_id)"       type="str" />
     <param name="filter_child_frame_id" value="$(arg filter_child_frame_id)" type="str" />
+    <param name="nmea_frame_id"         value="$(arg nmea_frame_id)"         type="str" />
 
     <!-- Waits for a configurable amount of time until the device exists. -->
     <!-- If poll_max_tries is set to -1 we will poll forever until the device exists -->
