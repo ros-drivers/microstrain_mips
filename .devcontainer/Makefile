@@ -59,6 +59,7 @@ build-shell: $(dev_image_artifact)
 		-it \
 		--rm \
 		-v /dev:/dev \
+		--net=host \
 		--privileged \
 		--user "microstrain" \
 		-w $(docker_catkin_root) \
