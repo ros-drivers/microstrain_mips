@@ -224,6 +224,15 @@
     <param name="filter_external_gps_time_topic"            value="/external_gps_time" type="str" />
     <param name="gps_leap_seconds"                          value="18" type="int" />
 
+    <!-- External Speed Control. This node will subscribe on this topic only if filter_enable_odometer_aiding is set to true
+         Notes: This subscription will be disabled if enable_hardware_odometer is set to true
+    -->
+    <param name="filter_external_speed_topic" value="/external_speed" />
+
+    <!-- Hardware Odometer Control -->
+    <param name="enable_hardware_odometer" value="false" />
+    <param name="odometer_scaling"         value="0.0" />
+    <param name="odometer_uncertainty"     value="0.0" />
 
     <!--  (GQ7 only) GPIO Configuration
           Notes:    For information on possible configurations and specific pin options,
