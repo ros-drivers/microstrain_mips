@@ -14,7 +14,7 @@ project_name := $(shell echo $(notdir $(project_dir)) | tr A-Z a-z)
 artifacts_dir := $(docker_dir)/.artifacts/$(arch)-$(ros_version)
 build_dir := $(artifacts_dir)/build
 devel_dir := $(artifacts_dir)/devel
-docker_catkin_root := /home/microstrain
+docker_catkin_root := /home/microstrain/catkin_ws
 docker_catkin_src_dir := $(docker_catkin_root)/src
 docker_catkin_build_dir := $(docker_catkin_root)/build
 docker_catkin_devel_dir := $(docker_catkin_root)/devel
@@ -29,9 +29,9 @@ group_id := $(shell id -g)
 # Set up some variables for the docker build
 dev_dockerfile := $(docker_dir)/Dockerfile.dev
 deploy_dockerfile := $(docker_dir)/Dockerfile.deploy
-build_args := --build-arg http_proxy --build-arg https_proxy --build-arg no_proxy --build-arg ARCH=$(arch) --build-arg USER_ID=$(user_id) --build-arg GROUP_ID=$(group_id)
+build_args := --build-arg http_proxy --build-arg https_proxy --build-arg no_proxy --build-arg ARCH=$(arch) --build-arg ROS_VERSION=$(ros_version) --build-arg USER_ID=$(user_id) --build-arg GROUP_ID=$(group_id)
 run_args := -e http_proxy -e https_proxy -e no_proxy
-run_mounts := -v "$(project_dir):/tmp/$(project_name)_release_workspace" -v "$(project_dir)/ros_mscl:$(docker_catkin_src_dir)/ros_mscl" -v "$(project_dir)/mscl_msgs:$(docker_catkin_src_dir)/mscl_msgs" -v "$(project_dir)/Examples:$(docker_catkin_src_dir)/Examples" -v "$(build_dir):$(docker_catkin_build_dir)" -v "$(devel_dir):$(docker_catkin_devel_dir)"
+run_mounts := -v "$(project_dir):$(docker_catkin_src_dir)" -v "$(build_dir):$(docker_catkin_build_dir)" -v "$(devel_dir):$(docker_catkin_devel_dir)"
 dev_image_name := $(arch)/$(project_name)-dev:$(ros_version)
 deploy_image_name := $(arch)/$(project_name):$(ros_version)
 dev_image_artifact := $(artifacts_dir)/.image
@@ -59,12 +59,18 @@ build-shell: $(dev_image_artifact)
 		-it \
 		--rm \
 		-v /dev:/dev \
+		--net=host \
+		--privileged \
 		--user "microstrain" \
 		-w $(docker_catkin_root) \
-		--privileged \
+		--entrypoint="/bin/bash" \
 		$(run_args) \
 		$(run_mounts) \
-		$$(cat $<)
+		$$(cat $<) -c " \
+			sudo apt-get update; \
+			rosdep install --from-paths $(docker_catkin_src_dir) --ignore-src -r -y; \
+			/bin/bash; \
+		"
 
 $(artifacts_dir):
 	@mkdir -p $@
