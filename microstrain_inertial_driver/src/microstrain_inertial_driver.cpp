@@ -57,10 +57,18 @@ int Microstrain::run()
     ROS_FATAL("Unable to activate node base");
 
   // Start the timers that will do the actual processing
-  parsing_timer_ = create_timer<MicrostrainNodeBase>(&node, timer_update_rate_hz_,
-    &MicrostrainNodeBase::parseAndPublish, this);
+  main_parsing_timer_ = create_timer<MicrostrainNodeBase>(&node, timer_update_rate_hz_,
+    &MicrostrainNodeBase::parseAndPublishMain, this);
   device_status_timer_ = create_timer<MicrostrainPublishers>(&node, 1.0,
     &MicrostrainPublishers::publishDeviceStatus, &publishers_);
+
+  // Start the aux timer if we were requested to do so
+  if (config_.supports_rtk_ && config_.publish_nmea_)
+  {
+    ROS_INFO("Starting aux port parsing");
+    aux_parsing_timer_ = create_timer<MicrostrainNodeBase>(&node, 2.0,
+      &MicrostrainNodeBase::parseAndPublishAux, this);
+  }
 
   // Spin until we are shutdown
   int status = 0;  // Success status. If we fail at any point this will be set to 1 and returned
