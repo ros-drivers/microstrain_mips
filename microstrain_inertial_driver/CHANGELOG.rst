@@ -2,8 +2,8 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.2.0 (2021-12-03)
+------------------
 * Adds set filter speed lever arm service to allow users to configure Measurement Speed Lever Arm at runtime with a service call
 * Subscribes to external speed measurements
 * Adds ability to configure hardware odometer at config time by sending the Odometer Settings command based on launch config
