@@ -2,6 +2,9 @@
 Changelog for package ros_mscl_cpp_example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.1.0 (2021-11-12)
 ------------------
 

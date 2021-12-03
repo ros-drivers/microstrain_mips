@@ -2,6 +2,12 @@
 Changelog for package mscl_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Adds set filter speed lever arm service definition to allow users to configure Measurement Speed Lever Arm at runtime with a service call
+* Adds Input Speed Measurement message
+* Contributors: robbiefish
+
 2.1.0 (2021-11-12)
 ------------------
 
