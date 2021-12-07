@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(microstrain_inertial_quickview)
+project(microstrain_inertial_rqt)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -49,8 +49,8 @@ catkin_package(
 # See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
 
 install(DIRECTORY
-  microstrain_inertial_quickview_common/resource
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/microstrain_inertial_quickview_common
+  microstrain_inertial_rqt_common/resource
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/microstrain_inertial_rqt_common
 )
 
 install(DIRECTORY
@@ -59,6 +59,6 @@ install(DIRECTORY
 )
 
 install(FILES
-  microstrain_inertial_quickview_common/plugin.xml
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/microstrain_inertial_quickview_common
+  microstrain_inertial_rqt_common/plugin.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/microstrain_inertial_rqt_common
 )

@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>microstrain_inertial_quickview</name>
+  <name>microstrain_inertial_rqt</name>
   <version>2.0.4</version>
-  <description>The microstrain_inertial_quickview package provides a quick view of microstrin inertial devices</description>
+  <description>The microstrain_inertial_rqt package provides several RQT widgets to view the status of Microstrain devices</description>
 
   <author>Parker Hannifin Corp</author>
 
   <maintainer email="rob.fisher@parker.com">Rob Fisher</maintainer>
   <maintainer email="melissa.gill@parker.com">Melissa Gill</maintainer>
 
-  <license>MIT</license>
+  <license>BSD</license>
 
   <url type="website">https://github.com/LORD-MicroStrain/microstrain_inertial</url>
 
@@ -26,7 +26,7 @@
 
   <!-- all the existing tags -->
   <export>
-    <rqt_gui plugin="${prefix}/microstrain_inertial_quickview_common/plugin.xml"/>
+    <rqt_gui plugin="${prefix}/microstrain_inertial_rqt_common/plugin.xml"/>
   </export>
 
 </package>
