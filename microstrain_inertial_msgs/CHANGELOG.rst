@@ -2,6 +2,18 @@
 Changelog for package mscl_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.2.0 (2021-12-03)
+------------------
+* Adds set filter speed lever arm service definition to allow users to configure Measurement Speed Lever Arm at runtime with a service call
+* Adds Input Speed Measurement message
+* Contributors: robbiefish
+
+2.1.0 (2021-11-12)
+------------------
+
+2.0.5 (2021-10-19)
+------------------
+
 2.0.4 (2021-09-08)
 ------------------
 * Upgrade CMake version and removes unused include in examples

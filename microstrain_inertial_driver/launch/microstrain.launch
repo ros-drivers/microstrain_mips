@@ -8,6 +8,7 @@
   <!-- Declare arguments with default values -->
   <arg name="name"                   default = "gx5" />
   <arg name="port"                   default = "/dev/ttyACM0" />
+  <arg name="aux_port"               default = "/dev/ttyACM1" />
   <arg name="baudrate"               default = "115200" />
   <arg name="debug"                  default = "false" />
   <arg name="diagnostics"            default = "true" />
@@ -18,6 +19,7 @@
   <arg name="gnss2_frame_id"         default = "gnss2_antenna_wgs84" />
   <arg name="filter_frame_id"        default = "sensor_wgs84" />
   <arg name="filter_child_frame_id"  default = "sensor" />
+  <arg name="nmea_frame_id"          default = "nmea" />
   <arg name="use_enu_frame"          default = "false" />
 
   <!-- ****************************************************************** -->
@@ -30,8 +32,25 @@
     <!-- General Settings -->
     <!-- ****************************************************************** -->
 
+    <!-- port is the main port that the device will communicate over. For all devices except the GQ7, this is the only available port
+            aux_port is only available for the GQ7 and is only needed when streaming RTCM corrections to the device from ROS, or if you want to publish NMEA sentences from this node
+    -->
     <param name="port"     value="$(arg port)"     type="str" />
+    <param name="aux_port" value="$(arg aux_port)" type="str" />
     <param name="baudrate" value="$(arg baudrate)" type="int" />
+
+    <!-- Frame IDs used in the different messages. By default these are set to arbitrary strings as not to interfere with other ROS services.
+          For more information on common frame IDs, check out: https://www.ros.org/reps/rep-0105.html
+
+          filter_frame_id and filter_child_frame_id are specifically useful as the node will also publish a transform to the /tf topic
+          that contains the transform between these two frames. Many ROS tools such as RViz will use the /tf topic to display things like robot position.
+    -->
+    <param name="imu_frame_id"          value="$(arg imu_frame_id)"          type="str" />
+    <param name="gnss1_frame_id"        value="$(arg gnss1_frame_id)"        type="str" />
+    <param name="gnss2_frame_id"        value="$(arg gnss2_frame_id)"        type="str" />
+    <param name="filter_frame_id"       value="$(arg filter_frame_id)"       type="str" />
+    <param name="filter_child_frame_id" value="$(arg filter_child_frame_id)" type="str" />
+    <param name="nmea_frame_id"         value="$(arg nmea_frame_id)"         type="str" />
 
     <!-- Waits for a configurable amount of time until the device exists. -->
     <!-- If poll_max_tries is set to -1 we will poll forever until the device exists -->
@@ -105,7 +124,6 @@
 
     <param name="publish_imu"   value="true"                  type="bool" />
     <param name="imu_data_rate" value="$(arg imu_data_rate)"  type="int" />
-    <param name="imu_frame_id"  value="$(arg imu_frame_id)"   type="str" />
 
     <!-- Static IMU message covariance values (the device does not generate these) -->
     <!-- Since internally these are std::vector we need to use the rosparam tags -->
@@ -125,7 +143,6 @@
 
     <param name="publish_gnss1"   value="true"                  type="bool" />
     <param name="gnss1_data_rate" value="2"                     type="int" />
-    <param name="gnss1_frame_id"  value="$(arg gnss1_frame_id)" type="str" />
 
     <!-- Antenna #1 lever arm offset vector
          For GQ7 - in the vehicle frame wrt IMU origin (meters)
@@ -137,7 +154,6 @@
     <!-- GNSS2 settings are only applicable for multi-GNSS systems (e.g. GQ7) -->
     <param name="publish_gnss2"   value="true"                  type="bool" />
     <param name="gnss2_data_rate" value="2"                     type="int" />
-    <param name="gnss2_frame_id"  value="$(arg gnss2_frame_id)" type="str" />
 
     <!-- Antenna #2 lever arm offset vector (In the vehicle frame wrt IMU origin (meters) )-->
     <!--Note: Make this as accurate as possible for good performance -->
@@ -146,6 +162,13 @@
 
     <!-- (GQ7 Only) Enable RTK dongle interface -->
     <param name="rtk_dongle_enable" value="false"    type="bool" />
+
+    <!-- (GQ7 Only) Allow the user to send RTCM messages to this node, and stream those messages to the GQ7 -->
+    <param name="subscribe_rtcm" value="true"  type="bool" />
+    <param name="rtcm_topic"     value="/rtcm" type="str" />
+
+    <!-- (GQ7 Only) Send NMEA sentences from the aux port out on a ROS topic -->
+    <param name="publish_nmea" value="true"  type="bool" />
 
     <!-- ****************************************************************** -->
     <!-- Kalman Filter Settings (only applicable for devices with a Kalman Filter) -->
@@ -220,6 +243,15 @@
     <param name="filter_external_gps_time_topic"            value="/external_gps_time" type="str" />
     <param name="gps_leap_seconds"                          value="18" type="int" />
 
+    <!-- External Speed Control. This node will subscribe on this topic only if filter_enable_odometer_aiding is set to true
+         Notes: This subscription will be disabled if enable_hardware_odometer is set to true
+    -->
+    <param name="filter_external_speed_topic" value="/external_speed" />
+
+    <!-- Hardware Odometer Control -->
+    <param name="enable_hardware_odometer" value="false" />
+    <param name="odometer_scaling"         value="0.0" />
+    <param name="odometer_uncertainty"     value="0.0" />
 
     <!--  (GQ7 only) GPIO Configuration
           Notes:    For information on possible configurations and specific pin options,

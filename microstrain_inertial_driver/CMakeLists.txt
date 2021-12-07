@@ -30,7 +30,7 @@ endif()
 
 # Download and install MSCL
 include(${COMMON_DIR}/cmake/download_mscl.cmake)
-download_mscl(VERSION "62.0.0")
+download_mscl(VERSION "62.1.2")
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -40,6 +40,8 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   geometry_msgs
   nav_msgs
+  nmea_msgs
+  mavros_msgs
   roscpp
   sensor_msgs
   std_msgs
@@ -74,6 +76,8 @@ catkin_package(
     geometry_msgs
     sensor_msgs
     nav_msgs
+    nmea_msgs
+    mavros_msgs
     message_runtime
     microstrain_inertial_msgs
 )

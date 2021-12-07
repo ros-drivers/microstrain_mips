@@ -2,6 +2,30 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.2.0 (2021-12-03)
+------------------
+* Adds set filter speed lever arm service to allow users to configure Measurement Speed Lever Arm at runtime with a service call
+* Subscribes to external speed measurements
+* Adds ability to configure hardware odometer at config time by sending the Odometer Settings command based on launch config
+* Adds RTCM subscriber that will subscribe to RTCM corrections as mavros_msgs/RTCM messages and send them to the GQ7 through the aux port
+* Adds NMEA publisher that will read NMEA sentences from the GQ7 aux port and publish them as nmea_msgs/Sentence messages to a topic
+* Updates to use FACTORY_STREAMING_MERGE instead of manually casting the hex value when factory streaming is enabled
+* Updates udev rules to differentiate between main and aux ports
+* Contributors: ianmooreparker, robbiefish
+
+2.1.0 (2021-11-12)
+------------------
+* Adds transform broadcaster that will publish transform between filter_frame_id and filter_child_frame_id
+* Corrects some ENU conversions that were not being properly made
+* Properly disables/enables RTK dongle based on launch config
+* Publishes RTK data even when device_setup is set to false if the device was configured to send RTK data
+* Contributors: ianmooreparker, robbiefish
+
+2.0.5 (2021-10-19)
+------------------
+* Update MSCL version to fix ROS buildfarm errors hopefully
+* Contributors: robbiefish
+
 2.0.4 (2021-09-08)
 ------------------
 * Upgrade CMake version and removes unused include in examples
