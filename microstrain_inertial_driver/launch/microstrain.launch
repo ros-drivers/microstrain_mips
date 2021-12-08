@@ -174,10 +174,8 @@
     <!-- Kalman Filter Settings (only applicable for devices with a Kalman Filter) -->
     <!-- ****************************************************************** -->
 
-    <param name="publish_filter"        value="true"                         type="bool" />
-    <param name="filter_data_rate"      value="$(arg filter_data_rate)"      type="int" />
-    <param name="filter_frame_id"       value="$(arg filter_frame_id)"       type="str" />
-    <param name="filter_child_frame_id" value="$(arg filter_child_frame_id)" type="str" />
+    <param name="publish_filter"      value="true"                    type="bool" />
+    <param name="filter_data_rate"    value="$(arg filter_data_rate)" type="int" />
 
     <!-- Sensor2vehicle frame transformation selector
          0 = None, 1 = Euler Angles, 2 - matrix, 3 - quaternion
