@@ -2,8 +2,8 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.2.1 (2021-12-09)
+------------------
 * Defaults RTCM subscription and NMEA publisher to false
 * Contributors: robbiefish
 
