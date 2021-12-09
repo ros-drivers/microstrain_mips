@@ -2,6 +2,9 @@
 Changelog for package mscl_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.2.0 (2021-12-03)
 ------------------
 * Adds set filter speed lever arm service definition to allow users to configure Measurement Speed Lever Arm at runtime with a service call
