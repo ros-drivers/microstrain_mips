@@ -45,7 +45,7 @@ driver_image_name := $(driver_image_name_no_version):$(version)-$(ros_version)-$
 
 # All supported ROS versions, and architectures
 latest_tag := ros
-latest_ros_version := melodic
+latest_ros_version := noetic
 all_ros_version := melodic noetic
 all_arch := amd64 arm32v7 arm64v8
 
