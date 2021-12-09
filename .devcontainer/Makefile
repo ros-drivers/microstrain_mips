@@ -39,7 +39,7 @@ docker_org := microstrain
 driver_name := microstrain_inertial_driver
 driver_version := $(shell cat $(project_dir)/$(driver_name)/package.xml | grep -E '<version>.*</version>' | cut -d'>' -f2 | cut -d'<' -f1)
 driver_dockerfile := $(docker_dir)/Dockerfile.driver
-driver_image_artifact := $(artifacts_dir)/.image-driver
+driver_image_artifact := $(artifacts_dir)/.image-$(version)-driver
 driver_image_name_no_version := $(docker_org)/ros-$(driver_name)
 driver_image_name := $(driver_image_name_no_version):$(version)-$(ros_version)-$(arch)
 
