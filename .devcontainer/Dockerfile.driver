@@ -83,5 +83,8 @@ RUN set -ex \
         microstrain
 USER microstrain
 
+# Users can override this file to a different launch file if they want
+ENV MICROSTRAIN_LAUNCH_FILE "/opt/ros/${DOCKER_ROS_VERSION}/share/microstrain_inertial_driver/launch/microstrain.launch"
+
 # Set the entrypoint to the launch file to allow the CMD to override launch params
-ENTRYPOINT ["/bin/bash", "-c", "source /opt/ros/${DOCKER_ROS_VERSION}/setup.bash && roslaunch microstrain_inertial_driver microstrain.launch"]
+ENTRYPOINT ["/bin/bash", "-c", "source /opt/ros/${DOCKER_ROS_VERSION}/setup.bash && roslaunch ${MICROSTRAIN_LAUNCH_FILE}"]
