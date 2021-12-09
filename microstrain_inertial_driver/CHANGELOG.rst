@@ -2,6 +2,11 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.2.1 (2021-12-09)
+------------------
+* Defaults RTCM subscription and NMEA publisher to false
+* Contributors: robbiefish
+
 2.2.0 (2021-12-03)
 ------------------
 * Adds set filter speed lever arm service to allow users to configure Measurement Speed Lever Arm at runtime with a service call
