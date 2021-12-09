@@ -33,7 +33,12 @@ Due to requirements laid out by the ROS maintainers [here](https://www.ros.org/r
 * `microstrain_inertial_msgs` -- Collection of messages produces by the `microstrain_inertial_driver` node
 * `microstrain_inretial_examples` -- Collection of examples that show how to interact with the `microstrain_inertial_driver` node. Currently contains one simple C++ and python subscriber node
 
-## Build Instructions
+## Install Instructions
+
+### Docker
+
+As of `v2.2.2` the `microstrain_inertial_driver` is distributed as a docker image. More information on how to use the image can be found on [DockerHub](https://hub.docker.com/r/microstrain/ros-microstrain_inertial_driver)
+
 
 ### Buildfarm
 
@@ -109,11 +114,11 @@ This will launch two nodes that publish data to different namespaces:
 An example subscriber node can be found here: [Microstrain Examples](./microstrain_inertial_examples)  
 
 
-## Docker Integration
+## Docker Development
 
 ### VSCode
 
-The easiest way to use docker while still using an IDE is to use VSCode as an IDE. Follow the steps below to develop on this repo in a docker container
+The easiest way to develop in docker while still using an IDE is to use VSCode as an IDE. Follow the steps below to develop on this repo in a docker container
 
 1. Install the following dependencies:
     1. [VSCode](https://code.visualstudio.com/)
@@ -128,8 +133,8 @@ The easiest way to use docker while still using an IDE is to use VSCode as an ID
 
 ### Make
 
-If you are comfortable working from the command line, or want to produce runtime images, the [Makefile](./devcontainer/Makefile) in the [.devcontainer](./devcontainer) directory
-can be used to build docker images, run a shell inside the docker images and produce a runtime image. Follow the steps below to setup your environment to use the `Makefile`
+If you are comfortable working from the command line, or want to produce your own runtime images, the [Makefile](./devcontainer/Makefile) in the [.devcontainer](./devcontainer) 
+directory can be used to build docker images, run a shell inside the docker images and produce a runtime image. Follow the steps below to setup your environment to use the `Makefile`
 
 1. Install the following dependencies:
     1. [Make](https://www.gnu.org/software/make/)
@@ -138,8 +143,8 @@ can be used to build docker images, run a shell inside the docker images and pro
         1. Run the following command to register the qemu binaries with docker: `docker run --rm --privileged multiarch/qemu-user-static:register`
 
 The `Makefile` exposes the following tasks. They can all be run from the `.devcontainer` directory:
-* `make build-shell` - Builds the docker image and starts a shell session in the image allowing the user to develop and build the ROS project using common commands such as `catkin_make`
-* `make image` - Builds the runtim image that contains only the required dependencies and the ROS node. The resulting image is names `ros-mscl`
+* `make build-shell` - Builds the development docker image and starts a shell session in the image allowing the user to develop and build the ROS project using common commands such as `catkin_make`
+* `make image` - Builds the runtime image that contains only the required dependencies and the ROS node.
 * `make clean` - Cleans up after the above two tasks
 
 ## License
