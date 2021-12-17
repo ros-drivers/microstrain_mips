@@ -143,7 +143,14 @@ The `Makefile` exposes the following tasks. They can all be run from the `.devco
 * `make clean` - Cleans up after the above two tasks
 
 ## License
-microstrain_inertial is released under the MIT License - see the `LICENSE` file in the source distribution.
 
-Copyright (c)  2021, Parker Hannifin Corp.
+Different packages in this repo are releasd under different licenses. For more information, see the LICENSE files in each of the package directories.
 
+Here is a quick overview of the licenses used in each package:
+
+| Package                                                                  | License |
+| ------------------------------------------------------------------------ | ------- |
+| [microstrain_inertial_driver](./microstrain_inertial_driver/LICENSE)     | MIT     |
+| [microstrain_inertial_msgs](./microstrain_inertial_msgs/LICENSE)         | MIT     |
+| [microstrain_inertial_rqt](./microstrain_inertial_rqt/LICENSE)           | BSD     |
+| [microstrain_inertial_examples](./microstrain_inertial_examples/LICENSE) | MIT     |
