@@ -164,11 +164,11 @@
     <param name="rtk_dongle_enable" value="false"    type="bool" />
 
     <!-- (GQ7 Only) Allow the user to send RTCM messages to this node, and stream those messages to the GQ7 -->
-    <param name="subscribe_rtcm" value="true"  type="bool" />
+    <param name="subscribe_rtcm" value="false"  type="bool" />
     <param name="rtcm_topic"     value="/rtcm" type="str" />
 
     <!-- (GQ7 Only) Send NMEA sentences from the aux port out on a ROS topic -->
-    <param name="publish_nmea" value="true"  type="bool" />
+    <param name="publish_nmea" value="false"  type="bool" />
 
     <!-- ****************************************************************** -->
     <!-- Kalman Filter Settings (only applicable for devices with a Kalman Filter) -->
