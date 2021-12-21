@@ -33,7 +33,7 @@ Due to requirements laid out by the ROS maintainers [here](https://www.ros.org/r
 * `microstrain_inertial_driver` -- ROS node that will communicate with the devices
 * `microstrain_inertial_msgs` -- Collection of messages produces by the `microstrain_inertial_driver` node
 * `microstrain_inretial_examples` -- Collection of examples that show how to interact with the `microstrain_inertial_driver` node. Currently contains one simple C++ and python subscriber node
-* `microstrain_inertial_rqt` -- Cololection of RQT plugins to view the status of inertial devices when running the `microstrain_inertial_driver`
+* `microstrain_inertial_rqt` -- Collection of RQT plugins to view the status of inertial devices when running the `microstrain_inertial_driver`
 
 ## Build Instructions
 
