@@ -19,6 +19,7 @@ Both the `ros` and `ros2` branches share most of their code by using gis submodu
 
 * [microstrain_inertial_driver_common](https://github.com/LORD-MicroStrain/microstrain_inertial_driver_common/tree/main) submoduled in this repo at `microstrain_inertial_driver/microstrain_inertial_driver_common`
 * [microstrain_inertial_msgs_common](https://github.com/LORD-MicroStrain/microstrain_inertial_msgs_common/tree/main) submoduled in this repo at `microstrain_inertial_msgs/microstrain_inertial_msgs_common`
+* [microstrain_inertial_rqt_common](https://github.com/LORD-MicroStrain/microstrain_inertial_rqt_common/tree/main) submoduled in this repo at `microstrain_inertial_rqt/microstrain_inertial_rqt_common`
 
 #### Different Package Names
 
@@ -32,6 +33,7 @@ Due to requirements laid out by the ROS maintainers [here](https://www.ros.org/r
 * `microstrain_inertial_driver` -- ROS node that will communicate with the devices
 * `microstrain_inertial_msgs` -- Collection of messages produces by the `microstrain_inertial_driver` node
 * `microstrain_inretial_examples` -- Collection of examples that show how to interact with the `microstrain_inertial_driver` node. Currently contains one simple C++ and python subscriber node
+* `microstrain_inertial_rqt` -- Cololection of RQT plugins to view the status of inertial devices when running the `microstrain_inertial_driver`
 
 ## Build Instructions
 
@@ -39,8 +41,14 @@ Due to requirements laid out by the ROS maintainers [here](https://www.ros.org/r
 
 As of `v2.0.5` this package is being built and distributed by the ROS build farm. If you do not need to modify the source, it is recommended to install directly from the buildfarm by running the following commands where `ROS_DISTRO` is the version of ROS you are using such as `melodic` or `noetic`:
 
+Driver:
 ```bash
 sudo apt-get update && sudo apt-get install ros-ROS_DISTRO-microstrain-inertial-driver
+```
+
+RQT:
+```bash
+sudo apt-get update && sudo apt-get install ros-ROS_DISTRO-microstrain-inertial-rqt
 ```
 
 For more information on the ROS distros and platforms we support, please see [index.ros.org](https://index.ros.org/r/microstrain_inertial/github-LORD-MicroStrain-microstrain_inertial/#noetic)
