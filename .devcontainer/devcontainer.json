@@ -14,7 +14,8 @@
         "ms-iot.vscode-ros",
         "ms-vscode.cpptools",
         "ms-python.python",
-        "ms-vscode.cmake-tools"
+        "ms-vscode.cmake-tools",
+        "ms-vscode.cpptools-extension-pack"
     ],
     "containerUser": "root",
     "remoteUser": "microstrain",

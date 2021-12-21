@@ -1,4 +1,4 @@
-.PHONY: all build build-shell clean
+.PHONY: all image build build-shell deploy-tag deploy-latest _deploy clean
 
 # These variables should be overridden in CI builds to configure this build
 version ?= latest
@@ -28,23 +28,83 @@ group_id := $(shell id -g)
 
 # Set up some variables for the docker build
 dev_dockerfile := $(docker_dir)/Dockerfile.dev
-deploy_dockerfile := $(docker_dir)/Dockerfile.deploy
 build_args := --build-arg http_proxy --build-arg https_proxy --build-arg no_proxy --build-arg ARCH=$(arch) --build-arg ROS_VERSION=$(ros_version) --build-arg USER_ID=$(user_id) --build-arg GROUP_ID=$(group_id)
 run_args := -e http_proxy -e https_proxy -e no_proxy
 run_mounts := -v "$(project_dir):$(docker_catkin_src_dir)" -v "$(build_dir):$(docker_catkin_build_dir)" -v "$(devel_dir):$(docker_catkin_devel_dir)"
 dev_image_name := $(arch)/$(project_name)-dev:$(ros_version)
-deploy_image_name := $(arch)/$(project_name):$(ros_version)
-dev_image_artifact := $(artifacts_dir)/.image
+dev_image_artifact := $(artifacts_dir)/.dev-image
+
+# Runtime image stuff
+docker_org := microstrain
+driver_name := microstrain_inertial_driver
+driver_version := $(shell cat $(project_dir)/$(driver_name)/package.xml | grep -E '<version>.*</version>' | cut -d'>' -f2 | cut -d'<' -f1)
+driver_dockerfile := $(docker_dir)/Dockerfile.driver
+driver_image_artifact := $(artifacts_dir)/.image-$(version)-driver
+driver_image_name_no_version := $(docker_org)/ros-$(driver_name)
+driver_image_name := $(driver_image_name_no_version):$(version)-$(ros_version)-$(arch)
+
+# All supported ROS versions, and architectures
+latest_tag := ros
+latest_ros_version := noetic
+all_ros_version := melodic noetic
+all_arch := amd64 arm32v7 arm64v8
 
 all: image
 
-image: $(dev_image_artifact) $(deploy_dockerfile)
+# Meant to be called on "tags" of this repo to create versioned images
+deploy-tag:
+	$(MAKE) --no-print-directory docker=$(docker) version=$(driver_version) _deploy
+
+# Meant to be called on the "ros" branch every time it is pushed to to create "latest" images
+deploy-latest:
+	$(MAKE) --no-print-directory docker=$(docker) version=latest _deploy
+	@latest_manifest_flags=""; \
+	for arch in $(all_arch); do \
+		# Keep track of all the image names so we can make a manifest later \
+		image_name="$$($(MAKE) --no-print-directory version=latest docker=$(docker) arch=$${arch} ros_version=$(latest_ros_version) driver-image-name)"; \
+		latest_manifest_flags="$${latest_manifest_flags} --amend $${image_name}"; \
+	done || exit 1; \
+	\
+	# Tag the latest ROS version to the latest tag \
+	latest_tagged_image="$(driver_image_name_no_version):$(latest_tag)"; \
+	$(docker) manifest create "$${latest_tagged_image}" $${latest_manifest_flags}; \
+	$(docker) manifest push "$${latest_tagged_image}";
+
+# Abstract deploy task meant to be called by the above tasks, not manually
+_deploy:
+	@for ros_version in $(all_ros_version); do \
+		driver_manifest_flags=""; \
+		for arch in $(all_arch); do \
+			# Keep track of all the image names so we can make a manifest later \
+			image_name="$$($(MAKE) --no-print-directory version=$(version) docker=$(docker) arch=$${arch} ros_version=$${ros_version} driver-image-name)"; \
+			\
+			# Build the image, and add it's name to a list so we can make the manifest \
+			$(MAKE) --no-print-directory version=$(version) docker=$(docker) arch=$${arch} ros_version=$${ros_version} image || exit 1; \
+			driver_manifest_flags="$${driver_manifest_flags} --amend $${image_name}"; \
+			\
+			# Push the image to dockerhub. This requires you to be logged in \
+			$(docker) push $${image_name} || exit 1; \
+		done || exit 1; \
+		\
+		# Create the manifest and push it \
+		driver_manifest_name="$(driver_image_name_no_version):$(version)-$${ros_version}"; \
+		$(docker) manifest create "$${driver_manifest_name}" $${driver_manifest_flags} || exit 1; \
+		$(docker) manifest push "$${driver_manifest_name}" || exit 1; \
+	done || exit 1;
+
+image: $(driver_image_artifact)
+
+driver-image-name:
+	@echo $(driver_image_name)
+
+$(driver_image_artifact): $(driver_dockerfile) $(dev_image_artifact) | $(dir_deps)
 	@$(docker) build \
 		--build-arg DEV_IMAGE="$(dev_image_name)" \
-		-t $(deploy_image_name) \
-		-f $(deploy_dockerfile) \
+		-t $(driver_image_name) \
+		-f $(driver_dockerfile) \
 		$(build_args) \
 		$(project_dir)
+	@echo $(driver_image_name) > $@
 
 $(dev_image_artifact): $(dev_dockerfile) | $(dir_deps)
 	@$(docker) build \
