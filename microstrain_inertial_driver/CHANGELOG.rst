@@ -2,8 +2,8 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.3.0 (2021-12-22)
+------------------
 * BREAKING: Updates device_report_service to return the device information instead of just printing it
 * Publishes Aiding Measurement Summary messages to topic nav/aiding_summary
 * Publishes Fix Info messages to topic gnss1/fix_info and gnss2/fix_info
