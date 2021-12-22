@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>microstrain_inertial_rqt</name>
+  <version>2.2.1</version>
+  <description>The microstrain_inertial_rqt package provides several RQT widgets to view the status of Microstrain devices</description>
+
+  <author>Parker Hannifin Corp</author>
+
+  <maintainer email="rob.fisher@parker.com">Rob Fisher</maintainer>
+  <maintainer email="melissa.gill@parker.com">Melissa Gill</maintainer>
+
+  <license>BSD</license>
+
+  <url type="website">https://github.com/LORD-MicroStrain/microstrain_inertial</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>rospy</depend>
+  <depend>tf</depend>
+  <depend>rqt_gui</depend>
+  <depend>rqt_gui_py</depend>
+  <depend>std_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>microstrain_inertial_msgs</depend>
+
+  <!-- all the existing tags -->
+  <export>
+    <rqt_gui plugin="${prefix}/microstrain_inertial_rqt_common/plugin.xml"/>
+  </export>
+
+</package>

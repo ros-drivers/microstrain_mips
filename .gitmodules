@@ -4,3 +4,6 @@
 [submodule "microstrain_inertial_driver/microstrain_inertial_driver_common"]
 	path = microstrain_inertial_driver/microstrain_inertial_driver_common
 	url = https://github.com/LORD-MicroStrain/microstrain_inertial_driver_common.git
+[submodule "microstrain_inertial_rqt/microstrain_inertial_rqt_common"]
+	path = microstrain_inertial_rqt/microstrain_inertial_rqt_common
+	url = https://github.com/LORD-MicroStrain/microstrain_inertial_rqt_common.git
