@@ -2,6 +2,14 @@
 Changelog for package mscl_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* BREAKING: Updates DeviceReport.srv to return the device report instead of just printing it
+* Adds Fix Info message
+* Adds Aiding Measurement Summary message
+* Updates license files to be accurate for each package
+* Contributors: robbiefish
+
 2.2.1 (2021-12-09)
 ------------------
 

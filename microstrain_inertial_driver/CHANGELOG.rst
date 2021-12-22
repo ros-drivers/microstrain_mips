@@ -2,6 +2,13 @@
 Changelog for package ros_mscl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* BREAKING: Updates device_report_service to return the device information instead of just printing it
+* Publishes Aiding Measurement Summary messages to topic nav/aiding_summary
+* Publishes Fix Info messages to topic gnss1/fix_info and gnss2/fix_info
+* Contributors: robbiefish
+
 2.2.1 (2021-12-09)
 ------------------
 * Defaults RTCM subscription and NMEA publisher to false
