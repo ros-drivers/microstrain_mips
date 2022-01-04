@@ -1,10 +1,10 @@
-name: ROS Bloom Release
+name: ROS2 Bloom Release
 
 on:
   push:
     tags:
-      # ROS versions follow semantic versioning
-      - 'ros2-[0-9]+.[0-9]+.[0-9]+'
+      # ROS2 versions follow semantic versioning
+      - 'ros2-*'
 
 jobs:
   release:
