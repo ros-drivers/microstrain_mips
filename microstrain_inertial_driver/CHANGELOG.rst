@@ -2,8 +2,8 @@
 Changelog for package microstrain_inertial_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.4.0 (2022-01-05)
+------------------
 * BREAKING: Changes default namespace from /gx5 to / which is more generic to all usecases as customers are often not using a gx5 device
 * BREAKING: Changes the name argument to namespace which is more descriptive of what it was doing
 * Moves most launch file parameters to yml file and allows user to override all default parameters by specifying a different yml file via the params_file argument
