@@ -2,8 +2,8 @@
 Changelog for package microstrain_inertial_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.4.1 (2022-01-06)
+------------------
 * Deprecated args will no longer override params_file unless actually used
 * Contributors: robbiefish
 
