@@ -2,6 +2,11 @@
 Changelog for package microstrain_inertial_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Deprecated args will no longer override params_file unless actually used
+* Contributors: robbiefish
+
 2.4.0 (2022-01-05)
 ------------------
 * BREAKING: Changes default namespace from /gx5 to / which is more generic to all usecases as customers are often not using a gx5 device

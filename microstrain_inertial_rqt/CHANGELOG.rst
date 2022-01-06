@@ -2,6 +2,9 @@
 Changelog for package microstrain_inertial_rqt
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+
 2.4.0 (2022-01-05)
 ------------------
 
