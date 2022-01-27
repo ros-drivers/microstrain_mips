@@ -2,8 +2,8 @@
 Changelog for package microstrain_inertial_msgs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.5.0 (2022-01-27)
+------------------
 * Added RTK v2 support
 * Fixed submodule initialization
 * Contributors: dacuster, robbiefish

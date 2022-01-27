@@ -2,8 +2,8 @@
 Changelog for package microstrain_inertial_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.5.0 (2022-01-27)
+------------------
 * Only attempts to publish GNSS aiding status if the pointer has been initialized
 * Added RTK v2 support
   * Upgraded to MSCL 63.1.0
