@@ -2,6 +2,16 @@
 Changelog for package microstrain_inertial_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Only attempts to publish GNSS aiding status if the pointer has been initialized
+* Added RTK v2 support
+  * Upgraded to MSCL 63.1.0
+* Adds ability to use ROS time when populating messages
+* Fixes "does not support" logs
+* Fixed submodule initialization
+* Contributors: dacuster, robbiefish
+
 2.4.1 (2022-01-06)
 ------------------
 * Deprecated args will no longer override params_file unless actually used

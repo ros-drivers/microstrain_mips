@@ -2,6 +2,13 @@
 Changelog for package microstrain_inertial_rqt
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added RTK v2 support
+  * Changed quickview default namespace from gx5 to 'empty'
+* Fixed submodule initialization
+* Contributors: dacuster, robbiefish
+
 2.4.1 (2022-01-06)
 ------------------
 
