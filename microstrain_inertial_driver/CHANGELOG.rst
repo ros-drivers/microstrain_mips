@@ -2,8 +2,8 @@
 Changelog for package microstrain_inertial_driver
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.5.1 (2022-02-15)
+------------------
 * Configures GNSS Antenna offset even if publish_gnss* is False (`#124 <https://github.com/LORD-MicroStrain/microstrain_inertial/issues/124>`_)
 * Contributors: robbiefish
 
