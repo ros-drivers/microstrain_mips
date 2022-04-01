@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
 {
  u32 com_port, baudrate;
  base_device_info_field device_info;
- u8  temp_string[20] = {0};
+ u8  temp_string[22] = {0};
  u32 bit_result;
  u8  enable = 1;
  u8  data_stream_format_descriptors[10];
