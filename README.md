@@ -31,7 +31,7 @@ Prior to version `2.0.0`, this repo contained the following ROS packages:
 
 Due to requirements laid out by the ROS maintainers [here](https://www.ros.org/reps/rep-0144.html), as of version `2.0.0`, this repo contains the following ROS packages:
 * `microstrain_inertial_driver` -- ROS node that will communicate with the devices
-* `microstrain_inertial_msgs` -- Collection of messages produces by the `microstrain_inertial_driver` node
+* `microstrain_inertial_msgs` -- Collection of messages produced by the `microstrain_inertial_driver` node
 * `microstrain_inretial_examples` -- Collection of examples that show how to interact with the `microstrain_inertial_driver` node. Currently contains one simple C++ and python subscriber node
 * `microstrain_inertial_rqt` -- Collection of RQT plugins to view the status of inertial devices when running the `microstrain_inertial_driver`
 
