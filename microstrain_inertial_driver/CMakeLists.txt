@@ -85,7 +85,7 @@ catkin_package(
 include_directories(${catkin_INCLUDE_DIRS} include ${COMMON_DIR}/include)
 
 # Set some general CMake flags
-add_definitions(-std=c++11)
+add_definitions(-std=c++17)
 set(CMAKE_C_FLAGS "-Wno-implicit-function-declaration -Wno-incompatible-pointer-types -Wno-format -fno-builtin-memcpy")
 
 set(LIB_SRC_FILES
@@ -181,7 +181,7 @@ install(FILES ${BOOST_LIBS} ${MSCL_DIR}/libmscl.so
 #############
 
 # build/c++11 and whitespace/braces only trip on the buildfarm which is melodic, maybe it's not needed in noetic?
-set(ROSLINT_CPP_OPTS "--filter=-whitespace/line_length,-runtime/references,-readability/fn_size,-whitespace/parens,-build/c++11,-whitespace/braces")
+set(ROSLINT_CPP_OPTS "--filter=-whitespace/line_length,-runtime/references,-readability/fn_size,-whitespace/parens,-build/c++17,-whitespace/braces")
 roslint_cpp()
 
 roslint_add_test()
